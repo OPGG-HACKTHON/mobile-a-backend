@@ -23,7 +23,7 @@ export class App {
   async start(port: number): Promise<void> {
     this.bulidServer();
     await this.server?.start();
-    this.middlewares();
+    this.server?.applyMiddleware({ app: this.express });
     this.httpServer?.listen(port);
   }
 
@@ -45,9 +45,5 @@ export class App {
 
   private buildHttpServer(): void {
     this.httpServer = createServer(this.express);
-  }
-
-  private middlewares(): void {
-    this.server?.applyMiddleware({ app: this.express });
   }
 }
