@@ -1,26 +1,14 @@
-import {
-  ApolloServerPluginLandingPageProductionDefault,
-  ApolloServerPluginLandingPageLocalDefault,
-} from "apollo-server-core";
-import { schemas } from "./graphql";
-import { ApolloServer } from "apollo-server-express";
-import { App } from "./App";
+import { App } from './App';
 
-const server = new ApolloServer({
-  schema: schemas,
-  plugins: [
-    process.env.NODE_ENV === "production"
-      ? ApolloServerPluginLandingPageProductionDefault({ footer: false })
-      : ApolloServerPluginLandingPageLocalDefault({ footer: false }),
-  ],
-});
-const app = new App(server);
-
+const app = new App();
+const PORT = 4000;
 (async () => {
-  await app.start();
-
-  const PORT = 4000;
-  app.httpServer.listen(PORT, () =>
-    console.log(`Server is now running on http://localhost:${PORT}/graphql`)
-  );
-})();
+  await app.start(PORT);
+})()
+  .then(() => {
+    console.log(`Server is running on ${PORT} port!!`);
+  })
+  .catch((error) => {
+    console.error(error);
+    process.exit(9);
+  });

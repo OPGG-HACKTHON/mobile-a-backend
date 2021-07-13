@@ -1,27 +1,53 @@
-import express, { Application } from "express";
-import { createServer, Server } from "http";
-import { ApolloServer } from "apollo-server-express";
+import { createServer, Server } from 'http';
+import {
+  ApolloServerPluginLandingPageProductionDefault,
+  ApolloServerPluginLandingPageLocalDefault,
+} from 'apollo-server-core';
+import { ApolloServer } from 'apollo-server-express';
+import express, { Application } from 'express';
+import { schemas } from './graphql';
 
 export class App {
   express: Application;
-  server: ApolloServer;
-  httpServer: Server;
-  constructor(server: ApolloServer) {
+  server?: ApolloServer;
+  httpServer?: Server;
+  constructor() {
     this.express = express();
-    this.initExpress();
+    this.configExpress();
+  }
+
+  private configExpress(): void {
+    console.log('todo init express');
+  }
+
+  async start(port: number): Promise<void> {
+    this.bulidServer();
+    await this.server?.start();
+    this.middlewares();
+    this.httpServer?.listen(port);
+  }
+
+  private bulidServer(): void {
+    this.buildApolloServer();
+    this.buildHttpServer();
+  }
+
+  private buildApolloServer(): void {
+    this.server = new ApolloServer({
+      schema: schemas,
+      plugins: [
+        process.env.NODE_ENV === 'production'
+          ? ApolloServerPluginLandingPageProductionDefault({ footer: false })
+          : ApolloServerPluginLandingPageLocalDefault({ footer: false }),
+      ],
+    });
+  }
+
+  private buildHttpServer(): void {
     this.httpServer = createServer(this.express);
-    this.server = server;
   }
 
-  async start() {
-    await this.server.start();
-    this.applyMiddleware();
-  }
-
-  initExpress() {}
-
-  applyMiddleware() {
-    const app = this.express;
-    this.server.applyMiddleware({ app });
+  private middlewares(): void {
+    this.server?.applyMiddleware({ app: this.express });
   }
 }

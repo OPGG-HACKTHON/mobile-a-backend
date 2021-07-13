@@ -1,5 +1,5 @@
-import { gql } from "apollo-server";
-import { makeExecutableSchema } from "graphql-tools";
+import { gql } from 'apollo-server';
+import { makeExecutableSchema } from 'graphql-tools';
 
 const typeDefs = gql`
   type Query {
@@ -13,10 +13,10 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
-    _empty: () => "_empty",
+    _empty: () => '_empty',
   },
   Mutation: {
-    _empty: () => "_empty",
+    _empty: () => '_empty',
   },
 };
 
