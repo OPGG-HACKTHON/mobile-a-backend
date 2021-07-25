@@ -1,19 +1,16 @@
 {
   "compilerOptions": {
-    /* Basic Options */
-    "target": "es2020",
     "module": "commonjs",
-    "lib": ["es2020"],
-    "allowJs": true /* Allow javascript files to be compiled. */,
-
-    /* Strict Type-Checking Options */
-    "strict": true /* Enable all strict type-checking options. */,
-
-    /* Module Resolution Options */
-    "esModuleInterop": true,
-
-    /* Advanced Options */
-    "skipLibCheck": true /* Skip type checking of declaration files. */,
-    "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "es2017",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true
   }
 }

@@ -1,21 +1,34 @@
-.vscode
+# compiled output
+/dist
+/node_modules
 
-# Coverage reports
-coverage
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
 
-# API keys and secrets
-.env
-
-# Dependency directory
-node_modules
-
-# Editors
-.idea
-*.iml
-
-# OS metadata
+# OS
 .DS_Store
-Thumbs.db
 
-# Ignore built ts files
-dist/**/*
+# Tests
+/coverage
+/.nyc_output
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
