@@ -9,15 +9,15 @@ import {
 import { RankService } from './rank.service';
 
 @ApiTags('Rank')
-@Controller('/api')
+@Controller('rank')
 export class RankController {
   constructor(private readonly rankService: RankService) {}
 
-  @Post('/rank')
-  @ApiOkResponse({ description: '유저 로그인' })
+  @Get()
+  @ApiOkResponse({ description: '랭킹 가져오기 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   @ApiBody({ type: String })
-  rank(): string {
+  getRank(): string {
     return this.rankService.getRank();
   }
 }

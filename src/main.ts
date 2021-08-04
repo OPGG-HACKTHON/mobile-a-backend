@@ -8,7 +8,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('OPGG_A API DOCS')
     .setDescription('OPGG 모바일 A팀 API 문서입니다.')
-    .setVersion('0.0.1')
+    .setVersion('1.0.0')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'Token' },
       'access-token',

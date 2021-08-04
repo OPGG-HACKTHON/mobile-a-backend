@@ -8,6 +8,7 @@ import {
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { LoginDto } from 'src/dtos/login.dto';
+import { SignupDto } from 'src/dtos/signup.dto';
 
 @ApiTags('User')
 @Controller('user')
@@ -25,7 +26,7 @@ export class UserController {
   @Post('/signup')
   @ApiOkResponse({ description: '회원가입 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  @ApiBody({ type: String })
+  @ApiBody({ type: SignupDto })
   signup(): string {
     return this.userService.signup();
   }

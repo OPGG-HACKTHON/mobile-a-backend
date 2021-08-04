@@ -17,7 +17,7 @@ export class MainController {
   @ApiOkResponse({ description: '메인 뷰 조회 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   @ApiBody({ type: String })
-  main(): string {
+  getData(): string {
     return this.mainService.getUserInfo();
   }
 }
