@@ -7,12 +7,12 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { LoginDto } from 'src/dtos/login.dto';
-import { SignupDto } from 'src/dtos/signup.dto';
-import { UpdateDataDto } from 'src/dtos/updateData.dto';
+import { LoginDto } from 'src/common/dto/login.dto';
+import { SignupDto } from 'src/common/dto/signup.dto';
+import { UpdateDataDto } from 'src/common/dto/updateData.dto';
 
 @ApiTags('User')
-@Controller('/users')
+@Controller('api/users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

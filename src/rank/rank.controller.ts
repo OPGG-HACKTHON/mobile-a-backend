@@ -9,7 +9,7 @@ import {
 import { RankService } from './rank.service';
 
 @ApiTags('Rank')
-@Controller('ranks')
+@Controller('api/ranks')
 export class RankController {
   constructor(private readonly rankService: RankService) {}
 

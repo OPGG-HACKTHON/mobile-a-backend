@@ -6,11 +6,11 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { SearchUserDto } from 'src/dtos/searchUser.dto';
+import { SearchUserDto } from 'src/common/dto/searchUser.dto';
 import { BattleService } from './battle.service';
-import { RequestChallengeDto } from 'src/dtos/requestChallenge.dto';
+import { RequestChallengeDto } from 'src/common/dto/requestChallenge.dto';
 @ApiTags('Battle')
-@Controller('battles')
+@Controller('api/battles')
 export class BattleController {
   constructor(private readonly battleService: BattleService) {}
 
