@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class RequestChallengeDto {
   @ApiProperty()
-  public lol_nickname: string;
+  public lolNickname: string;
 
   @ApiProperty()
   public date: Date;

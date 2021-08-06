@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateDataDto {
   @ApiProperty()
-  public lol_nickname?: string;
+  public lolNickname?: string;
 
   @ApiProperty()
   public school?: string;

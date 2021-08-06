@@ -5,7 +5,7 @@ export class LoginDto {
   public email: string;
 
   @ApiProperty()
-  public lol_nickname: string;
+  public lolNickname: string;
 
   @ApiProperty()
   public school: string;
