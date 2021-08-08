@@ -1,0 +1,14 @@
+name: Node.js CD
+
+on: workflow_dispatch
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: teset manual echo run
+      run: echo "running mannual"
+
