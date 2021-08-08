@@ -1,12 +1,10 @@
 name: Node.js CD
 
-on: [push, pull_request, workflow_dispatch]
+on: [workflow_dispatch, push, pull_request]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: teset manual echo run
