@@ -1,16 +1,6 @@
 name: Node.js CD
 
-on:
-  workflow_dispatch:
-    inputs:
-      name:
-        description: 'Person to greet'
-        required: true
-        default: 'Mona the Octocat'
-      home:
-        description: 'location'
-        required: false
-        default: 'The Octoverse'
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
   build:
