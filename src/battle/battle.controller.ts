@@ -6,7 +6,6 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { SearchUserDto } from 'src/common/dto/searchUser.dto';
 import { BattleService } from './battle.service';
 import { RequestChallengeDto } from 'src/common/dto/requestChallenge.dto';
 @ApiTags('Battle')

@@ -7,37 +7,57 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { LoginDto } from 'src/common/dto/login.dto';
-import { SignupDto } from 'src/common/dto/signup.dto';
-import { UpdateDataDto } from 'src/common/dto/updateData.dto';
 
 @ApiTags('User')
-@Controller('api/users')
+@Controller('/users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  // api/users
+  // /users
   @Get('')
   @ApiOkResponse({ description: '유저 데이터 조회 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  userInfo() {
+  getUserInfo() {
     return 'get user info';
   }
 
-  // api/users/:id
+  // /users/:id
   @Get('/:id')
   @ApiOkResponse({ description: '특정 유저 데이터 조회 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  partialUserInfo(@Param('id') userId: number) {
+  getPartialUserInfo(@Param('id') userId: number) {
     return 'get partial user info';
   }
 
-  // api/users/:id
-  @Patch('/:id')
-  @ApiOkResponse({ description: '유저 정보 수정 성공' })
+  // /users/:id/lolNickname
+  @Patch('/:id/lolNickname')
+  @ApiOkResponse({ description: '유저 롤 닉네임 수정 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  @ApiBody({ type: UpdateDataDto })
-  nickname(@Param('id') userId: number, @Body() updateData) {
-    return 'edit user info';
+  editLolNickname(@Param('id') userId: number, @Body() updateData) {
+    return 'edit user lolNickname';
+  }
+
+  // /users/:id/school
+  @Patch('/:id/school')
+  @ApiOkResponse({ description: '유저 소속 학교 수정 성공' })
+  @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  editSchool(@Param('id') userId: number, @Body() updateData) {
+    return 'edit user school';
+  }
+
+  // /users/:id/title
+  @Get('/:id/title')
+  @ApiOkResponse({ description: '유저 타이틀 히스토리 조회 성공' })
+  @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  getTitleHistory(@Param('id') userId: number) {
+    return 'get user title history';
+  }
+
+  // /users/:id/title
+  @Patch('/:id/title')
+  @ApiOkResponse({ description: '유저 타이틀 수정 성공' })
+  @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  editTitle(@Param('id') userId: number, @Body() updateData) {
+    return 'edit user title';
   }
 }
