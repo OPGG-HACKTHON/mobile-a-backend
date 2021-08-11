@@ -1,3 +1,41 @@
+
+## Docker setup
+
+```bash
+# postgresql - 추가사항 : AWS Aurora PostgreSQL LTS version 11.9.
+docker run --name mobile-a-postgres -e POSTGRES_PASSWORD=postgresmobilea -e POSTGRES_USER=postgresmobilea -e POSTGRES_DB=mobilea -p 5432:5432 -d postgres:11.9
+```
+
+## Prisma 사용법
+
+```bash
+# # #
+# Generate
+# prisma client 라이브러리 사용시 데이터 정의 Lib
+# prisma Client 사용중 model 이 정의되지 않을때 사용
+# 보통은 prisma 관련명령어시 동작하여 이미 직용되어있음.
+npm run generate
+
+# # #
+# DB Migrate 파일생성
+# # prisma/schema.prisma 파일 변경후, migrate 파일을 생성하는 명령어 (DB 구조 변경 -> DDL 파일 생성)
+# Migrate 의 파일이름은 변경사항
+npm run migrate-dev
+
+# # #
+# DB Migrate
+# # Migate Sync
+# # 변경된 데이터 베이스 로컬에 반영 (변경된 DDL local DB 적용)
+npm run migrate:local
+
+# # #
+# DB Push
+# # Testing 전용
+# # prisma/schema.prisma 를 바로 DB에 반영할때
+npm run db-push:local
+
+```
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
 </p>
