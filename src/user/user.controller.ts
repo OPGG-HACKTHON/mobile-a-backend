@@ -7,6 +7,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { UpdateDataDto } from 'src/common/dto/updateData.dto';
 import { UserService } from './user.service';
 
 @ApiTags('User')
@@ -46,7 +47,7 @@ export class UserController {
   })
   @ApiOkResponse({ description: '유저 소속 학교 수정 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  editSchool(@Param('id') userId: number, @Body() updateData) {
+  editSchool(@Param('id') userId: number, @Body() updateData: UpdateDataDto) {
     return 'edit user school';
   }
 }

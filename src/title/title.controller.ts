@@ -7,6 +7,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { UpdateDataDto } from 'src/common/dto/updateData.dto';
 import { TitleService } from './title.service';
 
 @ApiTags('Title')
@@ -34,7 +35,7 @@ export class TitleController {
   })
   @ApiOkResponse({ description: '유저 타이틀 수정 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  editTitle(@Param('id') userId: number, @Body() updateData) {
+  editTitle(@Param('id') userId: number, @Body() updateData: UpdateDataDto) {
     return 'edit user title';
   }
 }
