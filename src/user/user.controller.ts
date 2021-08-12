@@ -38,7 +38,6 @@ export class UserController {
     return 'get partial user info';
   }
 
-<<<<<<< Updated upstream
   // /users/:id/school
   @Patch('/:id/school')
   @ApiOperation({
@@ -46,15 +45,6 @@ export class UserController {
     description: '유저 학교 수정을 진행합니다.',
   })
   @ApiOkResponse({ description: '유저 소속 학교 수정 성공' })
-=======
-  // api/users/:id
-  @Patch('/:id')
-  @ApiOperation({
-    summary: '유저 데이터 수정',
-    description: '유저 데이터 수정을 진행합니다.',
-  })
-  @ApiOkResponse({ description: '유저 정보 수정 성공' })
->>>>>>> Stashed changes
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   editSchool(@Param('id') userId: number, @Body() updateData) {
     return 'edit user school';
