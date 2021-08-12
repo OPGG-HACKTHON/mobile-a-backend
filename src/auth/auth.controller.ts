@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Patch, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  Param,
+  Patch,
+  Post,
+  Put,
+} from '@nestjs/common';
 import {
   ApiBody,
   ApiOkResponse,
@@ -51,7 +60,7 @@ export class AuthController {
   @ApiOkResponse({ description: '회원가입 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   @ApiBody({ type: SignupDto })
-  signup(): string {
+  async signup(@Body() signupData: SignupDto) {
     return 'signup';
   }
 }
