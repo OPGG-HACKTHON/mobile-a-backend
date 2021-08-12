@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import {
   ApiBody,
   ApiOkResponse,
+  ApiOperation,
   ApiProperty,
   ApiTags,
   ApiUnauthorizedResponse,
@@ -17,6 +18,10 @@ export class AuthController {
 
   // /auth/login
   @Post('/login')
+  @ApiOperation({
+    summary: '로그인',
+    description: '로그인을 진행합니다.',
+  })
   @ApiOkResponse({ description: '로그인 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   @ApiBody({ type: LoginDto })
@@ -26,6 +31,10 @@ export class AuthController {
 
   // /auth/logout
   @Post('/logout')
+  @ApiOperation({
+    summary: '로그아웃',
+    description: '로그아웃을 진행합니다.',
+  })
   @ApiOkResponse({ description: '로그인 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   @ApiBody({ type: LoginDto })
@@ -35,6 +44,10 @@ export class AuthController {
 
   // /auth/login
   @Post('/signup')
+  @ApiOperation({
+    summary: '회원가입',
+    description: '회원가입을 진행합니다.',
+  })
   @ApiOkResponse({ description: '회원가입 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   @ApiBody({ type: SignupDto })
