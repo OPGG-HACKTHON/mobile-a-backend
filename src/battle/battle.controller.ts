@@ -9,7 +9,7 @@ import {
 import { BattleService } from './battle.service';
 import { RequestChallengeDto } from 'src/common/dto/requestChallenge.dto';
 @ApiTags('Battle')
-@Controller('api/battles')
+@Controller('/battles')
 export class BattleController {
   constructor(private readonly battleService: BattleService) {}
 

@@ -11,11 +11,11 @@ import { LoginDto } from 'src/common/dto/login.dto';
 import { SignupDto } from 'src/common/dto/signup.dto';
 
 @ApiTags('Auth')
-@Controller('api/auth')
+@Controller('/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // api/auth/login
+  // /auth/login
   @Post('/login')
   @ApiOkResponse({ description: '로그인 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
@@ -24,7 +24,7 @@ export class AuthController {
     return 'login';
   }
 
-  // api/auth/logout
+  // /auth/logout
   @Post('/logout')
   @ApiOkResponse({ description: '로그인 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
@@ -33,7 +33,7 @@ export class AuthController {
     return 'logout';
   }
 
-  // api/auth/login
+  // /auth/login
   @Post('/signup')
   @ApiOkResponse({ description: '회원가입 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
