@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Put,
+  HttpCode,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -17,8 +18,8 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { LoginDto } from 'src/common/dto/login.dto';
-import { SignupDto } from 'src/common/dto/signup.dto';
+import { LoginDTO } from './auth-login.dto';
+import { SignUpDTO } from './auth-signup.dto';
 
 @ApiTags('Auth')
 @Controller('/auth')
@@ -33,9 +34,9 @@ export class AuthController {
   })
   @ApiOkResponse({ description: '로그인 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  @ApiBody({ type: LoginDto })
-  login(): string {
-    return 'login';
+  @ApiBody({ type: LoginDTO })
+  login(): { access_token: string } {
+    return { access_token: '1234' };
   }
 
   // /auth/logout
@@ -46,21 +47,22 @@ export class AuthController {
   })
   @ApiOkResponse({ description: '로그인 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  @ApiBody({ type: LoginDto })
+  @ApiBody({ type: LoginDTO })
   logout(): string {
     return 'logout';
   }
 
-  // /auth/login
+  // /auth/signup
   @Post('/signup')
+  @HttpCode(201)
   @ApiOperation({
     summary: '회원가입',
     description: '회원가입을 진행합니다.',
   })
   @ApiOkResponse({ description: '회원가입 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  @ApiBody({ type: SignupDto })
-  async signup(@Body() signupData: SignupDto) {
-    return 'signup';
+  @ApiBody({ type: SignUpDTO })
+  async signUp(@Body() param: SignUpDTO) {
+    return await this.authService.signUp(param);
   }
 }
