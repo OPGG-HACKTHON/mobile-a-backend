@@ -16,14 +16,14 @@ enum Role {
 }
 
 model User {
-  id           Int        @id @default(autoincrement())
-  email        String     @unique
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  role         Role       @default(USER)
-  LOLAccount   LOLAccount @relation(fields: [LOLAccountId], references: [id])
-  LOLAccountId String
-  School       School     @relation(fields: [schoolId], references: [id])
+  id           Int         @id @default(autoincrement())
+  email        String      @unique
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  role         Role        @default(USER)
+  LOLAccount   LOLAccount? @relation(fields: [LOLAccountId], references: [id])
+  LOLAccountId String?
+  School       School      @relation(fields: [schoolId], references: [id])
   schoolId     Int
 }
 
@@ -74,7 +74,7 @@ model LOLSummaryElement {
   valueDataType        String
   sortType             String
   exposureName         String
-  description          String
+  description          String?
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
   LOLSummaryForCompare LOLSummaryForCompare[]
