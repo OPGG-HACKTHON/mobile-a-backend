@@ -11,7 +11,9 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
+    "start:dev:local": "dotenv -e ./dotenv/local.env  nest start --watch",
     "start:debug": "nest start --debug --watch",
+    "start:debug:local": "dotenv -e ./dotenv/local.env nest start --debug --watch",
     "start:prod": "node dist/main",
     "generate": "prisma generate --schema ./prisma/schema.prisma",
     "migrate-dev": "dotenv -e ./dotenv/local.env -- prisma migrate dev",
@@ -20,9 +22,9 @@
     "db-push:local": "dotenv -e ./dotenv/local.env prisma db push",
     "db-push:ci": "dotenv -e ./dotenv/ci.env prisma db push",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test:local": "dotenv -e ./dotenv/local.env jest",
-    "test:local:cov": "dotenv -e ./dotenv/local.env jest --coverage",
-    "test:ci": "dotenv -e ./dotenv/ci.env jest"
+    "test:local": "dotenv -e ./dotenv/local.env jest --runInBand --runInBand",
+    "test:local:cov": "dotenv -e ./dotenv/local.env jest --coverage --runInBand --runInBand",
+    "test:ci": "dotenv -e ./dotenv/ci.env jest --runInBand --runInBand"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
