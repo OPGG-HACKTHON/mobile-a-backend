@@ -9,3 +9,108 @@ datasource db {
 generator client {
   provider = "prisma-client-js"
 }
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id           Int        @id @default(autoincrement())
+  email        String     @unique
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  role         Role       @default(USER)
+  LOLAccount   LOLAccount @relation(fields: [LOLAccountId], references: [id])
+  LOLAccountId String
+  School       School     @relation(fields: [schoolId], references: [id])
+  schoolId     Int
+}
+
+model School {
+  id        Int      @id @default(autoincrement())
+  name      String
+  division  String
+  region    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User[]
+}
+
+// SUMMONER-V4
+model LOLAccount {
+  id                   String                 @id
+  accountId            String
+  puuid                String
+  name                 String
+  profileIconId        String
+  summonerLevel        Int
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  User                 User?
+  LOLChampionMastery   LOLChampionMastery?
+  LOLTier              LOLTier?
+  LOLSummaryForCompare LOLSummaryForCompare[]
+}
+
+// LoL summary
+model LOLSummaryForCompare {
+  LOLAccount          LOLAccount        @relation(fields: [LOLAccountId], references: [id])
+  LOLAccountId        String
+  LOLSummaryElement   LOLSummaryElement @relation(fields: [LOLSummaryElementId], references: [id])
+  LOLSummaryElementId Int
+  value               String
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  @@id([LOLAccountId, LOLSummaryElementId])
+}
+
+// LoL Category
+model LOLSummaryElement {
+  id                   Int                    @id @default(autoincrement())
+  championId           Int?
+  LOLMatchFieldName    String?
+  valueDataType        String
+  sortType             String
+  exposureName         String
+  description          String
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  LOLSummaryForCompare LOLSummaryForCompare[]
+}
+
+// only RANKED_SOLO_5x5
+// LEAGUE-V4 - /lol/league/v4/entries/by-summoner/{encryptedSummonerId}
+model LOLTier {
+  id           Int        @id @default(autoincrement())
+  tier         String
+  rank         String
+  leaguePoints Int
+  wins         Int
+  losses       Int
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  LOLAccount   LOLAccount @relation(fields: [LOLAccountId], references: [id])
+  LOLAccountId String
+}
+
+// CHAMPION-MASTERY-V4 - /lol/champion-mastery/v4/champion-masteries/by-summoner/{encryptedSummonerId}
+model LOLChampionMastery {
+  id             Int        @id @default(autoincrement())
+  championId     Int
+  championPoints Int
+  lastPlayTime   DateTime
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  LOLAccount     LOLAccount @relation(fields: [LOLAccountId], references: [id])
+  LOLAccountId   String
+}
+
+// MATCH-V5  - /lol/match/v5/matches/{matchId}
+model LOLMatch {
+  id             String   @id
+  resultResponse Json
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
