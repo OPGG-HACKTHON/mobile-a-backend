@@ -22,9 +22,9 @@
     "db-push:local": "dotenv -e ./dotenv/local.env prisma db push",
     "db-push:ci": "dotenv -e ./dotenv/ci.env prisma db push",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test:local": "dotenv -e ./dotenv/local.env jest --runInBand --runInBand",
-    "test:local:cov": "dotenv -e ./dotenv/local.env jest --coverage --runInBand --runInBand",
-    "test:ci": "dotenv -e ./dotenv/ci.env jest --runInBand --runInBand"
+    "test:local": "dotenv -e ./dotenv/local.env jest --detectOpenHandles --runInBand",
+    "test:local:cov": "dotenv -e ./dotenv/local.env jest --coverage --detectOpenHandles --runInBand",
+    "test:ci": "dotenv -e ./dotenv/ci.env jest --detectOpenHandles --runInBand"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
