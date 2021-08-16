@@ -16,7 +16,6 @@ describe('simple etst', () => {
 
   const prismaService = new PrismaService();
   const authService = new AuthService(prismaService);
-
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AuthModule],
@@ -27,6 +26,12 @@ describe('simple etst', () => {
 
     app = moduleRef.createNestApplication();
     await app.init();
+  });
+
+  afterAll(() => {
+    app.close();
+    prismaService.$disconnect();
+    prisma.$disconnect();
   });
 
   it('create school,lolaccount,  /auth/signup test', async () => {
