@@ -5,6 +5,9 @@ export default {
   // Indicates which provider should be used to instrument code for coverage
   coverageProvider: 'v8',
 
+  // The test environment that will be used for testing
+  testEnvironment: 'node',
+
   // An array of directory names to be searched recursively up from the requiring module's location
   moduleDirectories: ['node_modules'],
 
