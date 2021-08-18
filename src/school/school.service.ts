@@ -13,21 +13,22 @@ export class SchoolService implements OnApplicationBootstrap {
 
     if (isSchoolExist.length == 0) {
       console.log('... 학교 데이터 받아오는 중 ...');
-      const schoolData = await got.get(
-        'https://static.opggmobilea.com/school/school.json',
-      );
-      const schoolDataJson = JSON.parse(schoolData.body)['records'];
+      const schoolData = await got
+        .get('https://static.opggmobilea.com/school/school.json')
+        .json();
+      const schoolDataJson = schoolData['records'];
 
-      for (const item in schoolDataJson) {
-        await this.prisma.school.create({
-          data: {
-            name: schoolDataJson[item]['학교명'],
-            division: schoolDataJson[item]['학교급구분'],
-            region: schoolDataJson[item]['시도교육청명'],
-            address: schoolDataJson[item]['소재지도로명주소'],
-          },
-        });
-      }
+      const schoolInputList = schoolDataJson.map((schoolJson) => ({
+        name: schoolJson['학교명'],
+        division: schoolJson['학교급구분'],
+        region: schoolJson['시도교육청명'],
+        address: schoolJson['소재지도로명주소'],
+      }));
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const createMany = await this.prisma.school.createMany({
+        data: schoolInputList,
+        skipDuplicates: true, // Skip 'Bobo'
+      });
     } else {
       console.log('... 학교 데이터가 이미 존재 ...');
     }
