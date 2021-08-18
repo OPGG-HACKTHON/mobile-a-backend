@@ -1,17 +1,16 @@
-import { initSchema } from '../commn/schemaUtil';
+import { SchoolService } from '../../src/school/school.service';
+import { PrismaService } from '../../src/prisma/prisma.service';
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { PrismaService } from '../../src/prisma/prisma.service';
-import { SchoolService } from '../../src/school/school.service';
 import { SchoolModule } from '../../src/school/school.module';
+import { initSchema } from '../commn/schemaUtil';
 
-describe('school data test', () => {
+describe('clear school data', () => {
   let app: INestApplication;
   const prismaService = new PrismaService();
   const schoolService = new SchoolService(prismaService);
   beforeAll(async () => {
-    await initSchema(prismaService);
     const moduleRef = await Test.createTestingModule({
       imports: [SchoolModule],
     })
@@ -23,13 +22,11 @@ describe('school data test', () => {
     await app.init();
   });
 
-  afterAll(() => {
-    app.close();
-    prismaService.$disconnect();
+  beforeEach(async () => {
+    await initSchema(prismaService);
   });
 
-  it('school data test', async () => {
-    const countSchoolData = await prismaService.school.count();
-    expect(countSchoolData).toBe(500);
+  it('test', () => {
+    expect(1).toBe(1);
   });
 });
