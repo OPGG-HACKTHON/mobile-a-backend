@@ -1,5 +1,4 @@
-import { prisma } from '../commn/prisma';
-import { initRepository } from '../commn/initRepository';
+import { initSchema } from '../commn/schemaUtil';
 import { AuthModule } from '../../src/auth/auth.module';
 import { AuthService } from '../../src/auth/auth.service';
 import * as request from 'supertest';
@@ -8,12 +7,7 @@ import { INestApplication } from '@nestjs/common';
 import { PrismaService } from '../../src/prisma/prisma.service';
 
 describe('simple etst', () => {
-  beforeEach(async () => {
-    await initRepository.initPrisma();
-  });
-
   let app: INestApplication;
-
   const prismaService = new PrismaService();
   const authService = new AuthService(prismaService);
   beforeAll(async () => {
@@ -31,18 +25,21 @@ describe('simple etst', () => {
   afterAll(() => {
     app.close();
     prismaService.$disconnect();
-    prisma.$disconnect();
+  });
+
+  beforeEach(async () => {
+    await initSchema(prismaService);
   });
 
   it('create school,lolaccount,  /auth/signup test', async () => {
-    await prisma.school.create({
+    await prismaService.school.create({
       data: {
         name: '가나다초등학교',
         division: '초딩',
         region: '서울',
       },
     });
-    await prisma.lOLAccount.create({
+    await prismaService.lOLAccount.create({
       data: {
         id: 'foo-id',
         accountId: 'foo-accountId',
