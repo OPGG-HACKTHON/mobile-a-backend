@@ -6,6 +6,7 @@ import { BattleModule } from './battle/battle.module';
 import { AuthModule } from './auth/auth.module';
 import { TitleModule } from './title/title.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { SchoolModule } from 'src/school/school.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { PrismaModule } from './prisma/prisma.module';
     AuthModule,
     TitleModule,
     PrismaModule,
+    SchoolModule,
   ],
   controllers: [AppController],
   providers: [],
