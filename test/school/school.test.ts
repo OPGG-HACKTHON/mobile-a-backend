@@ -3,19 +3,19 @@ import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { PrismaService } from '../../src/prisma/prisma.service';
-import { UserService } from '../../src/user/user.service';
-import { UserModule } from '../../src/user/user.module';
+import { SchoolService } from '../../src/school/school.service';
+import { SchoolModule } from '../../src/school/school.module';
 
-describe('user test', () => {
+describe('school data test', () => {
   let app: INestApplication;
   const prismaService = new PrismaService();
-  const userService = new UserService(prismaService);
+  const schoolService = new SchoolService(prismaService);
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      imports: [UserModule],
+      imports: [SchoolModule],
     })
-      .overrideProvider(UserService)
-      .useValue(userService)
+      .overrideProvider(SchoolService)
+      .useValue(schoolService)
       .compile();
 
     app = moduleRef.createNestApplication();
@@ -31,7 +31,7 @@ describe('user test', () => {
     await initSchema(prismaService);
   });
 
-  it('GET /user Test', async () => {
-    return request(app.getHttpServer()).get('/users').expect(200);
+  it('school data test', async () => {
+    expect(1).toBe(1);
   });
 });
