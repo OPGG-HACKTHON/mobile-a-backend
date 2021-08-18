@@ -87,7 +87,8 @@ model LOLSummarySchool {
 model LOLSummaryElement {
   id                 Int                  @id @default(autoincrement())
   LOLMatchFieldName  String?
-  valueDataType      String
+  valueDataType      String               @default("Int")
+  calculateType      String
   sortType           String
   exposureName       String
   description        String?
