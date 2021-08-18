@@ -32,4 +32,17 @@ describe('school data test', () => {
     const countSchoolData = await prismaService.school.count();
     expect(countSchoolData).toBe(500);
   });
+
+  it('search schools ', async () => {
+    const res = await request(app.getHttpServer())
+      .get(encodeURI('/schools/search/서울'))
+      .set('Accept', 'application/json')
+      .type('application/json');
+
+    expect(res.body[0].id).toBeTruthy();
+    expect(res.body[0].name).toBeTruthy();
+    expect(res.body[0].division).toBeTruthy();
+    expect(res.body[0].region).toBeTruthy();
+    expect(res.body[0].address).toBeTruthy();
+  });
 });
