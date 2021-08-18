@@ -43,7 +43,7 @@ model LOLAccount {
   accountId            String
   puuid                String
   name                 String
-  profileIconId        String
+  profileIconId        Int
   summonerLevel        Int
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
@@ -59,6 +59,7 @@ model LOLSummaryForCompare {
   LOLAccountId        String
   LOLSummaryElement   LOLSummaryElement @relation(fields: [LOLSummaryElementId], references: [id])
   LOLSummaryElementId Int
+  championId          Int?
   value               String
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
@@ -69,7 +70,6 @@ model LOLSummaryForCompare {
 // LoL Category
 model LOLSummaryElement {
   id                   Int                    @id @default(autoincrement())
-  championId           Int?
   LOLMatchFieldName    String?
   valueDataType        String
   sortType             String
@@ -92,7 +92,7 @@ model LOLTier {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   LOLAccount   LOLAccount @relation(fields: [LOLAccountId], references: [id])
-  LOLAccountId String
+  LOLAccountId String     @unique
 }
 
 // CHAMPION-MASTERY-V4 - /lol/champion-mastery/v4/champion-masteries/by-summoner/{encryptedSummonerId}

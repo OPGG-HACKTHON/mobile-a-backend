@@ -5,11 +5,13 @@ import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { PrismaService } from '../../src/prisma/prisma.service';
+import { LOLService } from '../../src/lol/lol.service';
 
 describe('simple etst', () => {
   let app: INestApplication;
   const prismaService = new PrismaService();
-  const authService = new AuthService(prismaService);
+  const lolService = new LOLService(prismaService);
+  const authService = new AuthService(prismaService, lolService);
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AuthModule],
@@ -39,27 +41,17 @@ describe('simple etst', () => {
         region: '서울',
       },
     });
-    await prismaService.lOLAccount.create({
-      data: {
-        id: 'foo-id',
-        accountId: 'foo-accountId',
-        puuid: 'foo-puuid',
-        name: 'foo-name',
-        profileIconId: '123',
-        summonerLevel: 123,
-      },
-    });
     const res = await request(app.getHttpServer())
       .post('/auth/signup')
       .set('Accept', 'application/json')
       .type('application/json')
-      .send({ email: 'abc@abc.com', LOLNickName: 'foo-name', schoolId: 1 });
-    //
+      .send({ email: 'abc@abc.com', LOLNickName: 'kkangsan', schoolId: 1 });
+
     expect(res.statusCode).toBe(201);
     const { id, email, LOLAccountId, schoolId } = res.body;
     expect(id).toBe(1);
     expect(email).toBe('abc@abc.com');
-    expect(LOLAccountId).toBe('foo-id');
+    expect(LOLAccountId).toBeTruthy();
     expect(schoolId).toBe(1);
   });
 });
