@@ -39,6 +39,7 @@ describe('simple etst', () => {
         name: '가나다초등학교',
         division: '초딩',
         region: '서울',
+        address: '어디선가',
       },
     });
     const res = await request(app.getHttpServer())
