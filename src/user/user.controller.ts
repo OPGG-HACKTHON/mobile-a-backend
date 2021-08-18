@@ -35,7 +35,7 @@ export class UserController {
   })
   @ApiOkResponse({ description: '특정 유저 데이터 조회 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  getUserProfile(@Param('id') userId: number) {
+  getPartialUserInfo(@Param('id') userId: number) {
     return 'get partial user info';
   }
 
@@ -47,7 +47,7 @@ export class UserController {
   })
   @ApiOkResponse({ description: '특정 유저 프로파일 조회 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  async getPartialUserInfo(
+  async getUserProfile(
     @Param('id', ParseIntPipe) userId: number,
   ): Promise<Profile> {
     return await this.userService.getProfileByUserId(userId);
