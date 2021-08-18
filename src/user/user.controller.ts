@@ -12,8 +12,6 @@ import { UserService } from './user.service';
 @ApiTags('User')
 @Controller('/users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
-
   // /users
   @Get('')
   @ApiOperation({
@@ -23,7 +21,7 @@ export class UserController {
   @ApiOkResponse({ description: '유저 데이터 조회 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   getUserInfo() {
-    return 'get user info';
+    return 'test';
   }
 
   // /users/:id
