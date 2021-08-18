@@ -35,8 +35,8 @@ export class AuthController {
   @ApiOkResponse({ description: '로그인 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   @ApiBody({ type: LoginDTO })
-  login(): { access_token: string } {
-    return { access_token: '1234' };
+  async login(@Body() param: LoginDTO): Promise<{ access_token: string }> {
+    return { access_token: param.id.toString() };
   }
 
   // /auth/logout
