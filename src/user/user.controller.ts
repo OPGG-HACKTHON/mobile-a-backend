@@ -23,7 +23,7 @@ export class UserController {
   @ApiOkResponse({ description: '유저 데이터 조회 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   getUserInfo() {
-    return 'get user info';
+    this.userService.getSchoolData();
   }
 
   // /users/:id
