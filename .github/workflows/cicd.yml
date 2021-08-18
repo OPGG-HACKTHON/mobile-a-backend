@@ -36,8 +36,9 @@ jobs:
     - name: run db push & test code
       run: npm run db-push:ci && npm run test:ci
       env:
-          SCHEMA_NAME: test
-          DATABASE_URL: postgresql://postgresmobilea:postgresmobilea@localhost:5432/mobilea?schema=test
+          SCHEMA_NAME: ${{ secrets.SCHEMA_NAME }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          LOL_API_KEY: ${{ secrets.LOL_API_KEY }}
 
   release:
     if: github.repository == 'OPGG-HACKTHON/mobile-a-backend'

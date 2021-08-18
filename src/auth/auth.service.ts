@@ -2,25 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { SignUpDTO } from './auth-signup.dto';
 import { User } from '@prisma/client';
+import { LOLService } from '../lol/lol.service';
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly lolService: LOLService,
+  ) {}
 
   async signUp(param: SignUpDTO): Promise<User> {
-    /* // todo
-       const LOLAccountId = LOLAccountService.getIdByName(param.LOLNickName)
-    */
-
-    const LOLAccount = await this.prisma.lOLAccount.findFirst({
-      where: {
-        name: param.LOLNickName,
-      },
-    });
-
+    const lolAccountId = await this.lolService.upsertLOLAccountByLOLName(
+      param.LOLNickName,
+    );
     return await this.prisma.user.create({
       data: {
         email: param.email,
-        LOLAccountId: LOLAccount.id,
+        LOLAccountId: lolAccountId,
         schoolId: param.schoolId,
       },
     });

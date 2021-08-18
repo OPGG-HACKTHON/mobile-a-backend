@@ -19,6 +19,7 @@
     "migrate-dev": "dotenv -e ./dotenv/local.env -- prisma migrate dev",
     "migrate": "prisma migrate deploy",
     "migrate:local": "dotenv -e ./dotenv/local.env -- prisma migrate deploy",
+    "migrate-reset:local": "dotenv -e ./dotenv/local.env -- prisma migrate reset",
     "db-push:local": "dotenv -e ./dotenv/local.env -- prisma db push",
     "db-push:ci": "dotenv -e ./dotenv/ci.env -- prisma db push",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
