@@ -6,13 +6,22 @@ import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { PrismaService } from '../../src/prisma/prisma.service';
 import { LOLService } from '../../src/lol/lol.service';
+//
+import { TitleService } from '../../src/title/title.service';
+import { TitleModule } from '../../src/title/title.module';
 
 describe('simple etst', () => {
   let app: INestApplication;
+  let appTitle: INestApplication;
+
   const prismaService = new PrismaService();
   const lolService = new LOLService(prismaService);
   const authService = new AuthService(prismaService, lolService);
+
+  // for title
+  const titleService = new TitleService(prismaService);
   beforeAll(async () => {
+    await initSchema(prismaService);
     const moduleRef = await Test.createTestingModule({
       imports: [AuthModule],
     })
@@ -22,15 +31,22 @@ describe('simple etst', () => {
 
     app = moduleRef.createNestApplication();
     await app.init();
+
+    const moduleRefTitle = await Test.createTestingModule({
+      imports: [TitleModule],
+    })
+      .overrideProvider(TitleService)
+      .useValue(titleService)
+      .compile();
+
+    appTitle = moduleRefTitle.createNestApplication();
+    await appTitle.init();
   });
 
   afterAll(() => {
     app.close();
+    appTitle.close();
     prismaService.$disconnect();
-  });
-
-  beforeEach(async () => {
-    await initSchema(prismaService);
   });
 
   it('create school,lolaccount,  /auth/signup test', async () => {

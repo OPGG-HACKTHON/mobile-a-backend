@@ -37,7 +37,7 @@ export class LOLService {
       })
       .json<LEAGUE[]>();
     const result = apiResults.filter(
-      (apiResult) => apiResult.queueType === 'RANKED_FLEX_SR',
+      (apiResult) => apiResult.queueType === 'RANKED_SOLO_5x5',
     );
     if (!result.length) {
       throw new Error('Tier not found');
@@ -95,11 +95,67 @@ export class LOLService {
     });
   }
 
+  private tierTovalue(tierInfo: Tier): number {
+    const tierToValue = {
+      CHALLENGER: 4500,
+      GRANDMASTER: 4000,
+      MASTER: 3500,
+      DIAMOND: 3000,
+      PLATINUM: 2500,
+      GOLD: 2000,
+      SILVER: 1500,
+      BRONZE: 1000,
+      IRON: 500,
+    };
+    const rankToValue = {
+      I: 300,
+      II: 200,
+      III: 100,
+      IV: 0,
+    };
+    return (
+      (tierToValue[tierInfo.tier] || 0) +
+      (rankToValue[tierInfo.rank] || 0) +
+      tierInfo.leaguePoints
+    );
+  }
+
+  private async upsertTierSummaryWithAccountId(id: string, tierInfo: Tier) {
+    const category = await this.prisma.lOLSummaryElement.findFirst({
+      where: {
+        LOLMatchFieldName: '티어',
+      },
+    });
+    if (!category) {
+      console.log('티어 카테고리 정보 없음!');
+      return;
+    }
+    const tierSummaryValue = this.tierTovalue(tierInfo);
+
+    await this.prisma.lOLSummaryPersonal.upsert({
+      where: {
+        LOLAccountId_LOLSummaryElementId: {
+          LOLAccountId: id,
+          LOLSummaryElementId: category.id,
+        },
+      },
+      update: {
+        value: tierSummaryValue.toString(),
+      },
+      create: {
+        LOLAccountId: id,
+        LOLSummaryElementId: category.id,
+        value: tierSummaryValue.toString(),
+      },
+    });
+  }
+
   async upsertLOLAccountByLOLName(param: string): Promise<string> {
     const lolAccount = await this.getLOLAccountByLOLName(param);
     const lolTier = await this.getLOLTierByLOLId(lolAccount.id);
     await this.upsertLOLAccount(lolAccount);
     await this.upsertLOLTierWithLOLAccountId(lolAccount.id, lolTier);
+    await this.upsertTierSummaryWithAccountId(lolAccount.id, lolTier);
     return lolAccount.id;
   }
 }

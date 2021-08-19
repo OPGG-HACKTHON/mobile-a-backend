@@ -28,34 +28,35 @@ model User {
 }
 
 model School {
-  id        Int      @id @default(autoincrement())
-  name      String
-  division  String
-  region    String
-  address   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  User      User[]
+  id               Int                @id @default(autoincrement())
+  name             String
+  division         String
+  region           String
+  address          String
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  User             User[]
+  LOLSummarySchool LOLSummarySchool[]
 }
 
 // SUMMONER-V4
 model LOLAccount {
-  id                   String                 @id
-  accountId            String
-  puuid                String
-  name                 String
-  profileIconId        Int
-  summonerLevel        Int
-  createdAt            DateTime               @default(now())
-  updatedAt            DateTime               @updatedAt
-  User                 User?
-  LOLChampionMastery   LOLChampionMastery?
-  LOLTier              LOLTier?
-  LOLSummaryForCompare LOLSummaryForCompare[]
+  id                 String               @id
+  accountId          String
+  puuid              String
+  name               String
+  profileIconId      Int
+  summonerLevel      Int
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  User               User?
+  LOLChampionMastery LOLChampionMastery?
+  LOLTier            LOLTier?
+  LOLSummaryPersonal LOLSummaryPersonal[]
 }
 
-// LoL summary
-model LOLSummaryForCompare {
+// LoL summary Personal
+model LOLSummaryPersonal {
   LOLAccount          LOLAccount        @relation(fields: [LOLAccountId], references: [id])
   LOLAccountId        String
   LOLSummaryElement   LOLSummaryElement @relation(fields: [LOLSummaryElementId], references: [id])
@@ -68,17 +69,33 @@ model LOLSummaryForCompare {
   @@id([LOLAccountId, LOLSummaryElementId])
 }
 
+// LoL summary School
+model LOLSummarySchool {
+  School              School            @relation(fields: [SchoolId], references: [id])
+  SchoolId            Int
+  LOLSummaryElement   LOLSummaryElement @relation(fields: [LOLSummaryElementId], references: [id])
+  LOLSummaryElementId Int
+  championId          Int?
+  value               String
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  @@id([SchoolId, LOLSummaryElementId])
+}
+
 // LoL Category
 model LOLSummaryElement {
-  id                   Int                    @id @default(autoincrement())
-  LOLMatchFieldName    String?
-  valueDataType        String
-  sortType             String
-  exposureName         String
-  description          String?
-  createdAt            DateTime               @default(now())
-  updatedAt            DateTime               @updatedAt
-  LOLSummaryForCompare LOLSummaryForCompare[]
+  id                 Int                  @id @default(autoincrement())
+  LOLMatchFieldName  String?
+  valueDataType      String               @default("Int")
+  calculateType      String
+  sortType           String
+  exposureName       String
+  description        String?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  LOLSummaryPersonal LOLSummaryPersonal[]
+  LOLSummarySchool   LOLSummarySchool[]
 }
 
 // only RANKED_SOLO_5x5

@@ -8,7 +8,8 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { RankService } from './rank.service';
-
+import { ParseIntPipe } from '@nestjs/common';
+import { Profile } from '../user/user.types';
 @ApiTags('Rank')
 @Controller('/ranks')
 export class RankController {
@@ -35,8 +36,10 @@ export class RankController {
   })
   @ApiOkResponse({ description: '학교 내에서의 특정 카테고리 랭킹 조회 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  getSchoolRank(@Param('id') category: number) {
-    return 'get category ranking of school';
+  async getRankByScoolId(
+    @Param('id', ParseIntPipe) schoolId: number,
+  ): Promise<Profile[]> {
+    return await this.rankService.getRankByScoolId(schoolId);
   }
 
   // ranks/regions/:id

@@ -1,55 +1,55 @@
 import { initSchema } from '../commn/schemaUtil';
-import { UserModule } from '../../src/user/user.module';
-import { UserService } from '../../src/user/user.service';
+import { AuthModule } from '../../src/auth/auth.module';
+import { AuthService } from '../../src/auth/auth.service';
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { PrismaService } from '../../src/prisma/prisma.service';
-//
-import { AuthModule } from '../../src/auth/auth.module';
-import { AuthService } from '../../src/auth/auth.service';
 import { LOLService } from '../../src/lol/lol.service';
+//
+import { TitleService } from '../../src/title/title.service';
+import { TitleModule } from '../../src/title/title.module';
+
 describe('simple etst', () => {
   let app: INestApplication;
-  let appAuth: INestApplication;
+  let appTitle: INestApplication;
 
   const prismaService = new PrismaService();
-  const userService = new UserService(prismaService);
-
   const lolService = new LOLService(prismaService);
   const authService = new AuthService(prismaService, lolService);
+
+  // for title
+  const titleService = new TitleService(prismaService);
   beforeAll(async () => {
+    await initSchema(prismaService);
     const moduleRef = await Test.createTestingModule({
-      imports: [UserModule],
-    })
-      .overrideProvider(UserService)
-      .useValue(userService)
-      .compile();
-    const moduleRefAuth = await Test.createTestingModule({
       imports: [AuthModule],
     })
       .overrideProvider(AuthService)
       .useValue(authService)
       .compile();
 
-    appAuth = moduleRefAuth.createNestApplication();
     app = moduleRef.createNestApplication();
-    await appAuth.init();
     await app.init();
+
+    const moduleRefTitle = await Test.createTestingModule({
+      imports: [TitleModule],
+    })
+      .overrideProvider(TitleService)
+      .useValue(titleService)
+      .compile();
+
+    appTitle = moduleRefTitle.createNestApplication();
+    await appTitle.init();
   });
 
   afterAll(() => {
-    appAuth.close();
     app.close();
+    appTitle.close();
     prismaService.$disconnect();
   });
 
-  beforeEach(async () => {
-    await initSchema(prismaService);
-  });
-
-  // same auth test
-  it('create school,lolaccount,  /auth/signup test and get profile', async () => {
+  it('create school,lolaccount,  /auth/signup test', async () => {
     await prismaService.school.create({
       data: {
         name: '가나다초등학교',
@@ -58,7 +58,7 @@ describe('simple etst', () => {
         address: '어디선가',
       },
     });
-    const res = await request(appAuth.getHttpServer())
+    const res = await request(app.getHttpServer())
       .post('/auth/signup')
       .set('Accept', 'application/json')
       .type('application/json')
@@ -70,21 +70,27 @@ describe('simple etst', () => {
     expect(email).toBe('abc@abc.com');
     expect(LOLAccountId).toBeTruthy();
     expect(schoolId).toBe(1);
-    // find profile
-    const resProfile = await request(app.getHttpServer())
-      .get('/users/1/profile')
-      .set('Accept', 'application/json')
-      .type('application/json');
-    expect(resProfile.body.id).toBe(1);
-    const { profileIconId, profileIconImageUrl, summonerLevel, tierInfo } =
-      resProfile.body.lol;
-    expect(profileIconId).toBeTruthy();
-    expect(profileIconImageUrl).toBeTruthy();
-    expect(summonerLevel).toBeTruthy();
-    expect(summonerLevel).toBeTruthy();
-    const { tier, rank, leaguePoints } = tierInfo;
-    expect(tier).toBeTruthy();
-    expect(rank).toBeTruthy();
-    expect(leaguePoints >= 0).toBeTruthy();
+    // after lol info check
+    const lolAccount = await prismaService.lOLAccount.findFirst({
+      where: {
+        id: LOLAccountId,
+      },
+    });
+    expect(lolAccount.name).toBe('KkangSan');
+    // Tier
+    const lolTier = await prismaService.lOLTier.findFirst({
+      where: {
+        LOLAccountId: LOLAccountId,
+      },
+    });
+    expect(lolTier).toBeTruthy();
+    // check Tier Summary
+    const personamTierSummary =
+      await prismaService.lOLSummaryPersonal.findFirst({
+        where: {
+          LOLAccountId: LOLAccountId,
+        },
+      });
+    expect(personamTierSummary).toBeTruthy();
   });
 });
