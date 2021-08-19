@@ -56,7 +56,7 @@ describe('simple etst', () => {
       await lolService.getLOLTierByLOLId(id);
     expect(tier).toBeTruthy();
     expect(rank).toBeTruthy();
-    expect(leaguePoints).toBeTruthy();
+    expect(leaguePoints >= 0).toBeTruthy();
     expect(wins).toBeTruthy();
     expect(losses).toBeTruthy();
   });
