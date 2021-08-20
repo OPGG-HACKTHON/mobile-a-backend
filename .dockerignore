@@ -1,0 +1,32 @@
+# Created by kangsankim (Block List)
+
+# Coverage directory used by tools like istanbul
+coverage
+
+# ts source
+src
+
+# readme & image file
+README.md
+
+# test source & config
+test
+jest.config.ts
+
+# sorce config
+.eslintrc.js
+.prettierrc.js
+tsconfig.json
+
+# git
+.git
+.gitignore
+
+# docker
+Dockerfile
+.dockerignore
+
+# local files
+.env
+.DS_Store
+.vscode

@@ -18,21 +18,19 @@ export class UserService {
       where: {
         id: userId,
       },
+      include: {
+        LOLAccount: {
+          include: {
+            LOLTier: true,
+          },
+        },
+      },
     });
     if (!user.LOLAccountId) {
       throw new Error('lol 계정이 존재하지 않습니다.');
     }
-    const { profileIconId, summonerLevel } =
-      await this.prisma.lOLAccount.findUnique({
-        where: {
-          id: user.LOLAccountId,
-        },
-      });
-    const { tier, rank, leaguePoints } = await this.prisma.lOLTier.findUnique({
-      where: {
-        LOLAccountId: user.LOLAccountId,
-      },
-    });
+    const { profileIconId, summonerLevel } = user.LOLAccount;
+    const { tier, rank, leaguePoints } = user.LOLAccount.LOLTier;
     return {
       id: userId,
       lol: {
