@@ -8,6 +8,8 @@ import {
   Post,
   Put,
   HttpCode,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -20,6 +22,7 @@ import {
 import { AuthService } from './auth.service';
 import { LoginDTO } from './auth-login.dto';
 import { SignUpDTO } from './auth-signup.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Auth')
 @Controller('/auth')
@@ -64,5 +67,22 @@ export class AuthController {
   @ApiBody({ type: SignUpDTO })
   async signUp(@Body() param: SignUpDTO) {
     return await this.authService.signUp(param);
+  }
+
+  /**
+   * @Google
+   */
+  // /auth/google
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth(@Req() req) {
+    //empty
+  }
+
+  // /auth/google/callback
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  googleAuthRedirect(@Req() req) {
+    return this.authService.googleLogin(req);
   }
 }
