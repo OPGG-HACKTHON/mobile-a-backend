@@ -10,6 +10,7 @@ import {
   HttpCode,
   UseGuards,
   Req,
+  ForbiddenException,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -84,5 +85,19 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   googleAuthRedirect(@Req() req) {
     return this.authService.googleLogin(req);
+  }
+
+  /**
+   * @Apple
+   */
+  // /auth/apple
+  @Post('/apple')
+  public async appleLogin(@Body() payload: any): Promise<any> {
+    console.log('Received', payload);
+    if (!payload.code) {
+      throw new ForbiddenException();
+    }
+
+    return this.authService.appleLogin(payload);
   }
 }
