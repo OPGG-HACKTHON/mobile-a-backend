@@ -3,7 +3,17 @@
 
 ```bash
 # postgresql - 추가사항 : AWS Aurora PostgreSQL LTS version 11.9.
-docker run --name mobile-a-postgres -e POSTGRES_PASSWORD=postgresmobilea -e POSTGRES_USER=postgresmobilea -e POSTGRES_DB=mobilea -p 5432:5432 -d postgres:11.9
+docker run --name postgresmobilea -e POSTGRES_PASSWORD=postgresmobilea -e POSTGRES_USER=postgresmobilea -e POSTGRES_DB=mobilea -p 5432:5432 -d postgres:11.9
+
+# # # # # # # # # # # #
+## prod run for local #
+# # # # # # # # # # # #
+npm install
+# npm run db-push:local
+npm run build
+docker build -t mobilea .
+# prod docker image run
+docker run -it -p 2000:3000/tcp --link postgresmobilea:postgresmobilea -e SCHEMA_NAME='localschema' -e DATABASE_URL="postgresql://postgresmobilea:postgresmobilea@postgresmobilea:5432/mobilea?schema=localschema" -e LOL_API_KEY='@@@@@@@APIKEY@@@@@@@' -e PORT=3000 --name mobilea mobilea
 ```
 
 ## Prisma 사용법

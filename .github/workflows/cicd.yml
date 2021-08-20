@@ -29,11 +29,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: npm install
+    - name: install
       run: npm install
-    - name: run lint code
+    - name: build
+      run : npm run build
+    - name: lint
       run: npm run lint
-    - name: run db push & test code
+    - name: db push & test code
       run: npm run db-push:ci && npm run test:ci
       env:
           SCHEMA_NAME: ${{ secrets.SCHEMA_NAME }}

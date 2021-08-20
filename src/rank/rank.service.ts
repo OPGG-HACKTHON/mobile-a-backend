@@ -15,32 +15,38 @@ export class RankService {
         schoolId: schoolId,
       },
     });
-    const lolAccountIdToProfileMap: Map<string, Profile> = new Map();
-    for (const user of users) {
-      // todo => getProfileByUserIds
-      const profile = await this.userService.getProfileByUserId(user.id);
-      lolAccountIdToProfileMap.set(user.LOLAccountId, profile);
-    }
     const lolAccountIds = users.map((user) => user.LOLAccountId);
     const category = await this.prisma.lOLSummaryElement.findFirst({
       where: {
         LOLMatchFieldName: '티어',
       },
+      include: {
+        LOLSummaryPersonal: {
+          where: {
+            LOLAccountId: { in: lolAccountIds },
+          },
+          orderBy: {
+            value: 'desc',
+          },
+          include: {
+            LOLAccount: {
+              include: {
+                User: true,
+              },
+            },
+          },
+        },
+      },
     });
-
+    const rankUsers = category.LOLSummaryPersonal.map(
+      (param) => param.LOLAccount.User,
+    );
     //
-    const ranks = await this.prisma.lOLSummaryPersonal.findMany({
-      where: {
-        AND: { LOLSummaryElementId: category.id },
-        LOLAccountId: { in: lolAccountIds },
-      },
-      orderBy: {
-        value: 'desc',
-      },
-    });
     const results = [];
-    for (const rank of ranks) {
-      results.push(lolAccountIdToProfileMap.get(rank.LOLAccountId));
+    for (const user of rankUsers) {
+      // userIds
+      const profile = await this.userService.getProfileByUserId(user.id);
+      results.push(profile);
     }
     return results;
   }
