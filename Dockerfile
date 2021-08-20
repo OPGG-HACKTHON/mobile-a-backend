@@ -6,4 +6,5 @@ WORKDIR /usr/src/app
 COPY . /usr/src/app
 
 EXPOSE 2000-19999
-CMD npm run start:prod
+
+CMD npm run migrate && npm run start:prod
