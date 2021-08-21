@@ -1,4 +1,10 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  HttpException,
+  HttpStatus,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { SignUpDTO } from './auth-signup.dto';
 import { User } from '@prisma/client';
@@ -31,14 +37,18 @@ export class AuthService {
    */
   async googleLogin(req) {
     if (!req.user) {
-      return 'No user from google';
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: '해당 구글 유저가 존재하지 않습니다.',
+        },
+        HttpStatus.FORBIDDEN,
+      );
     }
 
     const findUser = await this.prisma.user.findFirst({
       where: {
-        email: {
-          contains: req.user.email,
-        },
+        email: req.user.email,
       },
     });
 
@@ -60,25 +70,45 @@ export class AuthService {
       clientID: process.env.APPLE_CLIENT_ID,
       teamId: process.env.APPLE_TEAM_ID,
       keyIdentifier: process.env.APPLE_KEY_ID,
-      privateKeyPath: path.join(__dirname, '/secrets/AuthKey_ZC25JZUJ4G.p8'),
+      privateKeyPath: path.join(__dirname, process.env.PRIVATE_KEY),
     });
 
     const tokens = await appleSignin.getAuthorizationToken(payload.code, {
       clientID: process.env.APPLE_CLIENT_ID,
       clientSecret: clientSecret,
-      redirectUri: 'https://auth.example.com/auth/apple',
+      redirectUri: 'https://api.opggmobilea.com/auth/apple',
     });
 
     if (!tokens.id_token) {
-      console.log('no token.id_token');
-      throw new ForbiddenException();
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: '애플 토큰이 존재하지 않습니다.',
+        },
+        HttpStatus.FORBIDDEN,
+      );
     }
 
     console.log('tokens', tokens);
-
+    const data = await appleSignin.verifyIdToken(tokens.id_token, {
+      audience: process.env.APPLE_CLIENT_ID,
+      ignoreExpiration: true,
+    });
     // TODO: 첫 애플 로그인 이후에 유저데이터를 보내주지 않음, 유저데이터를 어디에다가 저장해놔야함.
 
-    const data = await appleSignin.verifyIdToken(tokens.id_token);
-    return { data, tokens };
+    const findUser = await this.prisma.user.findFirst({
+      where: {
+        email: data.email,
+      },
+    });
+
+    if (!findUser) {
+      return {
+        message: 'apple',
+        email: data.email,
+      };
+    }
+
+    return { data };
   }
 }

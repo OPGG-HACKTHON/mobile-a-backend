@@ -63,6 +63,7 @@ describe('google oauth test', () => {
         schoolId: 1,
       },
     });
+
     const res = await request(app.getHttpServer())
       .get('/auth/google')
       .set('Accept', 'application/json')
