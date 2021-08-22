@@ -9,38 +9,26 @@ import { PrismaService } from '../../src/prisma/prisma.service';
 import { AuthModule } from '../../src/auth/auth.module';
 import { AuthService } from '../../src/auth/auth.service';
 import { LOLService } from '../../src/lol/lol.service';
+import { PrismaModule } from '../../src/prisma/prisma.module';
+import { LOLModule } from '../../src/lol/lol.module';
 describe('simple etst', () => {
   let app: INestApplication;
-  let appAuth: INestApplication;
-
   const prismaService = new PrismaService();
   const userService = new UserService(prismaService);
-
-  const lolService = new LOLService(prismaService);
-  const authService = new AuthService(prismaService, lolService);
   beforeEach(async () => {
     await initSchema(prismaService);
     const moduleRef = await Test.createTestingModule({
-      imports: [UserModule],
+      imports: [UserModule, AuthModule, PrismaModule, LOLModule],
+      providers: [UserService, AuthService, PrismaService, LOLService],
     })
       .overrideProvider(UserService)
       .useValue(userService)
       .compile();
-    const moduleRefAuth = await Test.createTestingModule({
-      imports: [AuthModule],
-    })
-      .overrideProvider(AuthService)
-      .useValue(authService)
-      .compile();
-
-    appAuth = moduleRefAuth.createNestApplication();
     app = moduleRef.createNestApplication();
-    await appAuth.init();
     await app.init();
   });
 
   afterEach(() => {
-    appAuth.close();
     app.close();
   });
 
@@ -58,7 +46,7 @@ describe('simple etst', () => {
         address: '어디선가',
       },
     });
-    const res = await request(appAuth.getHttpServer())
+    const res = await request(app.getHttpServer())
       .post('/auth/signup')
       .set('Accept', 'application/json')
       .type('application/json')
