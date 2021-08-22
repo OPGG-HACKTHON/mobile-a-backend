@@ -12,6 +12,12 @@ import { LOLService } from '../lol/lol.service';
 import * as appleSignin from 'apple-signin';
 import path from 'path';
 
+export interface SocialUser {
+  authFrom: string;
+  email: string;
+}
+export type GetSocialUserHandler = () => Promise<Partial<SocialUser>>;
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -25,11 +31,42 @@ export class AuthService {
     );
     return await this.prisma.user.create({
       data: {
+        authFrom: param.authFrom,
         email: param.email,
         LOLAccountId: lolAccountId,
         schoolId: param.schoolId,
       },
     });
+  }
+
+  // TODO
+  async signupWithOauth(getSocialUser: GetSocialUserHandler) {
+    try {
+      const { authFrom, email } = await getSocialUser();
+
+      const internalUser = await this.prisma.user.findFirst({
+        where: {
+          authFrom: authFrom,
+          email: email,
+        },
+      });
+
+      if (!internalUser) {
+        return { authFrom, email };
+      }
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: '해당 유저가 이미 존재 합니다.',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   /**
@@ -48,13 +85,14 @@ export class AuthService {
 
     const findUser = await this.prisma.user.findFirst({
       where: {
+        authFrom: 'google',
         email: req.user.email,
       },
     });
 
     if (!findUser) {
       return {
-        message: 'google',
+        authFrom: 'google',
         email: req.user.email,
       };
     }
@@ -70,7 +108,7 @@ export class AuthService {
       clientID: process.env.APPLE_CLIENT_ID,
       teamId: process.env.APPLE_TEAM_ID,
       keyIdentifier: process.env.APPLE_KEY_ID,
-      privateKeyPath: path.join(__dirname, process.env.PRIVATE_KEY),
+      privateKeyPath: path.join(__dirname, process.env.APPLE_PRIVATE_KEY),
     });
 
     const tokens = await appleSignin.getAuthorizationToken(payload.code, {
@@ -98,17 +136,18 @@ export class AuthService {
 
     const findUser = await this.prisma.user.findFirst({
       where: {
+        authFrom: 'apple',
         email: data.email,
       },
     });
 
     if (!findUser) {
       return {
-        message: 'apple',
+        authFrom: 'apple',
         email: data.email,
       };
     }
 
-    return { data };
+    return { authFrom: 'apple', data };
   }
 }

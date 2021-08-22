@@ -59,6 +59,7 @@ describe('google oauth test', () => {
     });
     await prismaService.user.create({
       data: {
+        authFrom: 'google',
         email: 'tpgns7708@gmail.com',
         schoolId: 1,
       },

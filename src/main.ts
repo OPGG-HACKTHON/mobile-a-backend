@@ -4,7 +4,7 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
+  console.log('test');
   const config = new DocumentBuilder()
     .setTitle('OPGG_A API DOCS')
     .setDescription(
