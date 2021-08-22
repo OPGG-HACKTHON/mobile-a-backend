@@ -20,7 +20,7 @@ describe('simple etst', () => {
 
   // for title
   const titleService = new TitleService(prismaService);
-  beforeAll(async () => {
+  beforeEach(async () => {
     await initSchema(prismaService);
     const moduleRef = await Test.createTestingModule({
       imports: [AuthModule],
@@ -43,9 +43,12 @@ describe('simple etst', () => {
     await appTitle.init();
   });
 
-  afterAll(() => {
+  afterEach(() => {
     app.close();
     appTitle.close();
+  });
+
+  afterAll(() => {
     prismaService.$disconnect();
   });
 

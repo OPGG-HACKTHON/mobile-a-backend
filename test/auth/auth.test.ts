@@ -4,26 +4,27 @@ import { AuthService } from '../../src/auth/auth.service';
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { PrismaService } from '../../src/prisma/prisma.service';
+//
 import { LOLService } from '../../src/lol/lol.service';
+import { LOLModule } from '../../src/lol/lol.module';
 //
 import { TitleService } from '../../src/title/title.service';
 import { TitleModule } from '../../src/title/title.module';
-
+//
+import { PrismaService } from '../../src/prisma/prisma.service';
+import { PrismaModule } from '../../src/prisma/prisma.module';
+//
 describe('simple etst', () => {
   let app: INestApplication;
-  let appTitle: INestApplication;
 
   const prismaService = new PrismaService();
   const lolService = new LOLService(prismaService);
   const authService = new AuthService(prismaService, lolService);
-
-  // for title
-  const titleService = new TitleService(prismaService);
-  beforeAll(async () => {
+  beforeEach(async () => {
     await initSchema(prismaService);
     const moduleRef = await Test.createTestingModule({
-      imports: [AuthModule],
+      imports: [AuthModule, TitleModule, PrismaModule, LOLModule],
+      providers: [AuthService, TitleService, PrismaService, LOLService],
     })
       .overrideProvider(AuthService)
       .useValue(authService)
@@ -31,21 +32,13 @@ describe('simple etst', () => {
 
     app = moduleRef.createNestApplication();
     await app.init();
-
-    const moduleRefTitle = await Test.createTestingModule({
-      imports: [TitleModule],
-    })
-      .overrideProvider(TitleService)
-      .useValue(titleService)
-      .compile();
-
-    appTitle = moduleRefTitle.createNestApplication();
-    await appTitle.init();
   });
 
-  afterAll(() => {
+  afterEach(() => {
     app.close();
-    appTitle.close();
+  });
+
+  beforeAll(() => {
     prismaService.$disconnect();
   });
 

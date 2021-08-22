@@ -18,7 +18,8 @@ describe('simple etst', () => {
 
   const lolService = new LOLService(prismaService);
   const authService = new AuthService(prismaService, lolService);
-  beforeAll(async () => {
+  beforeEach(async () => {
+    await initSchema(prismaService);
     const moduleRef = await Test.createTestingModule({
       imports: [UserModule],
     })
@@ -38,14 +39,13 @@ describe('simple etst', () => {
     await app.init();
   });
 
-  afterAll(() => {
+  afterEach(() => {
     appAuth.close();
     app.close();
-    prismaService.$disconnect();
   });
 
-  beforeEach(async () => {
-    await initSchema(prismaService);
+  afterAll(() => {
+    prismaService.$disconnect();
   });
 
   // same auth test

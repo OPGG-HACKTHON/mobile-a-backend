@@ -21,7 +21,8 @@ describe('simple etst', () => {
   const prismaService = new PrismaService();
   const userService = new UserService(prismaService);
   const rankService = new RankService(prismaService, userService);
-  beforeAll(async () => {
+  beforeEach(async () => {
+    await initSchema(prismaService);
     const moduleRefAuth = await Test.createTestingModule({
       imports: [RankModule, UserModule, PrismaModule, LOLModule, AuthModule],
       providers: [
@@ -40,13 +41,12 @@ describe('simple etst', () => {
     await app.init();
   });
 
-  afterAll(() => {
+  afterEach(() => {
     app.close();
-    prismaService.$disconnect();
   });
 
-  beforeEach(async () => {
-    await initSchema(prismaService);
+  afterAll(() => {
+    prismaService.$disconnect();
   });
 
   it('school rank test', async () => {

@@ -10,7 +10,7 @@ describe('title data test', () => {
   let app: INestApplication;
   const prismaService = new PrismaService();
   const titleService = new TitleService(prismaService);
-  beforeAll(async () => {
+  beforeEach(async () => {
     await initSchema(prismaService);
     const moduleRef = await Test.createTestingModule({
       imports: [TitleModule],
@@ -23,8 +23,11 @@ describe('title data test', () => {
     await app.init();
   });
 
-  afterAll(() => {
+  afterEach(() => {
     app.close();
+  });
+
+  afterAll(() => {
     prismaService.$disconnect();
   });
 
