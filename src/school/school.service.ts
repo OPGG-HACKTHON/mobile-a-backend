@@ -43,4 +43,12 @@ export class SchoolService implements OnApplicationBootstrap {
       },
     });
   }
+
+  async getSchoolById(id: number): Promise<School> {
+    return await this.prisma.school.findUnique({
+      where: {
+        id: id,
+      },
+    });
+  }
 }

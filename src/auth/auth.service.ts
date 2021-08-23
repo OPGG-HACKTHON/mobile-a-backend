@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { SignUpDTO } from './auth-signup.dto';
+import { SignUpParam } from './auth-signup.param';
 import { User } from '@prisma/client';
 import { LOLService } from '../lol/lol.service';
 @Injectable()
@@ -10,7 +10,7 @@ export class AuthService {
     private readonly lolService: LOLService,
   ) {}
 
-  async signUp(param: SignUpDTO): Promise<User> {
+  async signUp(param: SignUpParam): Promise<User> {
     const lolAccountId = await this.lolService.upsertLOLAccountByLOLName(
       param.LOLNickName,
     );
