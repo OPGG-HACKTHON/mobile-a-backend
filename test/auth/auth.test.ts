@@ -9,14 +9,23 @@ import { LOLService } from '../../src/lol/lol.service';
 //
 import { TitleService } from '../../src/title/title.service';
 import { TitleModule } from '../../src/title/title.module';
+import { UserService } from 'src/user/user.service';
+import { GoogleAuthService } from 'src/auth/passport/google-auth.service';
 
 describe('simple etst', () => {
   let app: INestApplication;
   let appTitle: INestApplication;
 
   const prismaService = new PrismaService();
+  const userService = new UserService(prismaService);
   const lolService = new LOLService(prismaService);
-  const authService = new AuthService(prismaService, lolService);
+  const googleAuthService = new GoogleAuthService();
+  const authService = new AuthService(
+    prismaService,
+    lolService,
+    userService,
+    googleAuthService,
+  );
 
   // for title
   const titleService = new TitleService(prismaService);

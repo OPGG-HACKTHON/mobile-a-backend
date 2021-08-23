@@ -86,18 +86,4 @@ export class AuthController {
   googleAuthRedirect(@Req() req) {
     return this.authService.googleLogin(req);
   }
-
-  /**
-   * @Apple
-   */
-  // /auth/apple
-  @Post('/apple')
-  public async appleLogin(@Body() payload: any): Promise<any> {
-    console.log('Received', payload);
-    if (!payload.code) {
-      throw new ForbiddenException();
-    }
-
-    return this.authService.appleLogin(payload);
-  }
 }

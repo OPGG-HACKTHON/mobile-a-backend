@@ -43,4 +43,19 @@ export class UserService {
       },
     };
   }
+
+  async userValidate(authFrom: string, email: string) {
+    const findUser = await this.prisma.user.findFirst({
+      where: {
+        authFrom: authFrom,
+        email: email,
+      },
+    });
+
+    if (!findUser) {
+      return false;
+    } else {
+      return true;
+    }
+  }
 }

@@ -8,43 +8,34 @@ import { PrismaService } from '../../src/prisma/prisma.service';
 import { LOLService } from '../../src/lol/lol.service';
 import { TitleService } from '../../src/title/title.service';
 import { TitleModule } from '../../src/title/title.module';
+import { UserService } from 'src/user/user.service';
+import { GoogleAuthService } from 'src/auth/passport/google-auth.service';
+import { LOLModule } from 'src/lol/lol.module';
+import { PrismaModule } from 'src/prisma/prisma.module';
+import { UserModule } from 'src/user/user.module';
 
 describe('google oauth test', () => {
   let app: INestApplication;
-  let appTitle: INestApplication;
 
   const prismaService = new PrismaService();
+  const userService = new UserService(prismaService);
   const lolService = new LOLService(prismaService);
-  const authService = new AuthService(prismaService, lolService);
-
-  // for title
-  const titleService = new TitleService(prismaService);
+  const googleAuthService = new GoogleAuthService();
   beforeAll(async () => {
-    await initSchema(prismaService);
-    const moduleRef = await Test.createTestingModule({
-      imports: [AuthModule],
+    const moduleRefAuth = await Test.createTestingModule({
+      imports: [UserModule, PrismaModule, LOLModule, AuthModule],
+      providers: [UserService, PrismaService, LOLService, AuthService],
     })
-      .overrideProvider(AuthService)
-      .useValue(authService)
+      .overrideProvider(GoogleAuthService)
+      .useValue(googleAuthService)
       .compile();
 
-    app = moduleRef.createNestApplication();
+    app = moduleRefAuth.createNestApplication();
     await app.init();
-
-    const moduleRefTitle = await Test.createTestingModule({
-      imports: [TitleModule],
-    })
-      .overrideProvider(TitleService)
-      .useValue(titleService)
-      .compile();
-
-    appTitle = moduleRefTitle.createNestApplication();
-    await appTitle.init();
   });
 
   afterAll(() => {
     app.close();
-    appTitle.close();
     prismaService.$disconnect();
   });
 
@@ -59,6 +50,7 @@ describe('google oauth test', () => {
     });
     await prismaService.user.create({
       data: {
+        authFrom: 'google',
         email: 'tpgns7708@gmail.com',
         schoolId: 1,
       },
