@@ -46,14 +46,15 @@ export class AuthService {
           schoolId: param.schoolId,
         },
       });
-    } else {
-      // TODO. accessToken 가져와서 바로 login 해주기
-      const userToken = await this.userService.getUserTokenByAuthAndEmail(
-        param.authFrom,
-        param.email,
-      );
-      console.log(userToken);
     }
+    // } else {
+    //   // TODO. accessToken 가져와서 바로 login 해주기
+    //   const userToken = await this.userService.getUserTokenByAuthAndEmail(
+    //     param.authFrom,
+    //     param.email,
+    //   );
+    //   console.log(userToken);
+    // }
   }
 
   /**
