@@ -8,5 +8,5 @@ export class SignUpParam {
   public LOLNickName: string;
 
   @ApiProperty()
-  public schoolId: number;
+  public schoolId: string;
 }

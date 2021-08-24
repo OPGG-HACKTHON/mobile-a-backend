@@ -10,7 +10,7 @@ import {
 import { UserService } from './user.service';
 import { Profile } from './user.types';
 import { ParseIntPipe } from '@nestjs/common';
-import { UserDTO } from 'src/common/dto/user.dto';
+import { UserDTO } from '../common/dto/user.dto';
 @ApiTags('User')
 @Controller('/users')
 export class UserController {

@@ -40,9 +40,7 @@ export class RankController {
     isArray: true,
   })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  async getRankByScoolId(
-    @Param('id', ParseIntPipe) schoolId: number,
-  ): Promise<Profile[]> {
+  async getRankByScoolId(@Param('id') schoolId: string): Promise<Profile[]> {
     return await this.rankService.getRankByScoolId(schoolId);
   }
 

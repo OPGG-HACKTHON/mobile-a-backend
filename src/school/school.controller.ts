@@ -28,7 +28,7 @@ export class SchoolController {
   @Get('/search/:searchWord')
   @ApiOperation({
     summary: '학교 검색',
-    description: '학교 이름 조회를 진행합니다.',
+    description: '학교 이름 조회를 진행합니다. (최대 50개)',
   })
   @ApiOkResponse({
     description: '학교 이름 조회 성공',
@@ -52,7 +52,7 @@ export class SchoolController {
     isArray: true,
   })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  async getSchoolById(@Param('id', ParseIntPipe) id: number) {
+  async getSchoolById(@Param('id') id: string) {
     return await this.schoolService.getSchoolById(id);
   }
 }

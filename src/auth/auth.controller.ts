@@ -20,7 +20,7 @@ import {
 import { AuthService } from './auth.service';
 import { LoginDTO } from './auth-login.param';
 import { SignUpParam } from './auth-signup.param';
-import { UserDTO } from 'src/common/dto/user.dto';
+import { UserDTO } from '../common/dto/user.dto';
 import { AuthDTO } from './auth-login.dto';
 @ApiTags('Auth')
 @Controller('/auth')

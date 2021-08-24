@@ -43,11 +43,18 @@ describe('simple etst', () => {
   });
 
   it('create school,lolaccount /auth/signup test', async () => {
+    await prismaService.region.create({
+      data: {
+        name: '서울',
+      },
+    });
     await prismaService.school.create({
       data: {
+        id: '1',
         name: '가나다초등학교',
         division: '초딩',
-        region: '서울',
+        educationOffice: '교육청',
+        regionId: 1,
         address: '어디선가',
       },
     });
@@ -55,21 +62,28 @@ describe('simple etst', () => {
       .post('/auth/signup')
       .set('Accept', 'application/json')
       .type('application/json')
-      .send({ email: 'abc@abc.com', LOLNickName: 'kkangsan', schoolId: 1 });
+      .send({ email: 'abc@abc.com', LOLNickName: 'kkangsan', schoolId: '1' });
 
     expect(res.statusCode).toBe(201);
     const { id, email, LOLAccountId, schoolId } = res.body;
     expect(id).toBe(1);
     expect(email).toBe('abc@abc.com');
     expect(LOLAccountId).toBeTruthy();
-    expect(schoolId).toBe(1);
+    expect(schoolId).toBe('1');
   });
   it('create school,lolaccount  - with lol  /auth/signup test', async () => {
+    await prismaService.region.create({
+      data: {
+        name: '서울',
+      },
+    });
     await prismaService.school.create({
       data: {
+        id: '1',
         name: '가나다초등학교',
+        educationOffice: '교육청',
         division: '초딩',
-        region: '서울',
+        regionId: 1,
         address: '어디선가',
       },
     });
@@ -77,14 +91,14 @@ describe('simple etst', () => {
       .post('/auth/signup')
       .set('Accept', 'application/json')
       .type('application/json')
-      .send({ email: 'abc@abc.com', LOLNickName: 'kkangsan', schoolId: 1 });
+      .send({ email: 'abc@abc.com', LOLNickName: 'kkangsan', schoolId: '1' });
 
     expect(res.statusCode).toBe(201);
     const { id, email, LOLAccountId, schoolId } = res.body;
     expect(id).toBe(1);
     expect(email).toBe('abc@abc.com');
     expect(LOLAccountId).toBeTruthy();
-    expect(schoolId).toBe(1);
+    expect(schoolId).toBe('1');
     // after lol info check
     const lolAccount = await prismaService.lOLAccount.findFirst({
       where: {

@@ -7,8 +7,8 @@ import { AuthModule } from './auth/auth.module';
 import { TitleModule } from './title/title.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { LOLModule } from './lol/lol.module';
-import { SchoolModule } from 'src/school/school.module';
-
+import { SchoolModule } from './school/school.module';
+import { RegionModule } from './region/region.module';
 @Module({
   imports: [
     UserModule,
@@ -19,6 +19,7 @@ import { SchoolModule } from 'src/school/school.module';
     PrismaModule,
     LOLModule,
     SchoolModule,
+    RegionModule,
   ],
   controllers: [AppController],
   providers: [],

@@ -33,7 +33,7 @@ describe('school data test', () => {
 
   it('school data test', async () => {
     const countSchoolData = await prismaService.school.count();
-    expect(countSchoolData).toBe(500);
+    expect(countSchoolData).toBe(11964);
   });
 
   it('search schools ', async () => {
@@ -45,7 +45,7 @@ describe('school data test', () => {
     expect(res.body[0].id).toBeTruthy();
     expect(res.body[0].name).toBeTruthy();
     expect(res.body[0].division).toBeTruthy();
-    expect(res.body[0].region).toBeTruthy();
+    expect(res.body[0].regionId).toBeTruthy();
     expect(res.body[0].address).toBeTruthy();
   });
 });

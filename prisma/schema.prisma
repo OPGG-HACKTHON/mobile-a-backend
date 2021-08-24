@@ -24,17 +24,27 @@ model User {
   LOLAccount   LOLAccount? @relation(fields: [LOLAccountId], references: [id])
   LOLAccountId String?
   School       School      @relation(fields: [schoolId], references: [id])
-  schoolId     Int
+  schoolId     String
+}
+
+model Region {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  School    School[]
 }
 
 model School {
-  id               Int                @id @default(autoincrement())
+  id               String             @id
   name             String
   division         String
-  region           String
+  educationOffice  String
   address          String
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
+  Region           Region             @relation(fields: [regionId], references: [id])
+  regionId         Int
   User             User[]
   LOLSummarySchool LOLSummarySchool[]
 }
@@ -72,7 +82,7 @@ model LOLSummaryPersonal {
 // LoL summary School
 model LOLSummarySchool {
   School              School            @relation(fields: [SchoolId], references: [id])
-  SchoolId            Int
+  SchoolId            String
   LOLSummaryElement   LOLSummaryElement @relation(fields: [LOLSummaryElementId], references: [id])
   LOLSummaryElementId Int
   championId          Int?

@@ -19,5 +19,5 @@ export class UserDTO {
   LOLAccountId: string;
 
   @ApiProperty()
-  schoolId: number;
+  schoolId: string;
 }
