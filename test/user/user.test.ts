@@ -57,7 +57,12 @@ describe('simple etst', () => {
       .post('/auth/signup')
       .set('Accept', 'application/json')
       .type('application/json')
-      .send({ email: 'abc@abc.com', LOLNickName: 'kkangsan', schoolId: '1' });
+      .send({
+        authFrom: 'google',
+        email: 'abc@abc.com',
+        LOLNickName: 'kkangsan',
+        schoolId: '1',
+      });
 
     expect(res.statusCode).toBe(201);
     const { id, email, LOLAccountId, schoolId } = res.body;

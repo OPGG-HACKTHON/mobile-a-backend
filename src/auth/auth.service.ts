@@ -23,14 +23,15 @@ export class AuthService {
   ) {}
 
   async signUp(param: SignUpParam): Promise<User> {
-    // TODO : user validate (module)
-    const userValidate = await this.userService.userValidate(
+    // check user exist
+    console.log(param);
+    const isUserExistValidate = await this.userService.isUserExistValidate(
       param.authFrom,
       param.email,
     );
 
-    if (!userValidate) {
-      // 유저가 존재하지 않을 경우
+    // 유저가 존재하지 않을 경우
+    if (!isUserExistValidate) {
       const lolAccountId = await this.lolService.upsertLOLAccountByLOLName(
         param.LOLNickName,
       );
@@ -46,6 +47,12 @@ export class AuthService {
         },
       });
     } else {
+      // TODO. accessToken 가져와서 바로 login 해주기
+      const userToken = await this.userService.getUserTokenByAuthAndEmail(
+        param.authFrom,
+        param.email,
+      );
+      console.log(userToken);
     }
   }
 
@@ -67,9 +74,17 @@ export class AuthService {
 
     const tokenValidate = await this.googleAuthService.getUser(accessToken);
     if (tokenValidate.verified_email) {
-      const userValidate = await this.userService.userValidate(authFrom, email);
+      const isUserExistValidate = await this.userService.isUserExistValidate(
+        authFrom,
+        email,
+      );
 
-      if (!userValidate) {
+      if (!isUserExistValidate) {
+        const userToken = await this.userService.getUserTokenByAuthAndEmail(
+          authFrom,
+          email,
+        );
+        console.log(userToken);
         return {
           message: '유저 정보가 없습니다. 회원가입을 진행합니다.',
           authFrom: authFrom,
@@ -78,7 +93,7 @@ export class AuthService {
         };
       }
 
-      return { accessToken: req.user.accessToken };
+      // TODO. 유저 존재할 경우에 Token 저장
     } else {
       throw new HttpException(
         {

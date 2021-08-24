@@ -44,11 +44,18 @@ describe('google oauth test', () => {
   });
 
   it('google login test,  /auth/google test', async () => {
+    await prismaService.region.create({
+      data: {
+        name: '서울',
+      },
+    });
     await prismaService.school.create({
       data: {
+        id: '1',
         name: '가나다초등학교',
         division: '초딩',
-        region: '서울',
+        educationOffice: '교육청',
+        regionId: 1,
         address: '어디선가',
       },
     });
@@ -56,7 +63,7 @@ describe('google oauth test', () => {
       data: {
         authFrom: 'google',
         email: 'tpgns7708@gmail.com',
-        schoolId: 1,
+        schoolId: '1',
       },
     });
 
@@ -64,7 +71,7 @@ describe('google oauth test', () => {
       .get('/auth/google/callback')
       .set('Accept', 'application/json')
       .type('application/json');
-    console.log(res);
+
     expect(res.statusCode).toBe(302);
   });
 });

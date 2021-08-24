@@ -94,6 +94,7 @@ describe('simple etst', () => {
       .set('Accept', 'application/json')
       .type('application/json')
       .send({
+        authFrom: 'google',
         email: 'abc2@abc.com',
         LOLNickName: 'hide on bush',
         schoolId: '1',

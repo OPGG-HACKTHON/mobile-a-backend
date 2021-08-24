@@ -42,7 +42,8 @@ export class UserService {
     };
   }
 
-  async userValidate(authFrom: string, email: string) {
+  // check user exist
+  async isUserExistValidate(authFrom: string, email: string) {
     const findUser = await this.prisma.user.findFirst({
       where: {
         authFrom: authFrom,
@@ -64,4 +65,18 @@ export class UserService {
       },
     });
   }
+
+  // TODO. 유저 토큰 조회해서 가져오기
+  async getUserTokenByAuthAndEmail(authFrom: string, email: string) {
+    const user = this.prisma.user.findFirst({
+      where: {
+        authFrom: authFrom,
+        email: email,
+      },
+    });
+    const token = user.Token;
+    console.log(token);
+  }
+
+  // TODO. 유저 토큰 저장 (token, userId)
 }

@@ -91,7 +91,8 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req) {
     const userData = await this.authService.googleLogin(req);
-    console.log(userData);
-    console.log(req.res.req.user);
+    // TODO. 여기서 넘어온 Token 디비에 저장하기
+    return userData;
+    // console.log(req.res.req.user);
   }
 }

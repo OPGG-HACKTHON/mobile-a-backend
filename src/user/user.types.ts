@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Interface } from 'readline';
 
 export class TierInfo {
   @ApiProperty()
