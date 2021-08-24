@@ -9,20 +9,31 @@ CREATE TABLE "User" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "role" "Role" NOT NULL DEFAULT E'USER',
     "LOLAccountId" TEXT,
-    "schoolId" INTEGER NOT NULL,
+    "schoolId" TEXT NOT NULL,
+
+    PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Region" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "School" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "division" TEXT NOT NULL,
-    "region" TEXT NOT NULL,
+    "educationOffice" TEXT NOT NULL,
     "address" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "regionId" INTEGER NOT NULL,
 
     PRIMARY KEY ("id")
 );
@@ -55,7 +66,7 @@ CREATE TABLE "LOLSummaryPersonal" (
 
 -- CreateTable
 CREATE TABLE "LOLSummarySchool" (
-    "SchoolId" INTEGER NOT NULL,
+    "SchoolId" TEXT NOT NULL,
     "LOLSummaryElementId" INTEGER NOT NULL,
     "championId" INTEGER,
     "value" TEXT NOT NULL,
@@ -125,6 +136,9 @@ CREATE UNIQUE INDEX "User.email_unique" ON "User"("email");
 CREATE UNIQUE INDEX "User_LOLAccountId_unique" ON "User"("LOLAccountId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Region.name_unique" ON "Region"("name");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "LOLTier.LOLAccountId_unique" ON "LOLTier"("LOLAccountId");
 
 -- CreateIndex
@@ -135,6 +149,9 @@ ALTER TABLE "User" ADD FOREIGN KEY ("LOLAccountId") REFERENCES "LOLAccount"("id"
 
 -- AddForeignKey
 ALTER TABLE "User" ADD FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "School" ADD FOREIGN KEY ("regionId") REFERENCES "Region"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "LOLSummaryPersonal" ADD FOREIGN KEY ("LOLAccountId") REFERENCES "LOLAccount"("id") ON DELETE CASCADE ON UPDATE CASCADE;

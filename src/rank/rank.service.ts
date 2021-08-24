@@ -9,7 +9,7 @@ export class RankService {
     private userService: UserService,
   ) {}
 
-  async getRankByScoolId(schoolId: number): Promise<Profile[]> {
+  async getRankByScoolId(schoolId: string): Promise<Profile[]> {
     const users = await this.prisma.user.findMany({
       where: {
         schoolId: schoolId,

@@ -1,45 +1,117 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import got from 'got';
-import { School } from '@prisma/client';
+import { School, Region } from '@prisma/client';
+import { SchoolParam } from './school.param';
 
 @Injectable()
 export class SchoolService implements OnApplicationBootstrap {
   constructor(private prisma: PrismaService) {}
 
-  async onApplicationBootstrap() {
-    console.log('... 학교 데이터 로드 ...');
-    const isSchoolExist = await this.prisma.school.findMany();
+  private convertSchoolToSchool(row: string[]): {
+    id: string;
+    name: string;
+    division: string;
+    educationOffice: string;
+    address: string;
+  } {
+    return {
+      id: row[0],
+      name: row[1],
+      division: row[2],
+      educationOffice: row[10],
+      address: row[8],
+    };
+  }
 
-    if (isSchoolExist.length == 0) {
-      console.log('... 학교 데이터 받아오는 중 ...');
-      const schoolData = await got
-        .get('https://static.opggmobilea.com/school/school.json')
-        .json();
-      const schoolDataJson = schoolData['records'];
-
-      const schoolInputList = schoolDataJson.map((schoolJson) => ({
-        name: schoolJson['학교명'],
-        division: schoolJson['학교급구분'],
-        region: schoolJson['시도교육청명'],
-        address: schoolJson['소재지도로명주소'],
-      }));
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const createMany = await this.prisma.school.createMany({
-        data: schoolInputList,
-        skipDuplicates: true, // Skip 'Bobo'
-      });
-    } else {
-      console.log('... 학교 데이터가 이미 존재 ...');
+  private rawRegionNameToRegionName(name: string): string {
+    let rawRegion = name;
+    if ('경기' === rawRegion) {
+      rawRegion = '경기도';
     }
+    if ('대전' === rawRegion) {
+      rawRegion = '대전광역시';
+    }
+    return rawRegion;
+  }
+
+  private schoolAddressToRegion(address: string): string {
+    const rawRegion = address.split(' ')[0];
+    return this.rawRegionNameToRegionName(rawRegion);
+  }
+
+  private parseRegionsListBySchoolParam(param: string[][]): string[] {
+    const result = [
+      ...new Set(
+        param.map((row) =>
+          this.schoolAddressToRegion(this.convertSchoolToSchool(row).address),
+        ),
+      ),
+    ].sort();
+    return result;
+  }
+
+  async onApplicationBootstrap() {
+    const schoolData = await got
+      .get('https://static.opggmobilea.com/school/school.csv')
+      .text();
+
+    const rawSchools = schoolData
+      .split('\n')
+      .slice(1)
+      .map((str) => str.split(','))
+      .filter((row) => row.length > 1);
+    const regionNames = this.parseRegionsListBySchoolParam(rawSchools);
+    for (const name of regionNames) {
+      await this.prisma.region.upsert({
+        where: {
+          name: name,
+        },
+        update: {},
+        create: {
+          name: name,
+        },
+      });
+    }
+
+    const regions = await this.prisma.region.findMany();
+    const regionNameToIdMap: Map<string, number> = new Map();
+    regions.forEach((region) => regionNameToIdMap.set(region.name, region.id));
+
+    const inputSchools = rawSchools.map((raw) => {
+      const row = this.convertSchoolToSchool(raw);
+      return {
+        id: row.id,
+        name: row.name,
+        division: row.division,
+        educationOffice: row.educationOffice,
+        address: row.address,
+        regionId: regionNameToIdMap.get(
+          this.schoolAddressToRegion(row.address),
+        ),
+      };
+    });
+    await this.prisma.school.createMany({
+      data: inputSchools,
+      skipDuplicates: true,
+    });
   }
 
   async getSchoolListBySearchParam(param: string): Promise<School[]> {
     return await this.prisma.school.findMany({
+      take: 50,
       where: {
         name: {
           contains: param,
         },
+      },
+    });
+  }
+
+  async getSchoolById(id: string): Promise<School> {
+    return await this.prisma.school.findUnique({
+      where: {
+        id: id,
       },
     });
   }

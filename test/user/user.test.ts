@@ -9,67 +9,62 @@ import { PrismaService } from '../../src/prisma/prisma.service';
 import { AuthModule } from '../../src/auth/auth.module';
 import { AuthService } from '../../src/auth/auth.service';
 import { LOLService } from '../../src/lol/lol.service';
+import { PrismaModule } from '../../src/prisma/prisma.module';
+import { LOLModule } from '../../src/lol/lol.module';
 describe('simple etst', () => {
   let app: INestApplication;
-  let appAuth: INestApplication;
-
   const prismaService = new PrismaService();
   const userService = new UserService(prismaService);
-
-  const lolService = new LOLService(prismaService);
-  const authService = new AuthService(prismaService, lolService);
-  beforeAll(async () => {
+  beforeEach(async () => {
+    await initSchema(prismaService);
     const moduleRef = await Test.createTestingModule({
-      imports: [UserModule],
+      imports: [UserModule, AuthModule, PrismaModule, LOLModule],
+      providers: [UserService, AuthService, PrismaService, LOLService],
     })
       .overrideProvider(UserService)
       .useValue(userService)
       .compile();
-    const moduleRefAuth = await Test.createTestingModule({
-      imports: [AuthModule],
-    })
-      .overrideProvider(AuthService)
-      .useValue(authService)
-      .compile();
-
-    appAuth = moduleRefAuth.createNestApplication();
     app = moduleRef.createNestApplication();
-    await appAuth.init();
     await app.init();
   });
 
-  afterAll(() => {
-    appAuth.close();
+  afterEach(() => {
     app.close();
-    prismaService.$disconnect();
   });
 
-  beforeEach(async () => {
-    await initSchema(prismaService);
+  afterAll(() => {
+    prismaService.$disconnect();
   });
 
   // same auth test
   it('create school,lolaccount,  /auth/signup test and get profile', async () => {
+    await prismaService.region.create({
+      data: {
+        name: '서울',
+      },
+    });
     await prismaService.school.create({
       data: {
+        id: '1',
         name: '가나다초등학교',
         division: '초딩',
-        region: '서울',
+        educationOffice: '서울시교육청',
+        regionId: 1,
         address: '어디선가',
       },
     });
-    const res = await request(appAuth.getHttpServer())
+    const res = await request(app.getHttpServer())
       .post('/auth/signup')
       .set('Accept', 'application/json')
       .type('application/json')
-      .send({ email: 'abc@abc.com', LOLNickName: 'kkangsan', schoolId: 1 });
+      .send({ email: 'abc@abc.com', LOLNickName: 'kkangsan', schoolId: '1' });
 
     expect(res.statusCode).toBe(201);
     const { id, email, LOLAccountId, schoolId } = res.body;
     expect(id).toBe(1);
     expect(email).toBe('abc@abc.com');
     expect(LOLAccountId).toBeTruthy();
-    expect(schoolId).toBe(1);
+    expect(schoolId).toBe('1');
     // find profile
     const resProfile = await request(app.getHttpServer())
       .get('/users/1/profile')
