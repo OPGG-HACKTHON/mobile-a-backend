@@ -74,25 +74,23 @@ export class AuthController {
    * @Google
    */
   // /auth/google
-  // @Get('google')
-  // @ApiOperation({
-  //   summary: '구글 로그인',
-  //   description: '구글 로그인을 진행합니다.',
-  // })
-  // @ApiOkResponse({ description: '구글 로그인 성공' })
-  // @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  // @UseGuards(AuthGuard('google'))
-  // async googleAuth(@Req() req) {
-  //   //
-  // }
+  @Get('google')
+  @ApiOperation({
+    summary: '구글 로그인',
+    description: '구글 로그인을 진행합니다.',
+  })
+  @ApiOkResponse({ description: '구글 로그인 성공' })
+  @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  @UseGuards(AuthGuard('google'))
+  async googleAuth(@Req() req) {
+    //
+  }
 
-  // // /auth/google/callback
-  // @Get('google/callback')
-  // @UseGuards(AuthGuard('google'))
-  // async googleAuthRedirect(@Req() req) {
-  //   const userData = await this.authService.googleLogin(req);
-  //   // TODO. 여기서 넘어온 Token 디비에 저장하기
-  //   return userData;
-  //   // console.log(req.res.req.user);
-  // }
+  // /auth/google/callback
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleAuthRedirect(@Req() req) {
+    const userData = await this.authService.googleLogin(req);
+    return userData;
+  }
 }

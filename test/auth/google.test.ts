@@ -68,10 +68,29 @@ describe('google oauth test', () => {
     });
 
     const res = await request(app.getHttpServer())
-      .get('/auth/google/callback')
+      .get('/auth/google')
       .set('Accept', 'application/json')
       .type('application/json');
 
+    const user = await prismaService.user.findFirst({
+      where: {
+        authFrom: 'google',
+        email: 'tpgns7708@gmail.com',
+      },
+    });
+
+    const userToken = await prismaService.token.findFirst({
+      where: {
+        userId: user.id,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
     expect(res.statusCode).toBe(302);
+    // const { Token, expireAt } = userToken;
+    // expect(Token).toBeTruthy();
+    // expect(expireAt).toBeGreaterThanOrEqual(Date.now());
   });
 });

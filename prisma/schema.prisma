@@ -27,7 +27,7 @@ model Token {
 model User {
   id           Int         @id @default(autoincrement())
   authFrom     String
-  email        String      @unique
+  email        String
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   role         Role        @default(USER)
@@ -36,6 +36,8 @@ model User {
   schoolId     String
   School       School      @relation(fields: [schoolId], references: [id])
   Token        Token[]
+
+  @@unique([authFrom, email], name: "User_authFrom_email_uniqueConstraint")
 }
 
 model Region {

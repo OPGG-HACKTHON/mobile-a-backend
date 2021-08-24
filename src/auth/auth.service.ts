@@ -24,7 +24,6 @@ export class AuthService {
 
   async signUp(param: SignUpParam): Promise<User> {
     // check user exist
-    console.log(param);
     const isUserExistValidate = await this.userService.isUserExistValidate(
       param.authFrom,
       param.email,
@@ -36,7 +35,7 @@ export class AuthService {
         param.LOLNickName,
       );
 
-      // TODO : header.accessToken validate
+      // TODO : accessToken validate
 
       return await this.prisma.user.create({
         data: {
@@ -46,15 +45,17 @@ export class AuthService {
           schoolId: param.schoolId,
         },
       });
+    } else {
+      // 유저가 존재하는 경우
+      // TODO. 유저 존재할 경우에 Token 저장
+      // userId 받아와야 함
+      // TODO. accessToken 가져와서 바로 login 해주기
+      const userToken = await this.userService.getUserTokenByAuthAndEmail(
+        param.authFrom,
+        param.email,
+      );
+      console.log(userToken);
     }
-    // } else {
-    //   // TODO. accessToken 가져와서 바로 login 해주기
-    //   const userToken = await this.userService.getUserTokenByAuthAndEmail(
-    //     param.authFrom,
-    //     param.email,
-    //   );
-    //   console.log(userToken);
-    // }
   }
 
   /**
@@ -80,21 +81,28 @@ export class AuthService {
         email,
       );
 
+      // 유저가 존재하지 않는 경우
       if (!isUserExistValidate) {
-        const userToken = await this.userService.getUserTokenByAuthAndEmail(
-          authFrom,
-          email,
-        );
-        console.log(userToken);
         return {
           message: '유저 정보가 없습니다. 회원가입을 진행합니다.',
+          isNeedSignUp: true,
           authFrom: authFrom,
           email: email,
           accessToken: accessToken,
         };
+      } else {
+        // 유저 존재 시 토큰을 디비에 담습니다.
+        const userId = isUserExistValidate;
+        const userToken = await this.userService.createUserToken(
+          userId,
+          accessToken,
+        );
+        return {
+          message: '이미 가입된 유저입니다. 로그인을 진행합니다.',
+          isNeedSignUp: false,
+          userToken: userToken,
+        };
       }
-
-      // TODO. 유저 존재할 경우에 Token 저장
     } else {
       throw new HttpException(
         {

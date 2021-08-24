@@ -14,12 +14,21 @@ import { LOLModule } from '../../src/lol/lol.module';
 //
 import { AuthService } from '../../src/auth/auth.service';
 import { AuthModule } from '../../src/auth/auth.module';
+import { GoogleAuthService } from '../../src/auth/passport/google-auth.service';
 
 describe('simple etst', () => {
   let app: INestApplication;
 
   const prismaService = new PrismaService();
+  const googleAuthService = new GoogleAuthService();
   const userService = new UserService(prismaService);
+  const lolService = new LOLService(prismaService);
+  const authService = new AuthService(
+    prismaService,
+    lolService,
+    userService,
+    googleAuthService,
+  );
   const rankService = new RankService(prismaService, userService);
   beforeEach(async () => {
     await initSchema(prismaService);

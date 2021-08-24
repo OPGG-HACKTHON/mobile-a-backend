@@ -54,7 +54,7 @@ export class UserService {
     if (!findUser) {
       return false;
     } else {
-      return true;
+      return findUser.id;
     }
   }
 
@@ -73,10 +73,29 @@ export class UserService {
         authFrom: authFrom,
         email: email,
       },
+      include: {
+        Token: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
     const token = user.Token;
-    console.log(token);
+    return token;
   }
 
   // TODO. 유저 토큰 저장 (token, userId)
+  // -> create, 현재시간 + 1년
+  async createUserToken(userId: number, Token: string) {
+    const expireAt = new Date();
+    expireAt.setFullYear(expireAt.getFullYear() + 1);
+
+    return await this.prisma.token.create({
+      data: {
+        Token: Token,
+        userId: userId,
+        expireAt: expireAt,
+      },
+    });
+  }
 }
