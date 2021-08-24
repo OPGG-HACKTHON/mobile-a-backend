@@ -49,7 +49,7 @@ export class AuthController {
     summary: '로그아웃',
     description: '로그아웃을 진행합니다.',
   })
-  @ApiOkResponse({ description: '로그인 성공' })
+  @ApiOkResponse({ description: '로그아웃 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   @ApiBody({ type: LoginDTO })
   logout(): string {
@@ -67,7 +67,7 @@ export class AuthController {
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   @ApiBody({ type: SignUpDTO })
   async signUp(@Body() param: SignUpDTO) {
-    return await this.authService.signUp(param);
+    return this.authService.signUp(param);
   }
 
   /**
@@ -75,15 +75,23 @@ export class AuthController {
    */
   // /auth/google
   @Get('google')
+  @ApiOperation({
+    summary: '구글 로그인',
+    description: '구글 로그인을 진행합니다.',
+  })
+  @ApiOkResponse({ description: '구글 로그인 성공' })
+  @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   @UseGuards(AuthGuard('google'))
   async googleAuth(@Req() req) {
-    //empty
+    //
   }
 
   // /auth/google/callback
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  googleAuthRedirect(@Req() req) {
-    return this.authService.googleLogin(req);
+  async googleAuthRedirect(@Req() req) {
+    const userData = await this.authService.googleLogin(req);
+    console.log(userData);
+    console.log(req.res.req.user);
   }
 }

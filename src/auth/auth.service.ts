@@ -11,7 +11,7 @@ import { User } from '@prisma/client';
 import { LOLService } from '../lol/lol.service';
 import * as appleSignin from 'apple-signin';
 import path from 'path';
-import { UserService } from 'src/user/user.service';
+import { UserService } from '../user/user.service';
 import { GoogleAuthService } from './passport/google-auth.service';
 @Injectable()
 export class AuthService {
@@ -24,21 +24,29 @@ export class AuthService {
 
   async signUp(param: SignUpDTO): Promise<User> {
     // TODO : user validate (module)
-
-    const lolAccountId = await this.lolService.upsertLOLAccountByLOLName(
-      param.LOLNickName,
+    const userValidate = await this.userService.userValidate(
+      param.authFrom,
+      param.email,
     );
 
-    // TODO : header.accessToken validate
+    if (!userValidate) {
+      // 유저가 존재하지 않을 경우
+      const lolAccountId = await this.lolService.upsertLOLAccountByLOLName(
+        param.LOLNickName,
+      );
 
-    return await this.prisma.user.create({
-      data: {
-        authFrom: param.authFrom,
-        email: param.email,
-        LOLAccountId: lolAccountId,
-        schoolId: param.schoolId,
-      },
-    });
+      // TODO : header.accessToken validate
+
+      return await this.prisma.user.create({
+        data: {
+          authFrom: param.authFrom,
+          email: param.email,
+          LOLAccountId: lolAccountId,
+          schoolId: param.schoolId,
+        },
+      });
+    } else {
+    }
   }
 
   /**
@@ -57,8 +65,6 @@ export class AuthService {
     const authFrom = 'google';
     const { email, accessToken } = req.user;
 
-    // TODO 1. 구글쪽에 accessToken 보내서 클라이언트에 대한 정보 가져오기 (ㅇㅇ: -> 진행, ㄴㄴ: 에러)
-    // -> {data} 값 확인
     const tokenValidate = await this.googleAuthService.getUser(accessToken);
     if (tokenValidate.verified_email) {
       const userValidate = await this.userService.userValidate(authFrom, email);
