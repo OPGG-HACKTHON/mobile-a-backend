@@ -21,7 +21,8 @@ describe('simple etst', () => {
   const prismaService = new PrismaService();
   const userService = new UserService(prismaService);
   const rankService = new RankService(prismaService, userService);
-  beforeAll(async () => {
+  beforeEach(async () => {
+    await initSchema(prismaService);
     const moduleRefAuth = await Test.createTestingModule({
       imports: [RankModule, UserModule, PrismaModule, LOLModule, AuthModule],
       providers: [
@@ -40,23 +41,29 @@ describe('simple etst', () => {
     await app.init();
   });
 
-  afterAll(() => {
+  afterEach(() => {
     app.close();
-    prismaService.$disconnect();
   });
 
-  beforeEach(async () => {
-    await initSchema(prismaService);
+  afterAll(() => {
+    prismaService.$disconnect();
   });
 
   it('school rank test', async () => {
     // setup
     // school - foo
+    await prismaService.region.create({
+      data: {
+        name: '서울',
+      },
+    });
     await prismaService.school.create({
       data: {
+        id: '1',
         name: 'foo',
         division: 'foo',
-        region: 'foo',
+        educationOffice: '교육청이름',
+        regionId: 1,
         address: 'foo',
       },
     });
@@ -73,20 +80,40 @@ describe('simple etst', () => {
       .post('/auth/signup')
       .set('Accept', 'application/json')
       .type('application/json')
-      .send({ email: 'abc@abc.com', LOLNickName: 'kkangsan', schoolId: 1 });
+      .send({ email: 'abc1@abc.com', LOLNickName: 'kkangsan', schoolId: '1' });
 
     expect(resSignUp.statusCode).toBe(201);
     const { id, email, LOLAccountId, schoolId } = resSignUp.body;
     expect(id).toBe(1);
-    expect(email).toBe('abc@abc.com');
+    expect(email).toBe('abc1@abc.com');
     expect(LOLAccountId).toBeTruthy();
-    expect(schoolId).toBe(1);
-    expect(1).toBe(1);
+    expect(schoolId).toBe('1');
+
+    const resSignUp2 = await request(app.getHttpServer())
+      .post('/auth/signup')
+      .set('Accept', 'application/json')
+      .type('application/json')
+      .send({
+        email: 'abc2@abc.com',
+        LOLNickName: 'hide on bush',
+        schoolId: '1',
+      });
+
+    expect(resSignUp2.statusCode).toBe(201);
+    expect(resSignUp2.body.id).toBe(2);
+    expect(resSignUp2.body.email).toBe('abc2@abc.com');
+    expect(resSignUp2.body.LOLAccountId).toBeTruthy();
+    expect(resSignUp2.body.schoolId).toBe('1');
+
     //e2e;
     const resRankSchool = await request(app.getHttpServer())
       .get(encodeURI('/ranks/schools/1'))
       .set('Accept', 'application/json')
       .type('application/json');
+
+    expect(resRankSchool.body.length).toBe(2);
+    expect(resRankSchool.body[0].id).toBe(2); // hide on bush
+    expect(resRankSchool.body[1].id).toBe(1); // kkangsan
 
     const { lol } = resRankSchool.body[0];
     expect(resRankSchool.body[0].id).toBeTruthy();

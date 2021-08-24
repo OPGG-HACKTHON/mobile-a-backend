@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class SignUpDTO {
+export class SignUpParam {
   @ApiProperty()
   public authFrom: string;
 
@@ -11,5 +11,5 @@ export class SignUpDTO {
   public LOLNickName: string;
 
   @ApiProperty()
-  public schoolId: number;
+  public schoolId: string;
 }

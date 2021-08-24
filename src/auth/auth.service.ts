@@ -6,7 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { SignUpDTO } from './auth-signup.dto';
+import { SignUpParam } from './auth-signup.param';
 import { User } from '@prisma/client';
 import { LOLService } from '../lol/lol.service';
 import * as appleSignin from 'apple-signin';
@@ -22,7 +22,7 @@ export class AuthService {
     private readonly googleAuthService: GoogleAuthService,
   ) {}
 
-  async signUp(param: SignUpDTO): Promise<User> {
+  async signUp(param: SignUpParam): Promise<User> {
     // TODO : user validate (module)
     const userValidate = await this.userService.userValidate(
       param.authFrom,

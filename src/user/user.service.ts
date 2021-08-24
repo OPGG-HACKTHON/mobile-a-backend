@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { SignUpDTO } from '../auth/auth-signup.dto';
-import got from 'got';
 import { Profile } from './user.types';
+import { UserDTO } from '../common/dto/user.dto';
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
@@ -19,21 +18,19 @@ export class UserService {
       where: {
         id: userId,
       },
+      include: {
+        LOLAccount: {
+          include: {
+            LOLTier: true,
+          },
+        },
+      },
     });
     if (!user.LOLAccountId) {
       throw new Error('lol 계정이 존재하지 않습니다.');
     }
-    const { profileIconId, summonerLevel } =
-      await this.prisma.lOLAccount.findUnique({
-        where: {
-          id: user.LOLAccountId,
-        },
-      });
-    const { tier, rank, leaguePoints } = await this.prisma.lOLTier.findUnique({
-      where: {
-        LOLAccountId: user.LOLAccountId,
-      },
-    });
+    const { profileIconId, summonerLevel } = user.LOLAccount;
+    const { tier, rank, leaguePoints } = user.LOLAccount.LOLTier;
     return {
       id: userId,
       lol: {
@@ -58,5 +55,13 @@ export class UserService {
     } else {
       return true;
     }
+  }
+
+  async getUserById(id: number): Promise<UserDTO> {
+    return this.prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
   }
 }

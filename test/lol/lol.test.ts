@@ -10,7 +10,8 @@ describe('simple etst', () => {
   let app: INestApplication;
   const prismaService = new PrismaService();
   const lolService = new LOLService(prismaService);
-  beforeAll(async () => {
+  beforeEach(async () => {
+    await initSchema(prismaService);
     const moduleRef = await Test.createTestingModule({
       imports: [LOLModule],
     })
@@ -24,11 +25,9 @@ describe('simple etst', () => {
 
   afterAll(() => {
     app.close();
-    prismaService.$disconnect();
   });
-
-  beforeEach(async () => {
-    await initSchema(prismaService);
+  afterAll(() => {
+    prismaService.$disconnect();
   });
 
   it('getSummerInfoByLOLName test - success kkangsan', async () => {

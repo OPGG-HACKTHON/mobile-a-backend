@@ -10,7 +10,7 @@ describe('school data test', () => {
   let app: INestApplication;
   const prismaService = new PrismaService();
   const schoolService = new SchoolService(prismaService);
-  beforeAll(async () => {
+  beforeEach(async () => {
     await initSchema(prismaService);
     const moduleRef = await Test.createTestingModule({
       imports: [SchoolModule],
@@ -23,14 +23,17 @@ describe('school data test', () => {
     await app.init();
   });
 
-  afterAll(() => {
+  afterEach(() => {
     app.close();
+  });
+
+  afterAll(() => {
     prismaService.$disconnect();
   });
 
   it('school data test', async () => {
     const countSchoolData = await prismaService.school.count();
-    expect(countSchoolData).toBe(500);
+    expect(countSchoolData).toBe(11964);
   });
 
   it('search schools ', async () => {
@@ -42,7 +45,7 @@ describe('school data test', () => {
     expect(res.body[0].id).toBeTruthy();
     expect(res.body[0].name).toBeTruthy();
     expect(res.body[0].division).toBeTruthy();
-    expect(res.body[0].region).toBeTruthy();
+    expect(res.body[0].regionId).toBeTruthy();
     expect(res.body[0].address).toBeTruthy();
   });
 });
