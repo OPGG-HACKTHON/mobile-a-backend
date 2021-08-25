@@ -2,7 +2,7 @@ import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import got from 'got';
 import { School, Region } from '@prisma/client';
-import { SchoolParam } from './school.param';
+import { SchoolParam, SearchParam } from './school.param';
 
 @Injectable()
 export class SchoolService implements OnApplicationBootstrap {
@@ -97,13 +97,16 @@ export class SchoolService implements OnApplicationBootstrap {
     });
   }
 
-  async getSchoolListBySearchParam(param: string): Promise<School[]> {
+  async getSchoolListBySearchParamOptionalDivision(
+    param: SearchParam,
+  ): Promise<School[]> {
     return await this.prisma.school.findMany({
       take: 50,
       where: {
         name: {
-          contains: param,
+          contains: param.searchWord,
         },
+        division: param.division,
       },
     });
   }

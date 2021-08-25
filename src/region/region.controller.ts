@@ -17,13 +17,13 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { RegoionService } from './region.service';
+import { RegionService } from './region.service';
 import { Region } from './region.dto';
 
 @ApiTags('Region')
 @Controller('/regions')
-export class RefionController {
-  constructor(private readonly regionService: RegoionService) {}
+export class RegionController {
+  constructor(private readonly regionService: RegionService) {}
 
   // /regions
   @Get('')
@@ -39,5 +39,20 @@ export class RefionController {
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   async getRegions() {
     return await this.regionService.getRegions();
+  }
+
+  // /regions
+  @Get('/:id')
+  @ApiOperation({
+    summary: '지역정보를 id로 검색합니다.',
+    description: '지역정보를 id로 검색합니다.',
+  })
+  @ApiOkResponse({
+    description: '지역 검색',
+    type: Region,
+  })
+  @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  async getRegionById(@Param('id', ParseIntPipe) id: number) {
+    return await this.regionService.getRegionById(id);
   }
 }

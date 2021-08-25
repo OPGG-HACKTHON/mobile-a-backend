@@ -6,3 +6,8 @@ export interface SchoolParam {
     소재지도로명주소: string;
   }[];
 }
+
+export interface SearchParam {
+  searchWord: string;
+  division?: string;
+}

@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { RegoionService } from './region.service';
-import { RefionController } from './region.controller';
+import { RegionService } from './region.service';
+import { RegionController } from './region.controller';
 @Module({
-  controllers: [RefionController],
-  providers: [RegoionService],
+  controllers: [RegionController],
+  providers: [RegionService],
 })
 export class RegionModule {}
