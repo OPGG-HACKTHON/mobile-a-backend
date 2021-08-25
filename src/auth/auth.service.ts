@@ -7,10 +7,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { SignUpParam } from './auth-signup.param';
-import { User } from '@prisma/client';
 import { LOLService } from '../lol/lol.service';
-import * as appleSignin from 'apple-signin';
-import path from 'path';
 import { UserService } from '../user/user.service';
 import { GoogleAuthService } from './passport/google-auth.service';
 @Injectable()
@@ -22,7 +19,7 @@ export class AuthService {
     private readonly googleAuthService: GoogleAuthService,
   ) {}
 
-  async signUp(param: SignUpParam): Promise<User> {
+  async signUp(param: SignUpParam) {
     // check user exist
     const isUserExistValidate = await this.userService.isUserExistValidate(
       param.authFrom,
@@ -34,8 +31,6 @@ export class AuthService {
       const lolAccountId = await this.lolService.upsertLOLAccountByLOLName(
         param.LOLNickName,
       );
-
-      // TODO : accessToken validate
 
       return await this.prisma.user.create({
         data: {
@@ -50,11 +45,12 @@ export class AuthService {
       // TODO. 유저 존재할 경우에 Token 저장
       // userId 받아와야 함
       // TODO. accessToken 가져와서 바로 login 해주기
-      const userToken = await this.userService.getUserTokenByAuthAndEmail(
-        param.authFrom,
-        param.email,
-      );
-      console.log(userToken);
+      const userTokenList =
+        await this.userService.getUserTokenListByAuthAndEmail(
+          param.authFrom,
+          param.email,
+        );
+      return userTokenList.Token[0];
     }
   }
 

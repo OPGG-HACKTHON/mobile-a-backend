@@ -67,7 +67,7 @@ export class UserService {
   }
 
   // TODO. 유저 토큰 조회해서 가져오기
-  async getUserTokenByAuthAndEmail(authFrom: string, email: string) {
+  async getUserTokenListByAuthAndEmail(authFrom: string, email: string) {
     const user = this.prisma.user.findFirst({
       where: {
         authFrom: authFrom,
@@ -76,12 +76,10 @@ export class UserService {
       include: {
         Token: true,
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
     });
-    const token = user.Token;
-    return token;
+    // const token = user.Token;
+    // console.log('user : ', user);
+    return user;
   }
 
   // TODO. 유저 토큰 저장 (token, userId)
