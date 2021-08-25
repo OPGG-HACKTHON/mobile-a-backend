@@ -17,13 +17,13 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { RegoionService } from './region.service';
+import { RegionService } from './region.service';
 import { Region } from './region.dto';
 
 @ApiTags('Region')
 @Controller('/regions')
-export class RefionController {
-  constructor(private readonly regionService: RegoionService) {}
+export class RegionController {
+  constructor(private readonly regionService: RegionService) {}
 
   // /regions
   @Get('')

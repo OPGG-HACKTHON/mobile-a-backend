@@ -3,7 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Region } from '@prisma/client';
 
 @Injectable()
-export class RegoionService {
+export class RegionService {
   constructor(private prisma: PrismaService) {}
 
   async getRegions(): Promise<Region[]> {
