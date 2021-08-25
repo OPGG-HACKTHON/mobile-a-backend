@@ -40,4 +40,19 @@ export class RegionController {
   async getRegions() {
     return await this.regionService.getRegions();
   }
+
+  // /regions
+  @Get('/:id')
+  @ApiOperation({
+    summary: '지역정보를 id로 검색합니다.',
+    description: '지역정보를 id로 검색합니다.',
+  })
+  @ApiOkResponse({
+    description: '지역 검색',
+    type: Region,
+  })
+  @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  async getRegionById(@Param('id', ParseIntPipe) id: number) {
+    return await this.regionService.getRegionById(id);
+  }
 }

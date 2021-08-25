@@ -9,4 +9,12 @@ export class RegionService {
   async getRegions(): Promise<Region[]> {
     return await this.prisma.region.findMany();
   }
+
+  async getRegionById(id: number): Promise<Region> {
+    return await this.prisma.region.findUnique({
+      where: {
+        id: id,
+      },
+    });
+  }
 }

@@ -10,7 +10,8 @@ describe('school data test', () => {
   let app: INestApplication;
   const prismaService = new PrismaService();
   const schoolService = new SchoolService(prismaService);
-  beforeEach(async () => {
+  beforeAll(async () => {
+    // school create too heavy - beforeEach => beforeAll
     await initSchema(prismaService);
     const moduleRef = await Test.createTestingModule({
       imports: [SchoolModule],
@@ -23,11 +24,8 @@ describe('school data test', () => {
     await app.init();
   });
 
-  afterEach(() => {
-    app.close();
-  });
-
   afterAll(() => {
+    app.close();
     prismaService.$disconnect();
   });
 
