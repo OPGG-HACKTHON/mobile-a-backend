@@ -37,3 +37,4 @@ lerna-debug.log*
 .env
 dotenv
 !dotenv/sample.env
+/secrets

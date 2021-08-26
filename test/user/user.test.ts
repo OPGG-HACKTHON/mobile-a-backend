@@ -11,15 +11,30 @@ import { AuthService } from '../../src/auth/auth.service';
 import { LOLService } from '../../src/lol/lol.service';
 import { PrismaModule } from '../../src/prisma/prisma.module';
 import { LOLModule } from '../../src/lol/lol.module';
+import { GoogleAuthService } from '../../src/auth/passport/google-auth.service';
 describe('simple etst', () => {
   let app: INestApplication;
   const prismaService = new PrismaService();
-  const userService = new UserService(prismaService);
+  const googleAuthService = new GoogleAuthService();
+  const lolService = new LOLService(prismaService);
+  const userService = new UserService(prismaService, lolService);
+  const authService = new AuthService(
+    prismaService,
+    lolService,
+    userService,
+    googleAuthService,
+  );
   beforeEach(async () => {
     await initSchema(prismaService);
     const moduleRef = await Test.createTestingModule({
       imports: [UserModule, AuthModule, PrismaModule, LOLModule],
-      providers: [UserService, AuthService, PrismaService, LOLService],
+      providers: [
+        UserService,
+        AuthService,
+        PrismaService,
+        LOLService,
+        GoogleAuthService,
+      ],
     })
       .overrideProvider(UserService)
       .useValue(userService)
@@ -57,7 +72,12 @@ describe('simple etst', () => {
       .post('/auth/signup')
       .set('Accept', 'application/json')
       .type('application/json')
-      .send({ email: 'abc@abc.com', LOLNickName: 'kkangsan', schoolId: '1' });
+      .send({
+        authFrom: 'google',
+        email: 'abc@abc.com',
+        LOLNickName: 'kkangsan',
+        schoolId: '1',
+      });
 
     expect(res.statusCode).toBe(201);
     const { id, email, LOLAccountId, schoolId } = res.body;

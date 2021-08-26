@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-
 export class TierInfo {
   @ApiProperty()
   tier: string;

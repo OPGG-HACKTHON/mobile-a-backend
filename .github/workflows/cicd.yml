@@ -52,6 +52,8 @@ jobs:
           SCHEMA_NAME: localschema
           DATABASE_URL: postgresql://postgresmobilea:postgresmobilea@localhost:5432/mobilea?schema=localschema
           LOL_API_KEY: ${{ secrets.LOL_API_KEY }}
+          GOOGLE_AUTH_CLIENT_ID: ${{ secrets.GOOGLE_AUTH_CLIENT_ID }}
+          GOOGLE_AUTH_SECRET: ${{ secrets.GOOGLE_AUTH_SECRET }}
 
   release:
     if: github.repository == 'OPGG-HACKTHON/mobile-a-backend'

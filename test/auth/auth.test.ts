@@ -1,6 +1,7 @@
 import { initSchema } from '../commn/schemaUtil';
 import { AuthModule } from '../../src/auth/auth.module';
 import { AuthService } from '../../src/auth/auth.service';
+
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
@@ -10,16 +11,25 @@ import { LOLModule } from '../../src/lol/lol.module';
 //
 import { TitleService } from '../../src/title/title.service';
 import { TitleModule } from '../../src/title/title.module';
+
 //
 import { PrismaService } from '../../src/prisma/prisma.service';
 import { PrismaModule } from '../../src/prisma/prisma.module';
+import { UserService } from '../../src/user/user.service';
+import { GoogleAuthService } from '../../src/auth/passport/google-auth.service';
 //
 describe('simple etst', () => {
   let app: INestApplication;
-
   const prismaService = new PrismaService();
+  const googleAuthService = new GoogleAuthService();
   const lolService = new LOLService(prismaService);
-  const authService = new AuthService(prismaService, lolService);
+  const userService = new UserService(prismaService, lolService);
+  const authService = new AuthService(
+    prismaService,
+    lolService,
+    userService,
+    googleAuthService,
+  );
   beforeEach(async () => {
     await initSchema(prismaService);
     const moduleRef = await Test.createTestingModule({
@@ -62,7 +72,12 @@ describe('simple etst', () => {
       .post('/auth/signup')
       .set('Accept', 'application/json')
       .type('application/json')
-      .send({ email: 'abc@abc.com', LOLNickName: 'kkangsan', schoolId: '1' });
+      .send({
+        authFrom: 'google',
+        email: 'abc@abc.com',
+        LOLNickName: 'kkangsan',
+        schoolId: '1',
+      });
 
     expect(res.statusCode).toBe(201);
     const { id, email, LOLAccountId, schoolId } = res.body;
@@ -91,7 +106,12 @@ describe('simple etst', () => {
       .post('/auth/signup')
       .set('Accept', 'application/json')
       .type('application/json')
-      .send({ email: 'abc@abc.com', LOLNickName: 'kkangsan', schoolId: '1' });
+      .send({
+        authFrom: 'google',
+        email: 'abc@abc.com',
+        LOLNickName: 'kkangsan',
+        schoolId: '1',
+      });
 
     expect(res.statusCode).toBe(201);
     const { id, email, LOLAccountId, schoolId } = res.body;
