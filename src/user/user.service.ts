@@ -4,6 +4,7 @@ import { Profile } from './user.types';
 import { UserDTO } from '../common/dto/user.dto';
 import { SignUpParam } from 'src/auth/auth-signup.param';
 import { LOLService } from '../lol/lol.service';
+import { User } from '@prisma/client';
 @Injectable()
 export class UserService {
   constructor(
@@ -48,7 +49,7 @@ export class UserService {
   }
 
   // check user exist
-  async isUserExist(authFrom: string, email: string) {
+  async findUserIdByAuthAndEmail(authFrom: string, email: string) {
     const findUser = await this.prisma.user.findFirst({
       where: {
         authFrom: authFrom,
@@ -72,9 +73,12 @@ export class UserService {
   }
 
   // 유저 데이터 저장
-  async createUser(param: SignUpParam) {
+  async createUser(param: SignUpParam): Promise<User> {
     // check user exist
-    const isUserExist = await this.isUserExist(param.authFrom, param.email);
+    const isUserExist = await this.findUserIdByAuthAndEmail(
+      param.authFrom,
+      param.email,
+    );
 
     // 유저가 존재하지 않을 경우
     if (!isUserExist) {

@@ -27,13 +27,13 @@ export class AuthService {
   /**
    * @Token ( 1년 )
    */
-  async createUserToken(userId: number, Token: string) {
+  async createUserToken(userId: number, token: string) {
     const expireAt = new Date();
     expireAt.setFullYear(expireAt.getFullYear() + 1);
 
     return await this.prisma.token.create({
       data: {
-        Token: Token,
+        token: token,
         userId: userId,
         expireAt: expireAt,
       },
@@ -58,7 +58,10 @@ export class AuthService {
     const userInfo = await this.googleAuthService.getUser(accessToken);
 
     if (userInfo.verified_email && userInfo.email == email) {
-      const isUserExist = await this.userService.isUserExist(authFrom, email);
+      const isUserExist = await this.userService.findUserIdByAuthAndEmail(
+        authFrom,
+        email,
+      );
 
       // 유저가 존재하지 않는 경우
       if (!isUserExist) {
