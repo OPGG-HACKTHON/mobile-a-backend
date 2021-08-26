@@ -31,17 +31,19 @@ export class RankController {
   // ranks/schools/:id
   @Get('/schools/:id')
   @ApiOperation({
-    summary: '학교 내 개인 랭킹 조회',
-    description: '학교 내 개인 랭킹 조회를 진행합니다.',
+    summary: '학교 내 개인별 랭킹 조회',
+    description: '학교 내 개인별 랭킹 조회를 진행합니다.',
   })
   @ApiOkResponse({
-    description: '학교 내에서의 특정 카테고리 랭킹 조회 성공',
+    description: '학교 내에서의 개인별 랭킹 조회 성공',
     type: Profile,
     isArray: true,
   })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  async getRankByScoolId(@Param('id') schoolId: string): Promise<Profile[]> {
-    return await this.rankService.getRankByScoolId(schoolId);
+  async getProfilesRankByScoolId(
+    @Param('id') schoolId: string,
+  ): Promise<Profile[]> {
+    return await this.rankService.getProfilesRankByScoolId(schoolId);
   }
 
   // // ranks/regions/:id
