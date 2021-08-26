@@ -21,8 +21,8 @@ describe('simple etst', () => {
 
   const prismaService = new PrismaService();
   const googleAuthService = new GoogleAuthService();
-  const userService = new UserService(prismaService);
   const lolService = new LOLService(prismaService);
+  const userService = new UserService(prismaService, lolService);
   const authService = new AuthService(
     prismaService,
     lolService,

@@ -15,8 +15,8 @@ import { UserModule } from '../../src/user/user.module';
 describe('google oauth test', () => {
   let app: INestApplication;
   const prismaService = new PrismaService();
-  const userService = new UserService(prismaService);
   const lolService = new LOLService(prismaService);
+  const userService = new UserService(prismaService, lolService);
   const googleAuthService = new GoogleAuthService();
   beforeAll(async () => {
     await initSchema(prismaService);

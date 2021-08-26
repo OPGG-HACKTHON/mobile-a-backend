@@ -21,28 +21,23 @@ export class AuthService {
   ) {}
 
   async signUp(param: SignUpParam): Promise<User> {
-    // check user exist
-    const isUserExist = await this.userService.isUserExist(
-      param.authFrom,
-      param.email,
-    );
-    // 유저가 존재하지 않을 경우
-    if (!isUserExist) {
-      const lolAccountId = await this.lolService.upsertLOLAccountByLOLName(
-        param.LOLNickName,
-      );
+    return await this.userService.createUser(param);
+  }
 
-      return await this.userService.createUser(param, lolAccountId);
-    } else {
-      // 유저가 존재하는 경우
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: '이미 가입된 유저입니다.',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+  /**
+   * @Token ( 1년 )
+   */
+  async createUserToken(userId: number, Token: string) {
+    const expireAt = new Date();
+    expireAt.setFullYear(expireAt.getFullYear() + 1);
+
+    return await this.prisma.token.create({
+      data: {
+        Token: Token,
+        userId: userId,
+        expireAt: expireAt,
+      },
+    });
   }
 
   /**
@@ -76,10 +71,7 @@ export class AuthService {
       } else {
         // 유저 존재 시 토큰을 디비에 담습니다.
         const userId = isUserExist;
-        const userToken = await this.userService.createUserToken(
-          userId,
-          accessToken,
-        );
+        const userToken = await this.createUserToken(userId, accessToken);
         return {
           message: '이미 가입된 유저입니다. 로그인을 진행합니다.',
           accessToken: userToken,
