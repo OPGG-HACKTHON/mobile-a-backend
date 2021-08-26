@@ -40,10 +40,32 @@ export class RankController {
     isArray: true,
   })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  async getProfilesRankByScoolId(
+  async getProfileRanksByScoolId(
     @Param('id') schoolId: string,
   ): Promise<ProfileRank[]> {
-    return await this.rankService.getProfilesRankByScoolId(schoolId);
+    return await this.rankService.getProfileRanksByScoolId(schoolId);
+  }
+
+  // // ranks/schools/:schoolId/users/:userId
+  @Get('/schools/:schoolId/users/:userId')
+  @ApiOperation({
+    summary: '학교 내 개인 랭킹 조회',
+    description: '학교 내 개인 랭킹 조회를 진행합니다.',
+  })
+  @ApiOkResponse({
+    description: '학교 내에서의 개인 랭킹 조회 성공',
+    type: ProfileRank,
+    isArray: true,
+  })
+  @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  async getProfilesRankByScoolIdAndUserId(
+    @Param('schoolId') schoolId: string,
+    @Param('userId', ParseIntPipe) userId: number,
+  ): Promise<ProfileRank> {
+    return await this.rankService.getProfileRankByScoolIdAndUserId(
+      schoolId,
+      userId,
+    );
   }
 
   // // ranks/regions/:id
