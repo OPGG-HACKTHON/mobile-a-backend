@@ -113,7 +113,10 @@ describe('simple etst', () => {
 
     expect(resRankSchool.body.length).toBe(2);
     expect(resRankSchool.body[0].id).toBe(2); // hide on bush
+    expect(resRankSchool.body[0].seqNo).toBe(1); // hide on bush
+
     expect(resRankSchool.body[1].id).toBe(1); // kkangsan
+    expect(resRankSchool.body[1].seqNo).toBe(2); // kkangsan
 
     const { lol } = resRankSchool.body[0];
     expect(resRankSchool.body[0].id).toBeTruthy();

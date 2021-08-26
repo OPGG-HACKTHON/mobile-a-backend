@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Profile } from 'src/user/user.types';
+import { ProfileRank } from './rank-profileRank.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserService } from '../user/user.service';
 @Injectable()
@@ -9,7 +9,7 @@ export class RankService {
     private userService: UserService,
   ) {}
 
-  async getProfilesRankByScoolId(schoolId: string): Promise<Profile[]> {
+  async getProfilesRankByScoolId(schoolId: string): Promise<ProfileRank[]> {
     const users = await this.prisma.user.findMany({
       where: {
         schoolId: schoolId,
@@ -42,11 +42,12 @@ export class RankService {
       (param) => param.LOLAccount.User,
     );
     //
-    const results = [];
-    for (const user of rankUsers) {
+    const results: ProfileRank[] = [];
+    for (const [idx, user] of rankUsers.entries()) {
       // userIds
-      const profile = await this.userService.getProfileByUserId(user.id);
-      results.push(profile);
+      const { ...rest } = await this.userService.getProfileByUserId(user.id);
+      const inputProfile = { seqNo: idx + 1, ...rest };
+      results.push(inputProfile);
     }
     return results;
   }

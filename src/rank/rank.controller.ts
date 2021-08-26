@@ -9,7 +9,7 @@ import {
 } from '@nestjs/swagger';
 import { RankService } from './rank.service';
 import { ParseIntPipe } from '@nestjs/common';
-import { Profile } from '../user/user.types';
+import { ProfileRank } from './rank-profileRank.dto';
 @ApiTags('Rank')
 @Controller('/ranks')
 export class RankController {
@@ -36,13 +36,13 @@ export class RankController {
   })
   @ApiOkResponse({
     description: '학교 내에서의 개인별 랭킹 조회 성공',
-    type: Profile,
+    type: ProfileRank,
     isArray: true,
   })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   async getProfilesRankByScoolId(
     @Param('id') schoolId: string,
-  ): Promise<Profile[]> {
+  ): Promise<ProfileRank[]> {
     return await this.rankService.getProfilesRankByScoolId(schoolId);
   }
 
