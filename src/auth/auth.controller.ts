@@ -8,6 +8,9 @@ import {
   Post,
   Put,
   HttpCode,
+  UseGuards,
+  Req,
+  ForbiddenException,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -18,7 +21,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { LoginDTO } from './auth-login.param';
+import { AuthGuard } from '@nestjs/passport';
 import { SignUpParam } from './auth-signup.param';
 import { UserDTO } from '../common/dto/user.dto';
 import { AuthDTO } from './auth-login.dto';
@@ -35,9 +38,9 @@ export class AuthController {
   })
   @ApiOkResponse({ description: '로그인 성공', type: AuthDTO })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  @ApiBody({ type: LoginDTO })
-  async login(@Body() param: LoginDTO): Promise<{ access_token: string }> {
-    return { access_token: param.id.toString() };
+  @ApiBody({ type: AuthDTO })
+  async login(@Body() param: AuthDTO): Promise<{ access_token: string }> {
+    return { access_token: param.access_token.toString() };
   }
 
   // // /auth/logout
@@ -65,5 +68,29 @@ export class AuthController {
   @ApiBody({ type: SignUpParam })
   async signUp(@Body() param: SignUpParam) {
     return await this.authService.signUp(param);
+  }
+
+  /**
+   * @Google
+   */
+  // /auth/google
+  @Get('google')
+  @ApiOperation({
+    summary: '구글 로그인',
+    description: '구글 로그인을 진행합니다.',
+  })
+  @ApiOkResponse({ description: '구글 로그인 성공' })
+  @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  @UseGuards(AuthGuard('google'))
+  async googleAuth(@Req() req) {
+    //
+  }
+
+  // /auth/google/callback
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleAuthRedirect(@Req() req) {
+    const userData = await this.authService.googleLogin(req);
+    return userData;
   }
 }
