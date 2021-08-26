@@ -1,5 +1,4 @@
 import { initSchema } from '../commn/schemaUtil';
-import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { PrismaService } from '../../src/prisma/prisma.service';

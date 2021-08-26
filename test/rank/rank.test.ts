@@ -20,15 +20,8 @@ describe('simple etst', () => {
   let app: INestApplication;
 
   const prismaService = new PrismaService();
-  const googleAuthService = new GoogleAuthService();
   const lolService = new LOLService(prismaService);
   const userService = new UserService(prismaService, lolService);
-  const authService = new AuthService(
-    prismaService,
-    lolService,
-    userService,
-    googleAuthService,
-  );
   const rankService = new RankService(prismaService, userService);
   beforeEach(async () => {
     await initSchema(prismaService);
@@ -177,7 +170,12 @@ describe('simple etst', () => {
       .post('/auth/signup')
       .set('Accept', 'application/json')
       .type('application/json')
-      .send({ email: 'abc1@abc.com', LOLNickName: 'kkangsan', schoolId: '1' });
+      .send({
+        authFrom: 'google',
+        email: 'abc1@abc.com',
+        LOLNickName: 'kkangsan',
+        schoolId: '1',
+      });
 
     expect(resSignUp.statusCode).toBe(201);
     const { id, email, LOLAccountId, schoolId } = resSignUp.body;
@@ -191,6 +189,7 @@ describe('simple etst', () => {
       .set('Accept', 'application/json')
       .type('application/json')
       .send({
+        authFrom: 'google',
         email: 'abc2@abc.com',
         LOLNickName: 'hide on bush',
         schoolId: '1',

@@ -1,14 +1,6 @@
-import { Controller, Get, Post, Query } from '@nestjs/common';
-import {
-  ApiBody,
-  ApiOkResponse,
-  ApiOperation,
-  ApiProperty,
-  ApiTags,
-  ApiUnauthorizedResponse,
-} from '@nestjs/swagger';
+import { Controller } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { BattleService } from './battle.service';
-import { RequestChallengeDto } from 'src/common/dto/requestChallenge.dto';
 @ApiTags('Battle')
 @Controller('/battles')
 export class BattleController {
