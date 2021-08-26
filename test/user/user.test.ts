@@ -28,7 +28,13 @@ describe('simple etst', () => {
     await initSchema(prismaService);
     const moduleRef = await Test.createTestingModule({
       imports: [UserModule, AuthModule, PrismaModule, LOLModule],
-      providers: [UserService, AuthService, PrismaService, LOLService],
+      providers: [
+        UserService,
+        AuthService,
+        PrismaService,
+        LOLService,
+        GoogleAuthService,
+      ],
     })
       .overrideProvider(UserService)
       .useValue(userService)

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Profile } from './user.types';
 import { UserDTO } from '../common/dto/user.dto';
+import { SignUpParam } from 'src/auth/auth-signup.param';
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
@@ -43,7 +44,7 @@ export class UserService {
   }
 
   // check user exist
-  async isUserExistValidate(authFrom: string, email: string) {
+  async isUserExist(authFrom: string, email: string) {
     const findUser = await this.prisma.user.findFirst({
       where: {
         authFrom: authFrom,
@@ -93,6 +94,18 @@ export class UserService {
         Token: Token,
         userId: userId,
         expireAt: expireAt,
+      },
+    });
+  }
+
+  // 유저 데이터 저장
+  async createUser(param: SignUpParam, lolAccountId: string) {
+    return await this.prisma.user.create({
+      data: {
+        authFrom: param.authFrom,
+        email: param.email,
+        LOLAccountId: lolAccountId,
+        schoolId: param.schoolId,
       },
     });
   }
