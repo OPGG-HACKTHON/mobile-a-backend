@@ -1,8 +1,8 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import got from 'got';
-import { School, Region } from '@prisma/client';
-import { SchoolParam, SearchParam } from './school.param';
+import { School } from '@prisma/client';
+import { SearchParam } from './school.param';
 
 @Injectable()
 export class SchoolService implements OnApplicationBootstrap {

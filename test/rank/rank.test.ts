@@ -20,15 +20,8 @@ describe('simple etst', () => {
   let app: INestApplication;
 
   const prismaService = new PrismaService();
-  const googleAuthService = new GoogleAuthService();
   const lolService = new LOLService(prismaService);
   const userService = new UserService(prismaService, lolService);
-  const authService = new AuthService(
-    prismaService,
-    lolService,
-    userService,
-    googleAuthService,
-  );
   const rankService = new RankService(prismaService, userService);
   beforeEach(async () => {
     await initSchema(prismaService);
@@ -59,7 +52,7 @@ describe('simple etst', () => {
     prismaService.$disconnect();
   });
 
-  it('school rank test', async () => {
+  it('school profileRanks test', async () => {
     // setup
     // school - foo
     await prismaService.region.create({
@@ -129,10 +122,96 @@ describe('simple etst', () => {
 
     expect(resRankSchool.body.length).toBe(2);
     expect(resRankSchool.body[0].id).toBe(2); // hide on bush
+    expect(resRankSchool.body[0].seqNo).toBe(1); // hide on bush
+
     expect(resRankSchool.body[1].id).toBe(1); // kkangsan
+    expect(resRankSchool.body[1].seqNo).toBe(2); // kkangsan
 
     const { lol } = resRankSchool.body[0];
     expect(resRankSchool.body[0].id).toBeTruthy();
+    const { profileIconId, profileIconImageUrl, summonerLevel, tierInfo } = lol;
+    expect(profileIconId).toBeTruthy();
+    expect(profileIconImageUrl).toBeTruthy();
+    expect(summonerLevel).toBeTruthy();
+    const { tier, rank, leaguePoints } = tierInfo;
+    expect(tier).toBeTruthy();
+    expect(rank).toBeTruthy();
+    expect(leaguePoints >= 0).toBeTruthy();
+  });
+
+  it('school profileRank with schoolId and userId test', async () => {
+    // setup
+    // school - foo
+    await prismaService.region.create({
+      data: {
+        name: '서울',
+      },
+    });
+    await prismaService.school.create({
+      data: {
+        id: '1',
+        name: 'foo',
+        division: 'foo',
+        educationOffice: '교육청이름',
+        regionId: 1,
+        address: 'foo',
+      },
+    });
+    // setup Title
+    await prismaService.lOLSummaryElement.create({
+      data: {
+        LOLMatchFieldName: '티어',
+        calculateType: 'foo',
+        sortType: 'desc',
+        exposureName: 'foo',
+      },
+    });
+    const resSignUp = await request(app.getHttpServer())
+      .post('/auth/signup')
+      .set('Accept', 'application/json')
+      .type('application/json')
+      .send({
+        authFrom: 'google',
+        email: 'abc1@abc.com',
+        LOLNickName: 'kkangsan',
+        schoolId: '1',
+      });
+
+    expect(resSignUp.statusCode).toBe(201);
+    const { id, email, LOLAccountId, schoolId } = resSignUp.body;
+    expect(id).toBe(1);
+    expect(email).toBe('abc1@abc.com');
+    expect(LOLAccountId).toBeTruthy();
+    expect(schoolId).toBe('1');
+
+    const resSignUp2 = await request(app.getHttpServer())
+      .post('/auth/signup')
+      .set('Accept', 'application/json')
+      .type('application/json')
+      .send({
+        authFrom: 'google',
+        email: 'abc2@abc.com',
+        LOLNickName: 'hide on bush',
+        schoolId: '1',
+      });
+
+    expect(resSignUp2.statusCode).toBe(201);
+    expect(resSignUp2.body.id).toBe(2);
+    expect(resSignUp2.body.email).toBe('abc2@abc.com');
+    expect(resSignUp2.body.LOLAccountId).toBeTruthy();
+    expect(resSignUp2.body.schoolId).toBe('1');
+
+    //e2e;
+    const resRankSchool = await request(app.getHttpServer())
+      .get(encodeURI('/ranks/schools/1/users/1'))
+      .set('Accept', 'application/json')
+      .type('application/json');
+
+    expect(resRankSchool.body.id).toBe(1); // kkangsan
+    expect(resRankSchool.body.seqNo).toBe(2); // kkangsan
+
+    const { lol } = resRankSchool.body;
+    expect(resRankSchool.body.id).toBeTruthy();
     const { profileIconId, profileIconImageUrl, summonerLevel, tierInfo } = lol;
     expect(profileIconId).toBeTruthy();
     expect(profileIconImageUrl).toBeTruthy();

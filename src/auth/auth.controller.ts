@@ -2,21 +2,15 @@ import {
   Body,
   Controller,
   Get,
-  HttpException,
-  Param,
-  Patch,
   Post,
-  Put,
   HttpCode,
   UseGuards,
   Req,
-  ForbiddenException,
 } from '@nestjs/common';
 import {
   ApiBody,
   ApiOkResponse,
   ApiOperation,
-  ApiProperty,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -82,7 +76,7 @@ export class AuthController {
   @ApiOkResponse({ description: '구글 로그인 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   @UseGuards(AuthGuard('google'))
-  async googleAuth(@Req() req) {
+  async googleAuth() {
     //
   }
 

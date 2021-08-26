@@ -26,7 +26,6 @@ describe('simple etst', () => {
   const userService = new UserService(prismaService, lolService);
   const authService = new AuthService(
     prismaService,
-    lolService,
     userService,
     googleAuthService,
   );

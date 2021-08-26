@@ -1,15 +1,13 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import {
-  ApiBody,
   ApiOkResponse,
   ApiOperation,
-  ApiProperty,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { RankService } from './rank.service';
 import { ParseIntPipe } from '@nestjs/common';
-import { Profile } from '../user/user.types';
+import { ProfileRank } from './rank-profileRank.dto';
 @ApiTags('Rank')
 @Controller('/ranks')
 export class RankController {
@@ -31,17 +29,41 @@ export class RankController {
   // ranks/schools/:id
   @Get('/schools/:id')
   @ApiOperation({
+    summary: '학교 내 개인별 랭킹 조회',
+    description: '학교 내 개인별 랭킹 조회를 진행합니다.',
+  })
+  @ApiOkResponse({
+    description: '학교 내에서의 개인별 랭킹 조회 성공',
+    type: ProfileRank,
+    isArray: true,
+  })
+  @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  async getProfileRanksByScoolId(
+    @Param('id') schoolId: string,
+  ): Promise<ProfileRank[]> {
+    return await this.rankService.getProfileRanksByScoolId(schoolId);
+  }
+
+  // // ranks/schools/:schoolId/users/:userId
+  @Get('/schools/:schoolId/users/:userId')
+  @ApiOperation({
     summary: '학교 내 개인 랭킹 조회',
     description: '학교 내 개인 랭킹 조회를 진행합니다.',
   })
   @ApiOkResponse({
-    description: '학교 내에서의 특정 카테고리 랭킹 조회 성공',
-    type: Profile,
+    description: '학교 내에서의 개인 랭킹 조회 성공',
+    type: ProfileRank,
     isArray: true,
   })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  async getRankByScoolId(@Param('id') schoolId: string): Promise<Profile[]> {
-    return await this.rankService.getRankByScoolId(schoolId);
+  async getProfilesRankByScoolIdAndUserId(
+    @Param('schoolId') schoolId: string,
+    @Param('userId', ParseIntPipe) userId: number,
+  ): Promise<ProfileRank> {
+    return await this.rankService.getProfileRankByScoolIdAndUserId(
+      schoolId,
+      userId,
+    );
   }
 
   // // ranks/regions/:id

@@ -15,8 +15,6 @@ import { UserModule } from '../../src/user/user.module';
 describe('google oauth test', () => {
   let app: INestApplication;
   const prismaService = new PrismaService();
-  const lolService = new LOLService(prismaService);
-  const userService = new UserService(prismaService, lolService);
   const googleAuthService = new GoogleAuthService();
   beforeAll(async () => {
     await initSchema(prismaService);
@@ -76,15 +74,6 @@ describe('google oauth test', () => {
       where: {
         authFrom: 'google',
         email: 'tpgns7708@gmail.com',
-      },
-    });
-
-    const userToken = await prismaService.token.findFirst({
-      where: {
-        userId: user.id,
-      },
-      orderBy: {
-        createdAt: 'desc',
       },
     });
 

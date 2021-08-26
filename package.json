@@ -22,6 +22,7 @@
     "migrate-reset:local": "dotenv -e ./dotenv/local.env -- prisma migrate reset",
     "db-push:local": "dotenv -e ./dotenv/local.env -- prisma db push",
     "db-push:ci": "dotenv -e ./dotenv/ci.env -- prisma db push",
+    "all-reset:local": "npm run generate && npm run migrate-reset:local && npm run db-push:local",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test:local": "dotenv -e ./dotenv/local.env -- jest --detectOpenHandles --forceExit --runInBand",
     "test:local:cov": "dotenv -e ./dotenv/local.env -- jest --coverage --detectOpenHandles --forceExit --runInBand",

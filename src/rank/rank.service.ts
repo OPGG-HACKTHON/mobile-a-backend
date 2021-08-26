@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Profile } from 'src/user/user.types';
+import { ProfileRank } from './rank-profileRank.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserService } from '../user/user.service';
 @Injectable()
@@ -9,7 +9,7 @@ export class RankService {
     private userService: UserService,
   ) {}
 
-  async getRankByScoolId(schoolId: string): Promise<Profile[]> {
+  async getProfileRanksByScoolId(schoolId: string): Promise<ProfileRank[]> {
     const users = await this.prisma.user.findMany({
       where: {
         schoolId: schoolId,
@@ -42,12 +42,61 @@ export class RankService {
       (param) => param.LOLAccount.User,
     );
     //
-    const results = [];
-    for (const user of rankUsers) {
+    const results: ProfileRank[] = [];
+    for (const [idx, user] of rankUsers.entries()) {
       // userIds
-      const profile = await this.userService.getProfileByUserId(user.id);
-      results.push(profile);
+      const { ...rest } = await this.userService.getProfileByUserId(user.id);
+      const inputProfile = { seqNo: idx + 1, ...rest };
+      results.push(inputProfile);
     }
     return results;
+  }
+
+  async getProfileRankByScoolIdAndUserId(
+    schoolId: string,
+    userId: number,
+  ): Promise<ProfileRank> {
+    const users = await this.prisma.user.findMany({
+      where: {
+        schoolId: schoolId,
+      },
+    });
+    const lolAccountIds = users.map((user) => user.LOLAccountId);
+    const category = await this.prisma.lOLSummaryElement.findFirst({
+      where: {
+        LOLMatchFieldName: '티어',
+      },
+      include: {
+        LOLSummaryPersonal: {
+          where: {
+            LOLAccountId: { in: lolAccountIds },
+          },
+          orderBy: {
+            value: 'desc',
+          },
+          include: {
+            LOLAccount: {
+              include: {
+                User: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    const rankUsers = category.LOLSummaryPersonal.map(
+      (param) => param.LOLAccount.User,
+    );
+    //
+    let result: ProfileRank;
+    for (const [idx, user] of rankUsers.entries()) {
+      if (user.id === userId) {
+        const { ...rest } = await this.userService.getProfileByUserId(user.id);
+        const inputProfile = { seqNo: idx + 1, ...rest };
+        result = inputProfile;
+        break;
+      }
+    }
+    return result;
   }
 }

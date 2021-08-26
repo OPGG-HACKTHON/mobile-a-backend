@@ -15,15 +15,8 @@ import { GoogleAuthService } from '../../src/auth/passport/google-auth.service';
 describe('simple etst', () => {
   let app: INestApplication;
   const prismaService = new PrismaService();
-  const googleAuthService = new GoogleAuthService();
   const lolService = new LOLService(prismaService);
   const userService = new UserService(prismaService, lolService);
-  const authService = new AuthService(
-    prismaService,
-    lolService,
-    userService,
-    googleAuthService,
-  );
   beforeEach(async () => {
     await initSchema(prismaService);
     const moduleRef = await Test.createTestingModule({

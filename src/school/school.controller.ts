@@ -1,21 +1,8 @@
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  ParseIntPipe,
-  Patch,
-  Post,
-  Put,
-  Query,
-} from '@nestjs/common';
-import {
-  ApiBody,
   ApiOkResponse,
   ApiOperation,
-  ApiProperty,
   ApiQuery,
-  ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';

@@ -1,13 +1,6 @@
-import {
-  Injectable,
-  ForbiddenException,
-  HttpException,
-  HttpStatus,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { SignUpParam } from './auth-signup.param';
-import { LOLService } from '../lol/lol.service';
 import { UserService } from '../user/user.service';
 import { GoogleAuthService } from './passport/google-auth.service';
 import { User } from '@prisma/client';
@@ -15,7 +8,6 @@ import { User } from '@prisma/client';
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly lolService: LOLService,
     private readonly userService: UserService,
     private readonly googleAuthService: GoogleAuthService,
   ) {}

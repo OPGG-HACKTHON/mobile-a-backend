@@ -1,7 +1,6 @@
 import { initSchema } from '../commn/schemaUtil';
 import { LOLModule } from '../../src/lol/lol.module';
 import { LOLService } from '../../src/lol/lol.service';
-import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { PrismaService } from '../../src/prisma/prisma.service';
