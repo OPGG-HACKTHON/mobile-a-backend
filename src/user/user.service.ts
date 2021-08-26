@@ -49,19 +49,13 @@ export class UserService {
   }
 
   // check user exist
-  async findUserIdByAuthAndEmail(authFrom: string, email: string) {
-    const findUser = await this.prisma.user.findFirst({
+  async findUserByAuthFromAndEmail(authFrom: string, email: string) {
+    return await this.prisma.user.findFirst({
       where: {
         authFrom: authFrom,
         email: email,
       },
     });
-
-    if (!findUser) {
-      return false;
-    } else {
-      return findUser.id;
-    }
   }
 
   async getUserById(id: number): Promise<UserDTO> {
@@ -75,7 +69,7 @@ export class UserService {
   // 유저 데이터 저장
   async createUser(param: SignUpParam): Promise<User> {
     // check user exist
-    const isUserExist = await this.findUserIdByAuthAndEmail(
+    const isUserExist = await this.findUserByAuthFromAndEmail(
       param.authFrom,
       param.email,
     );

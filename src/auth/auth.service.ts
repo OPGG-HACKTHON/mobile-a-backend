@@ -58,13 +58,13 @@ export class AuthService {
     const userInfo = await this.googleAuthService.getUser(accessToken);
 
     if (userInfo.verified_email && userInfo.email == email) {
-      const isUserExist = await this.userService.findUserIdByAuthAndEmail(
+      const user = await this.userService.findUserByAuthFromAndEmail(
         authFrom,
         email,
       );
 
       // 유저가 존재하지 않는 경우
-      if (!isUserExist) {
+      if (!user) {
         return {
           message: '유저 정보가 없습니다. 회원가입을 진행합니다.',
           authFrom: authFrom,
@@ -73,7 +73,7 @@ export class AuthService {
         };
       } else {
         // 유저 존재 시 토큰을 디비에 담습니다.
-        const userId = isUserExist;
+        const userId = user.id;
         const userToken = await this.createUserToken(userId, accessToken);
         return {
           message: '이미 가입된 유저입니다. 로그인을 진행합니다.',
