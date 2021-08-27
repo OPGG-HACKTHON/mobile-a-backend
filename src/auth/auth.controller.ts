@@ -93,11 +93,11 @@ export class AuthController {
 
   @Post('/validate')
   @ApiOperation({
-    summary: '구글 유저 정보 조회',
-    description: '구글 유저 정보 조회를 진행합니다.',
+    summary: '유저 정보 조회',
+    description: '토큰을 이용해 유저 정보 조회를 진행합니다.',
   })
   @ApiQuery({ name: 'accessToken' })
-  @ApiOkResponse({ description: '구글 유저 정보 조회 성공', type: UserDTO })
+  @ApiOkResponse({ description: '유저 정보 조회 성공', type: UserDTO })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   async googleTokenTest(
     @Query('accessToken') accessToken: string,

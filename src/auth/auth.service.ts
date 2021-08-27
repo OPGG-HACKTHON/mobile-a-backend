@@ -163,7 +163,7 @@ export class AuthService {
         );
         return {
           message: '이미 가입된 유저입니다. 로그인을 진행합니다.',
-          accessToken: userToken,
+          accessToken: userToken.token,
         };
       }
     } else {
@@ -204,8 +204,11 @@ export class AuthService {
       where: {
         token: token,
       },
+      include: {
+        User: true,
+      },
     });
 
-    return await this.userService.getUserById(userToken.userId);
+    return userToken.User;
   }
 }
