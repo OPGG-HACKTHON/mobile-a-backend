@@ -85,8 +85,8 @@ describe('google oauth test', () => {
 
     const testTime = new Date();
     const { token, userId, expireAt } = tokenTest;
-    expect(token).toBeTruthy();
+    expect(token).toBe('testToken');
     expect(userId).toBe(1);
-    expect(expireAt.getFullYear()).toBeGreaterThan(testTime.getFullYear());
+    expect(expireAt.valueOf()).toBeGreaterThan(testTime.valueOf());
   });
 });
