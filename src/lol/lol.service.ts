@@ -12,6 +12,11 @@ export class LOLService {
   private readonly LEAGUE_V4_URL =
     'https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner';
 
+  private readonly MATCH_V5_URL =
+    'https://asia.api.riotgames.com/lol/match/v5/matches';
+
+  private readonly DEFAULT_MATCH_MAX_COUNT = 10;
+
   constructor(private readonly prisma: PrismaService) {}
 
   async getLOLAccountByLOLName(param: string): Promise<SUMMONER> {
@@ -157,5 +162,48 @@ export class LOLService {
     await this.upsertLOLTierWithLOLAccountId(lolAccount.id, lolTier);
     await this.upsertTierSummaryWithAccountId(lolAccount.id, lolTier);
     return lolAccount.id;
+  }
+
+  async getRecentMacthIdsBypuuid(id: string): Promise<string[]> {
+    const result = await got
+      .get(
+        this.MATCH_V5_URL +
+          '/by-puuid' +
+          '/' +
+          id +
+          '/ids?' +
+          'start=0&' +
+          'count=' +
+          this.DEFAULT_MATCH_MAX_COUNT,
+        {
+          headers: {
+            'X-Riot-Token': this.API_KEY,
+          },
+        },
+      )
+      .json<string[]>();
+    return result;
+  }
+
+  async getMathResultByMachIds(id: string[]): Promise<any> {
+    const result = got
+      .get(
+        this.MATCH_V5_URL +
+          '/by-puuid' +
+          '/' +
+          id +
+          '/ids?' +
+          'start=0&' +
+          'count=' +
+          this.DEFAULT_MATCH_MAX_COUNT,
+        {
+          headers: {
+            'X-Riot-Token': this.API_KEY,
+          },
+        },
+      )
+      .json<string[]>();
+    return result;
+    // https://asia.api.riotgames.com/lol/match/v5/matches/KR_5359910697
   }
 }

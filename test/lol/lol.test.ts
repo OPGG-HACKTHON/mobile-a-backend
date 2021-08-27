@@ -76,4 +76,14 @@ describe('simple etst', () => {
     });
     expect(lolTier).toBeTruthy();
   });
+
+  it('check match info ', async () => {
+    // if lol api key changed will be fail
+    const result = await lolService.getRecentMacthIdsBypuuid(
+      'PvRocf7pG6jnpKC0aKugs4c-0joi8pUUsV2RKNCjN2fOICtfFqqcRXa9tMTwmmGhJvbnPo2H0nN99A',
+    );
+    expect(result.length).toBe(10);
+    expect(result[0]).toBeTruthy();
+    expect(result[9]).toBeTruthy();
+  });
 });

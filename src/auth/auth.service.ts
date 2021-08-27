@@ -17,6 +17,8 @@ export class AuthService {
     private readonly googleAuthService: GoogleAuthService,
   ) {}
 
+  private readonly GOOGLE_AUTHFROM = 'google';
+
   async signUp(param: SignUpParam): Promise<User> {
     switch (param.authFrom) {
       case 'google':
@@ -98,10 +100,42 @@ export class AuthService {
         accessToken: param.accesstoken,
       };
     }
+    // todo check expired token - exception
+    // const willBeCheckedToken= this.OauthTokenToToken(
+    //   this.GOOGLE_AUTHFROM,
+    //   param.accesstoken,
+    // )
+    // token findORCreate
+    const resultToken = await this.upsertUserToken(
+      user.id,
+      this.GOOGLE_AUTHFROM,
+      param.accesstoken,
+    );
     return {
-      message: '이미 가입된 유저입니다. 로그인을 진행합니다.',
-      accessToken: param.accesstoken,
+      message: '이미 가입된 유저입니다. 로그인이 완료되었습니다.',
+      accessToken: resultToken.token,
     };
+  }
+
+  async upsertUserToken(
+    userId: number,
+    authFrom: string,
+    token: string,
+  ): Promise<TokenDTO> {
+    const expireAt = new Date();
+    expireAt.setFullYear(expireAt.getFullYear() + 1);
+    const inputToken = this.OauthTokenToToken(authFrom, token);
+    return await this.prisma.token.upsert({
+      where: {
+        token: inputToken,
+      },
+      update: {},
+      create: {
+        token: inputToken,
+        userId: userId,
+        expireAt: expireAt,
+      },
+    });
   }
 
   async login(param: LoginParam): Promise<LoginDTO> {
@@ -179,6 +213,10 @@ export class AuthService {
     }
   }
 
+  private OauthTokenToToken(authFrom: string, token: string): string {
+    return authFrom + '_' + token;
+  }
+
   /**
    * @Token
    * @desc 토큰을 생성합니다. ( 유효기간 1년 )
@@ -190,7 +228,7 @@ export class AuthService {
   ): Promise<TokenDTO> {
     const expireAt = new Date();
     expireAt.setFullYear(expireAt.getFullYear() + 1);
-    const inputToken = authFrom + '_' + token;
+    const inputToken = this.OauthTokenToToken(authFrom, token);
 
     return await this.prisma.token.create({
       data: {
