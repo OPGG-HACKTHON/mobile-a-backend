@@ -1,16 +1,10 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  HttpCode,
-  UseGuards,
-  Req,
-} from '@nestjs/common';
+import { Body, Controller, Post, HttpCode, Query } from '@nestjs/common';
 import {
   ApiBody,
   ApiOkResponse,
   ApiOperation,
+  ApiProperty,
+  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -31,13 +25,12 @@ export class AuthController {
     summary: '로그인',
     description: '로그인을 진행합니다.',
   })
-  @ApiOkResponse({ description: '로그인 성공', type: LoginParam })
+  @ApiOkResponse({ description: '로그인 성공', type: LoginDTO })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   @ApiBody({ type: LoginParam })
   async login(@Body() param: LoginParam): Promise<LoginDTO> {
     return await this.authService.login(param);
   }
-
   // // /auth/logout
   // @Post('/logout')
   // @ApiOperation({
@@ -69,23 +62,35 @@ export class AuthController {
    * @Google
    */
   // /auth/google
-  @Get('google')
-  @ApiOperation({
-    summary: '구글 로그인',
-    description: '구글 로그인을 진행합니다.',
-  })
-  @ApiOkResponse({ description: '구글 로그인 성공' })
-  @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  @UseGuards(AuthGuard('google'))
-  async googleAuth() {
-    //
-  }
+  // @Get('google')
+  // @ApiOperation({
+  //   summary: '구글 로그인',
+  //   description: '구글 로그인을 진행합니다.',
+  // })
+  // @ApiOkResponse({ description: '구글 로그인 성공' })
+  // @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  // @UseGuards(AuthGuard('google'))
+  // async googleAuth(@Req() req) {
+  //   //
+  // }
 
-  // /auth/google/callback
-  @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
-  async googleAuthRedirect(@Req() req) {
-    const userData = await this.authService.googleLogin(req);
-    return userData;
+  // // /auth/google/callback
+  // @Get('google/callback')
+  // @UseGuards(AuthGuard('google'))
+  // async googleAuthRedirect(@Req() req) {
+  //   const userData = await this.authService.googleLogin(req);
+  //   return userData;
+  // }
+
+  @Post('/google')
+  @ApiOperation({
+    summary: '구글 유저 정보 조회',
+    description: '구글 유저 정보 조회를 진행합니다.',
+  })
+  @ApiQuery({ name: 'token' })
+  @ApiOkResponse({ description: '구글 유저 정보 조회 성공', type: UserDTO })
+  @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  async googleTokenTest(@Query('token') token: string): Promise<UserDTO> {
+    return await this.authService.getUserByToken(token);
   }
 }

@@ -102,22 +102,6 @@ export class AuthService {
     };
   }
 
-  /**
-   * @Token ( 1년 )
-   */
-  async createUserToken(userId: number, token: string) {
-    const expireAt = new Date();
-    expireAt.setFullYear(expireAt.getFullYear() + 1);
-
-    return await this.prisma.token.create({
-      data: {
-        token: token,
-        userId: userId,
-        expireAt: expireAt,
-      },
-    });
-  }
-
   async login(param: LoginParam): Promise<LoginDTO> {
     let result: LoginDTO;
     switch (param.authFrom) {
@@ -187,5 +171,31 @@ export class AuthService {
         HttpStatus.NON_AUTHORITATIVE_INFORMATION,
       );
     }
+  }
+
+  /**
+   * @Token ( 1년 )
+   */
+  async createUserToken(userId: number, token: string) {
+    const expireAt = new Date();
+    expireAt.setFullYear(expireAt.getFullYear() + 1);
+
+    return await this.prisma.token.create({
+      data: {
+        token: token,
+        userId: userId,
+        expireAt: expireAt,
+      },
+    });
+  }
+
+  async getUserByToken(token: string) {
+    const userToken = await this.prisma.token.findUnique({
+      where: {
+        token: token,
+      },
+    });
+
+    return await this.userService.getUserById(userToken.userId);
   }
 }
