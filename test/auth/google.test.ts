@@ -65,10 +65,16 @@ describe('google oauth test', () => {
       },
     });
 
-    const res = await request(app.getHttpServer())
-      .get('/auth/google')
-      .set('Accept', 'application/json')
-      .type('application/json');
+    const expireAtForTest = new Date();
+    expireAtForTest.setFullYear(expireAtForTest.getFullYear() + 1);
+
+    const tokenTest = await prismaService.token.create({
+      data: {
+        token: 'testToken',
+        userId: 1,
+        expireAt: expireAtForTest,
+      },
+    });
 
     const user = await prismaService.user.findFirst({
       where: {
@@ -77,9 +83,10 @@ describe('google oauth test', () => {
       },
     });
 
-    expect(res.statusCode).toBe(302);
-    // const { Token, expireAt } = userToken;
-    // expect(Token).toBeTruthy();
-    // expect(expireAt).toBeGreaterThanOrEqual(Date.now());
+    const testTime = new Date();
+    const { token, userId, expireAt } = tokenTest;
+    expect(token).toBe('testToken');
+    expect(userId).toBe(1);
+    expect(expireAt.valueOf()).toBeGreaterThan(testTime.valueOf());
   });
 });

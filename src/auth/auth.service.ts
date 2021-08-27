@@ -6,6 +6,8 @@ import { GoogleAuthService } from './passport/google-auth.service';
 import { User } from '@prisma/client';
 import { LoginParam } from './auth-login.param';
 import { LoginDTO } from './auth-login.dto';
+import { UserDTO } from 'src/common/dto/user.dto';
+import { TokenDTO } from './auth-token.dto';
 
 @Injectable()
 export class AuthService {
@@ -102,22 +104,6 @@ export class AuthService {
     };
   }
 
-  /**
-   * @Token ( 1년 )
-   */
-  async createUserToken(userId: number, token: string) {
-    const expireAt = new Date();
-    expireAt.setFullYear(expireAt.getFullYear() + 1);
-
-    return await this.prisma.token.create({
-      data: {
-        token: token,
-        userId: userId,
-        expireAt: expireAt,
-      },
-    });
-  }
-
   async login(param: LoginParam): Promise<LoginDTO> {
     let result: LoginDTO;
     switch (param.authFrom) {
@@ -172,7 +158,11 @@ export class AuthService {
       } else {
         // 유저 존재 시 토큰을 디비에 담습니다.
         const userId = user.id;
-        const userToken = await this.createUserToken(userId, accessToken);
+        const userToken = await this.createUserToken(
+          userId,
+          authFrom,
+          accessToken,
+        );
         return {
           message: '이미 가입된 유저입니다. 로그인을 진행합니다.',
           accessToken: userToken,
@@ -187,5 +177,44 @@ export class AuthService {
         HttpStatus.NON_AUTHORITATIVE_INFORMATION,
       );
     }
+  }
+
+  /**
+   * @Token
+   * @desc 토큰을 생성합니다. ( 유효기간 1년 )
+   */
+  async createUserToken(
+    userId: number,
+    authFrom: string,
+    token: string,
+  ): Promise<TokenDTO> {
+    const expireAt = new Date();
+    expireAt.setFullYear(expireAt.getFullYear() + 1);
+    const inputToken = authFrom + '_' + token;
+
+    return await this.prisma.token.create({
+      data: {
+        token: inputToken,
+        userId: userId,
+        expireAt: expireAt,
+      },
+    });
+  }
+
+  /**
+   * @Token
+   * @desc 토큰을 통해 유저를 조회합니다.
+   */
+  async getUserByToken(token: string): Promise<UserDTO> {
+    const userToken = await this.prisma.token.findUnique({
+      where: {
+        token: token,
+      },
+      include: {
+        User: true,
+      },
+    });
+
+    return userToken.User;
   }
 }

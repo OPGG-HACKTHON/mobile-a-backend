@@ -1,9 +1,10 @@
 import {
   Body,
   Controller,
-  Get,
   Post,
   HttpCode,
+  Query,
+  Get,
   UseGuards,
   Req,
 } from '@nestjs/common';
@@ -11,6 +12,8 @@ import {
   ApiBody,
   ApiOkResponse,
   ApiOperation,
+  ApiProperty,
+  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -31,13 +34,12 @@ export class AuthController {
     summary: '로그인',
     description: '로그인을 진행합니다.',
   })
-  @ApiOkResponse({ description: '로그인 성공', type: LoginParam })
+  @ApiOkResponse({ description: '로그인 성공', type: LoginDTO })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   @ApiBody({ type: LoginParam })
   async login(@Body() param: LoginParam): Promise<LoginDTO> {
     return await this.authService.login(param);
   }
-
   // // /auth/logout
   // @Post('/logout')
   // @ApiOperation({
@@ -77,7 +79,7 @@ export class AuthController {
   @ApiOkResponse({ description: '구글 로그인 성공' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   @UseGuards(AuthGuard('google'))
-  async googleAuth() {
+  async googleAuth(@Req() req) {
     //
   }
 
@@ -87,5 +89,19 @@ export class AuthController {
   async googleAuthRedirect(@Req() req) {
     const userData = await this.authService.googleLogin(req);
     return userData;
+  }
+
+  @Post('/validate')
+  @ApiOperation({
+    summary: '유저 정보 조회',
+    description: '토큰을 이용해 유저 정보 조회를 진행합니다.',
+  })
+  @ApiQuery({ name: 'accessToken' })
+  @ApiOkResponse({ description: '유저 정보 조회 성공', type: UserDTO })
+  @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  async googleTokenTest(
+    @Query('accessToken') accessToken: string,
+  ): Promise<UserDTO> {
+    return await this.authService.getUserByToken(accessToken);
   }
 }
