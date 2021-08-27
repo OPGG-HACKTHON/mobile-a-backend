@@ -112,7 +112,7 @@ export class AuthService {
       param.accesstoken,
     );
     return {
-      message: '이미 가입된 유저입니다. 로그인인 완료되었습니다.',
+      message: '이미 가입된 유저입니다. 로그인이 완료되었습니다.',
       accessToken: resultToken.token,
     };
   }
