@@ -61,19 +61,15 @@ describe('simple etst', () => {
         address: '어디선가',
       },
     });
-    const res = await request(app.getHttpServer())
-      .post('/auth/signup')
-      .set('Accept', 'application/json')
-      .type('application/json')
-      .send({
-        authFrom: 'google',
-        email: 'abc@abc.com',
-        LOLNickName: 'kkangsan',
-        schoolId: '1',
-      });
 
-    expect(res.statusCode).toBe(201);
-    const { id, email, LOLAccountId, schoolId } = res.body;
+    const res = await userService.createUser({
+      authFrom: 'google',
+      email: 'abc@abc.com',
+      LOLNickName: 'kkangsan',
+      schoolId: '1',
+      accesstoken: 'foo',
+    });
+    const { id, email, LOLAccountId, schoolId } = res;
     expect(id).toBe(1);
     expect(email).toBe('abc@abc.com');
     expect(LOLAccountId).toBeTruthy();

@@ -18,7 +18,8 @@ import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { SignUpParam } from './auth-signup.param';
 import { UserDTO } from '../common/dto/user.dto';
-import { AuthDTO } from './auth-login.dto';
+import { LoginParam } from './auth-login.param';
+import { LoginDTO } from './auth-login.dto';
 @ApiTags('Auth')
 @Controller('/auth')
 export class AuthController {
@@ -30,11 +31,11 @@ export class AuthController {
     summary: '로그인',
     description: '로그인을 진행합니다.',
   })
-  @ApiOkResponse({ description: '로그인 성공', type: AuthDTO })
+  @ApiOkResponse({ description: '로그인 성공', type: LoginParam })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  @ApiBody({ type: AuthDTO })
-  async login(@Body() param: AuthDTO): Promise<{ access_token: string }> {
-    return { access_token: param.access_token.toString() };
+  @ApiBody({ type: LoginParam })
+  async login(@Body() param: LoginParam): Promise<LoginDTO> {
+    return await this.authService.login(param);
   }
 
   // // /auth/logout

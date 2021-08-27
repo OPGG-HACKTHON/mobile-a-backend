@@ -12,4 +12,7 @@ export class SignUpParam {
 
   @ApiProperty()
   public schoolId: string;
+
+  @ApiProperty()
+  public accesstoken: string;
 }

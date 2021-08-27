@@ -79,40 +79,31 @@ describe('simple etst', () => {
         exposureName: 'foo',
       },
     });
-    const resSignUp = await request(app.getHttpServer())
-      .post('/auth/signup')
-      .set('Accept', 'application/json')
-      .type('application/json')
-      .send({
-        authFrom: 'google',
-        email: 'abc1@abc.com',
-        LOLNickName: 'kkangsan',
-        schoolId: '1',
-      });
-
-    expect(resSignUp.statusCode).toBe(201);
-    const { id, email, LOLAccountId, schoolId } = resSignUp.body;
+    const res = await userService.createUser({
+      authFrom: 'google',
+      email: 'abc1@abc.com',
+      LOLNickName: 'kkangsan',
+      schoolId: '1',
+      accesstoken: 'foo',
+    });
+    const { id, email, LOLAccountId, schoolId } = res;
     expect(id).toBe(1);
     expect(email).toBe('abc1@abc.com');
     expect(LOLAccountId).toBeTruthy();
     expect(schoolId).toBe('1');
 
-    const resSignUp2 = await request(app.getHttpServer())
-      .post('/auth/signup')
-      .set('Accept', 'application/json')
-      .type('application/json')
-      .send({
-        authFrom: 'google',
-        email: 'abc2@abc.com',
-        LOLNickName: 'hide on bush',
-        schoolId: '1',
-      });
+    const resSignUp2 = await userService.createUser({
+      authFrom: 'google',
+      email: 'abc2@abc.com',
+      LOLNickName: 'hide on bush',
+      schoolId: '1',
+      accesstoken: 'foo',
+    });
 
-    expect(resSignUp2.statusCode).toBe(201);
-    expect(resSignUp2.body.id).toBe(2);
-    expect(resSignUp2.body.email).toBe('abc2@abc.com');
-    expect(resSignUp2.body.LOLAccountId).toBeTruthy();
-    expect(resSignUp2.body.schoolId).toBe('1');
+    expect(resSignUp2.id).toBe(2);
+    expect(resSignUp2.email).toBe('abc2@abc.com');
+    expect(resSignUp2.LOLAccountId).toBeTruthy();
+    expect(resSignUp2.schoolId).toBe('1');
 
     //e2e;
     const resRankSchool = await request(app.getHttpServer())
@@ -166,40 +157,33 @@ describe('simple etst', () => {
         exposureName: 'foo',
       },
     });
-    const resSignUp = await request(app.getHttpServer())
-      .post('/auth/signup')
-      .set('Accept', 'application/json')
-      .type('application/json')
-      .send({
-        authFrom: 'google',
-        email: 'abc1@abc.com',
-        LOLNickName: 'kkangsan',
-        schoolId: '1',
-      });
 
-    expect(resSignUp.statusCode).toBe(201);
-    const { id, email, LOLAccountId, schoolId } = resSignUp.body;
+    const res = await userService.createUser({
+      authFrom: 'google',
+      email: 'abc1@abc.com',
+      LOLNickName: 'kkangsan',
+      schoolId: '1',
+      accesstoken: 'foo',
+    });
+
+    const { id, email, LOLAccountId, schoolId } = res;
     expect(id).toBe(1);
     expect(email).toBe('abc1@abc.com');
     expect(LOLAccountId).toBeTruthy();
     expect(schoolId).toBe('1');
 
-    const resSignUp2 = await request(app.getHttpServer())
-      .post('/auth/signup')
-      .set('Accept', 'application/json')
-      .type('application/json')
-      .send({
-        authFrom: 'google',
-        email: 'abc2@abc.com',
-        LOLNickName: 'hide on bush',
-        schoolId: '1',
-      });
+    const resSignUp2 = await userService.createUser({
+      authFrom: 'google',
+      email: 'abc2@abc.com',
+      LOLNickName: 'hide on bush',
+      schoolId: '1',
+      accesstoken: 'foo',
+    });
 
-    expect(resSignUp2.statusCode).toBe(201);
-    expect(resSignUp2.body.id).toBe(2);
-    expect(resSignUp2.body.email).toBe('abc2@abc.com');
-    expect(resSignUp2.body.LOLAccountId).toBeTruthy();
-    expect(resSignUp2.body.schoolId).toBe('1');
+    expect(resSignUp2.id).toBe(2);
+    expect(resSignUp2.email).toBe('abc2@abc.com');
+    expect(resSignUp2.LOLAccountId).toBeTruthy();
+    expect(resSignUp2.schoolId).toBe('1');
 
     //e2e;
     const resRankSchool = await request(app.getHttpServer())
