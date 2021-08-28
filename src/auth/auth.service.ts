@@ -138,8 +138,9 @@ export class AuthService {
       );
     }
     const authFrom = 'google';
-    const { email, accessToken } = req.user;
-    const userInfo = await this.googleAuthService.getUser(accessToken);
+    const { email, id_token } = req.user;
+    const userInfo = await this.googleAuthService.getUser(id_token);
+    //const userInfo2 = await this.googleAuthService.verify(id_token);
 
     if (userInfo.verified_email && userInfo.email == email) {
       const user = await this.userService.findUserByAuthFromAndEmail(
@@ -153,7 +154,7 @@ export class AuthService {
           message: '유저 정보가 없습니다. 회원가입을 진행합니다.',
           authFrom: authFrom,
           email: email,
-          accessToken: accessToken,
+          accessToken: id_token,
         };
       } else {
         // 유저 존재 시 토큰을 디비에 담습니다.
@@ -161,7 +162,7 @@ export class AuthService {
         const userToken = await this.createUserToken(
           userId,
           authFrom,
-          accessToken,
+          id_token,
         );
         return {
           message: '이미 가입된 유저입니다. 로그인을 진행합니다.',
@@ -205,16 +206,20 @@ export class AuthService {
    * @Token
    * @desc 토큰을 통해 유저를 조회합니다.
    */
-  async getUserByToken(token: string): Promise<UserDTO> {
+  async getUserByToken(accessToken: string): Promise<UserDTO> {
     const userToken = await this.prisma.token.findUnique({
       where: {
-        token: token,
+        token: accessToken,
       },
       include: {
         User: true,
       },
     });
-
     return userToken.User;
+  }
+
+  async getDataByIdToken(id_token: string) {
+    const user = await this.googleAuthService.verify(id_token);
+    return user;
   }
 }
