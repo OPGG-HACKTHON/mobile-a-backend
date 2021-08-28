@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { AuthFrom } from './auth.model';
 
 export class SignUpParam {
-  @ApiProperty()
+  @ApiProperty({ enum: AuthFrom, description: 'google or apple' })
   public authFrom: string;
 
   @ApiProperty()

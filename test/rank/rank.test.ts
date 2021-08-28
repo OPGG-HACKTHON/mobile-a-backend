@@ -48,8 +48,8 @@ describe('simple etst', () => {
     app.close();
   });
 
-  afterAll(() => {
-    prismaService.$disconnect();
+  afterAll(async () => {
+    await prismaService.$disconnect();
   });
 
   it('school profileRanks test', async () => {

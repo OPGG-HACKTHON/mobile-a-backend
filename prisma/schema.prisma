@@ -150,8 +150,9 @@ model LOLChampionMastery {
 
 // MATCH-V5  - /lol/match/v5/matches/{matchId}
 model LOLMatch {
-  id             String   @id
-  resultResponse Json
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id        String   @id
+  metadata  Json
+  info      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
