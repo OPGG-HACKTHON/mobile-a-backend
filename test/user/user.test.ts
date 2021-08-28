@@ -40,8 +40,8 @@ describe('simple etst', () => {
     app.close();
   });
 
-  afterAll(() => {
-    prismaService.$disconnect();
+  afterAll(async () => {
+    await prismaService.$disconnect();
   });
 
   // same auth test

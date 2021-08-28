@@ -47,8 +47,8 @@ describe('simple etst', () => {
     app.close();
   });
 
-  beforeAll(() => {
-    prismaService.$disconnect();
+  beforeAll(async () => {
+    await prismaService.$disconnect();
   });
 
   it('not invalidate authfrom', async () => {

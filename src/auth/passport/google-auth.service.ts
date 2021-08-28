@@ -15,7 +15,7 @@ export class GoogleAuthService {
     const userInfoClient = google.oauth2('v2').userinfo;
 
     this.oauthClient.setCredentials({
-      access_token: accessToken,
+      id_token: accessToken,
     });
 
     const userInfoResponse = await userInfoClient.get({

@@ -22,22 +22,11 @@ describe('simple etst', () => {
     await app.init();
   });
 
-  afterAll(() => {
+  afterEach(() => {
     app.close();
   });
-  afterAll(() => {
-    prismaService.$disconnect();
-  });
-
-  it('getSummerInfoByLOLName test - success kkangsan', async () => {
-    const { id, accountId, puuid, name, profileIconId, summonerLevel } =
-      await lolService.getLOLAccountByLOLName('kkangsan');
-    expect(id).toBeTruthy();
-    expect(name).toBe('KkangSan'); // 대소문자 구분되서 결과나옴..(kkangsan -> KkangSan)
-    expect(accountId).toBeTruthy();
-    expect(puuid).toBeTruthy();
-    expect(profileIconId).toBeTruthy();
-    expect(summonerLevel).toBeTruthy();
+  afterAll(async () => {
+    await prismaService.$disconnect();
   });
 
   it('getSummerInfoByLOLName test and getLOLTierById - success', async () => {
@@ -77,7 +66,7 @@ describe('simple etst', () => {
     expect(lolTier).toBeTruthy();
   });
 
-  it('check match info ', async () => {
+  it('get recent matchIds ', async () => {
     // if lol api key changed will be fail
     const result = await lolService.getRecentMacthIdsBypuuid(
       'PvRocf7pG6jnpKC0aKugs4c-0joi8pUUsV2RKNCjN2fOICtfFqqcRXa9tMTwmmGhJvbnPo2H0nN99A',
@@ -85,5 +74,38 @@ describe('simple etst', () => {
     expect(result.length).toBe(10);
     expect(result[0]).toBeTruthy();
     expect(result[9]).toBeTruthy();
+  });
+
+  it('get match result and create many and findmany ', async () => {
+    // if lol api key changed will be fail
+    // "KR_5376935655",
+    // "KR_5376789640",
+    const result = await lolService.getMathResultByMachIds([
+      'KR_5376935655',
+      'KR_5376789640',
+    ]);
+    expect(result.success.length).toBe(2);
+    expect(result.fail.length).toBe(0);
+    expect(
+      result.success[0].value.metadata.participants.includes(
+        'PvRocf7pG6jnpKC0aKugs4c-0joi8pUUsV2RKNCjN2fOICtfFqqcRXa9tMTwmmGhJvbnPo2H0nN99A',
+      ),
+    ).toBeTruthy();
+    expect(
+      result.success[1].value.metadata.participants.includes(
+        'PvRocf7pG6jnpKC0aKugs4c-0joi8pUUsV2RKNCjN2fOICtfFqqcRXa9tMTwmmGhJvbnPo2H0nN99A',
+      ),
+    ).toBeTruthy();
+    // create many
+    await lolService.createManyMatchResults(
+      result.success.map((result) => {
+        return result.value;
+      }),
+    );
+    const res = await lolService.findManyLOLMatchesByIds([
+      'KR_5376935655',
+      'KR_5376789640',
+    ]);
+    console.log(res);
   });
 });
