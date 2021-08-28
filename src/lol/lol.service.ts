@@ -166,6 +166,30 @@ export class LOLService {
     return lolAccount.id;
   }
 
+  async setupUserRecentMatchesByAccountId(accountId: string): Promise<void> {
+    const lolAccount = await this.prisma.lOLAccount.findUnique({
+      where: {
+        id: accountId,
+      },
+    });
+    const puuid = lolAccount.puuid;
+    const recentMatchIds = await this.getRecentMacthIdsBypuuid(puuid);
+    const existMatches = await this.findManyMatchesByIds(recentMatchIds);
+    const existMatchIds = existMatches.map((match) => match.metadata.matchId);
+    const needCreateMatches = recentMatchIds.filter(
+      (recentMatchId) => !existMatchIds.includes(recentMatchId),
+    );
+    if (needCreateMatches.length) {
+      const recentMatchesRequestResult = await this.getMathResultByMachIds(
+        needCreateMatches,
+      );
+      const recentMatches = recentMatchesRequestResult.success.map(
+        (param) => param.value,
+      );
+      await this.createManyMatchResults(recentMatches);
+    }
+  }
+
   async getRecentMacthIdsBypuuid(id: string): Promise<string[]> {
     const result = await got
       .get(

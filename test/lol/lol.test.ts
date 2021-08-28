@@ -110,9 +110,23 @@ describe('simple etst', () => {
     expect(res[0].metadata.matchId).toBe('KR_5376935655');
     expect(res[0].info.gameId).toBe(5376935655);
     expect(res[0].info.participants[0].assists).toBe(9);
-
     expect(res[1].metadata.matchId).toBe('KR_5376789640');
     expect(res[1].info.gameId).toBe(5376789640);
     expect(res[1].info.participants[0].assists).toBe(10);
+  });
+
+  it('createLOLAccountByLOLName and setup ', async () => {
+    const result = await lolService.upsertLOLAccountByLOLName('kkangsan');
+    expect(result).toBeTruthy();
+    //
+    const lolAccount = await prismaService.lOLAccount.findFirst({
+      where: {
+        name: 'KkangSan',
+      },
+    });
+    const lolAccountId = lolAccount.id;
+    await lolService.setupUserRecentMatchesByAccountId(lolAccountId);
+    const matches = await prismaService.lOLMatch.count();
+    expect(matches).toBe(10); // DEFAULT_MATCH_MAX_COUNT
   });
 });
