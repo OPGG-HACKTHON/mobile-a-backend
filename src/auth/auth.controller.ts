@@ -32,7 +32,7 @@ export class AuthController {
   @Post('/login')
   @ApiOperation({
     summary: '로그인',
-    description: '로그인을 진행합니다.(id_token 으로 진행합니다.)',
+    description: '로그인을 진행합니다.',
   })
   @ApiOkResponse({ description: '로그인 성공', type: LoginDTO })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
