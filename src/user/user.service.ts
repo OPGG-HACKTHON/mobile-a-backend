@@ -5,6 +5,7 @@ import { UserDTO } from '../common/dto/user.dto';
 import { SignUpParam } from 'src/auth/auth-signup.param';
 import { LOLService } from '../lol/lol.service';
 import { User } from '@prisma/client';
+import { UserCreateParam } from './user-create.param';
 @Injectable()
 export class UserService {
   constructor(
@@ -67,7 +68,7 @@ export class UserService {
   }
 
   // 유저 데이터 저장
-  async createUser(param: SignUpParam): Promise<User> {
+  async createUser(param: UserCreateParam): Promise<User> {
     // check user exist
     const isUserExist = await this.findUserByAuthFromAndEmail(
       param.authFrom,

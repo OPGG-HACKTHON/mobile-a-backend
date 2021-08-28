@@ -36,9 +36,9 @@ describe('google oauth test', () => {
     await app.init();
   });
 
-  afterAll(() => {
+  afterAll(async () => {
     app.close();
-    prismaService.$disconnect();
+    await prismaService.$disconnect();
   });
 
   it('google login test,  /auth/google test', async () => {

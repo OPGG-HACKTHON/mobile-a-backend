@@ -40,8 +40,8 @@ describe('simple etst', () => {
     app.close();
   });
 
-  afterAll(() => {
-    prismaService.$disconnect();
+  afterAll(async () => {
+    await prismaService.$disconnect();
   });
 
   // same auth test
@@ -67,7 +67,6 @@ describe('simple etst', () => {
       email: 'abc@abc.com',
       LOLNickName: 'kkangsan',
       schoolId: '1',
-      accesstoken: 'foo',
     });
     const { id, email, LOLAccountId, schoolId } = res;
     expect(id).toBe(1);

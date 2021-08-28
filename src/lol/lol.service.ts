@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import got from 'got';
 import { SUMMONER, Tier, LEAGUE } from './lol.types';
 import { PrismaService } from '../prisma/prisma.service';
+import { Match } from './lol-match.model';
+import { LOLMatch } from '@prisma/client';
 
 @Injectable()
 export class LOLService {
@@ -11,6 +13,11 @@ export class LOLService {
 
   private readonly LEAGUE_V4_URL =
     'https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner';
+
+  private readonly MATCH_V5_URL =
+    'https://asia.api.riotgames.com/lol/match/v5/matches';
+
+  private readonly DEFAULT_MATCH_MAX_COUNT = 10;
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -157,5 +164,104 @@ export class LOLService {
     await this.upsertLOLTierWithLOLAccountId(lolAccount.id, lolTier);
     await this.upsertTierSummaryWithAccountId(lolAccount.id, lolTier);
     return lolAccount.id;
+  }
+
+  async setupUserRecentMatchesByAccountId(accountId: string): Promise<void> {
+    const lolAccount = await this.prisma.lOLAccount.findUnique({
+      where: {
+        id: accountId,
+      },
+    });
+    const puuid = lolAccount.puuid;
+    const recentMatchIds = await this.getRecentMacthIdsBypuuid(puuid);
+    const existMatches = await this.findManyMatchesByIds(recentMatchIds);
+    const existMatchIds = existMatches.map((match) => match.metadata.matchId);
+    const needCreateMatches = recentMatchIds.filter(
+      (recentMatchId) => !existMatchIds.includes(recentMatchId),
+    );
+    if (needCreateMatches.length) {
+      const recentMatchesRequestResult = await this.getMathResultByMachIds(
+        needCreateMatches,
+      );
+      const recentMatches = recentMatchesRequestResult.success.map(
+        (param) => param.value,
+      );
+      await this.createManyMatchResults(recentMatches);
+    }
+  }
+
+  async getRecentMacthIdsBypuuid(id: string): Promise<string[]> {
+    const result = await got
+      .get(
+        this.MATCH_V5_URL +
+          '/by-puuid' +
+          '/' +
+          id +
+          '/ids?' +
+          'start=0&' +
+          'count=' +
+          this.DEFAULT_MATCH_MAX_COUNT,
+        {
+          headers: {
+            'X-Riot-Token': this.API_KEY,
+          },
+        },
+      )
+      .json<string[]>();
+    return result;
+  }
+
+  async getMathResultByMachIds(ids: string[]): Promise<{
+    success: PromiseFulfilledResult<Match>[];
+    fail: PromiseRejectedResult[];
+  }> {
+    const matchReqs = ids.map((id) => {
+      return got
+        .get(this.MATCH_V5_URL + '/' + id, {
+          headers: {
+            'X-Riot-Token': this.API_KEY,
+          },
+        })
+        .json<Match>();
+    });
+    const reqsResults = await Promise.allSettled(matchReqs);
+    return {
+      success: reqsResults.filter(
+        (req) => req.status === 'fulfilled',
+      ) as PromiseFulfilledResult<Match>[],
+      fail: reqsResults.filter(
+        (req) => req.status === 'rejected',
+      ) as PromiseRejectedResult[],
+    };
+  }
+
+  async createManyMatchResults(matches: Match[]): Promise<void> {
+    const inputMatches = matches.map((match) => {
+      return {
+        id: match.metadata.matchId,
+        metadata: match.metadata,
+        info: match.info,
+      };
+    });
+    await this.prisma.lOLMatch.createMany({
+      data: inputMatches,
+      skipDuplicates: true,
+    });
+  }
+
+  async findManyMatchesByIds(ids: string[]): Promise<Match[]> {
+    const lolMatches = await this.prisma.lOLMatch.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
+    return lolMatches.map(this.convertLOLMatchToMatch);
+  }
+
+  convertLOLMatchToMatch(param: LOLMatch): Match {
+    const inputed = param as any; // for jsonObject to jsonValue
+    return { metadata: inputed.metadata, info: inputed.info };
   }
 }

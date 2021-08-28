@@ -24,9 +24,9 @@ describe('school data test', () => {
     await app.init();
   });
 
-  afterAll(() => {
+  afterAll(async () => {
     app.close();
-    prismaService.$disconnect();
+    await prismaService.$disconnect();
   });
 
   it('school data test', async () => {

@@ -47,8 +47,8 @@ describe('simple etst', () => {
     app.close();
   });
 
-  beforeAll(() => {
-    prismaService.$disconnect();
+  beforeAll(async () => {
+    await prismaService.$disconnect();
   });
 
   it('not invalidate authfrom', async () => {
@@ -67,5 +67,34 @@ describe('simple etst', () => {
     expect(res.statusCode).toBe(400);
     expect(res.body.error).toBe('유효하지 않은 가입 경로 입니다.');
     expect(res.body.status).toBe(400);
+  });
+
+  it('createUserToken and getUserByToken', async () => {
+    await prismaService.region.create({
+      data: {
+        name: '서울',
+      },
+    });
+    await prismaService.school.create({
+      data: {
+        id: '1',
+        name: '가나다초등학교',
+        division: '초딩',
+        educationOffice: '서울시교육청',
+        regionId: 1,
+        address: '어디선가',
+      },
+    });
+
+    await userService.createUser({
+      authFrom: 'google',
+      email: 'abc@abc.com',
+      LOLNickName: 'kkangsan',
+      schoolId: '1',
+    });
+    const token = await authService.createUserToken(1, 'google', 'foo-token');
+
+    expect(token.token).toBe('google_foo-token');
+    expect(token.userId).toBe(1);
   });
 });

@@ -48,8 +48,8 @@ describe('simple etst', () => {
     app.close();
   });
 
-  afterAll(() => {
-    prismaService.$disconnect();
+  afterAll(async () => {
+    await prismaService.$disconnect();
   });
 
   it('school profileRanks test', async () => {
@@ -84,7 +84,6 @@ describe('simple etst', () => {
       email: 'abc1@abc.com',
       LOLNickName: 'kkangsan',
       schoolId: '1',
-      accesstoken: 'foo',
     });
     const { id, email, LOLAccountId, schoolId } = res;
     expect(id).toBe(1);
@@ -97,7 +96,6 @@ describe('simple etst', () => {
       email: 'abc2@abc.com',
       LOLNickName: 'hide on bush',
       schoolId: '1',
-      accesstoken: 'foo',
     });
 
     expect(resSignUp2.id).toBe(2);
@@ -163,7 +161,6 @@ describe('simple etst', () => {
       email: 'abc1@abc.com',
       LOLNickName: 'kkangsan',
       schoolId: '1',
-      accesstoken: 'foo',
     });
 
     const { id, email, LOLAccountId, schoolId } = res;
@@ -177,7 +174,6 @@ describe('simple etst', () => {
       email: 'abc2@abc.com',
       LOLNickName: 'hide on bush',
       schoolId: '1',
-      accesstoken: 'foo',
     });
 
     expect(resSignUp2.id).toBe(2);
