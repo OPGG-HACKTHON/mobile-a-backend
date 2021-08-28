@@ -20,15 +20,19 @@ export class GoogleAuthService {
     this.client = new OAuth2Client();
   }
 
+  // new - id_token을 이용한 구글 유저 데이터
   async verify(token: string) {
     const ticket = await this.client.verifyIdToken({
       idToken: token,
       audience: process.env.GOOGLE_AUTH_CLIENT_ID,
     });
     const payload = ticket.getPayload();
+    console.log('@@@ payload @@@', payload);
     const userid = payload['sub'];
+    return payload;
   }
 
+  // 기존의 accessToken을 이용한 구글 유저 데이터
   async getUser(accessToken: string) {
     const userInfoClient = google.oauth2('v2').userinfo;
 

@@ -6,7 +6,4 @@ export class TokenDTO {
 
   @ApiProperty()
   userId: number;
-
-  @ApiProperty()
-  expireAt: Date;
 }

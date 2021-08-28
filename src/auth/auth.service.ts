@@ -8,6 +8,7 @@ import { LoginParam } from './auth-login.param';
 import { LoginDTO } from './auth-login.dto';
 import { UserDTO } from 'src/common/dto/user.dto';
 import { TokenDTO } from './auth-token.dto';
+import { subscribeOn } from 'rxjs';
 
 @Injectable()
 export class AuthService {
@@ -120,11 +121,9 @@ export class AuthService {
   async upsertUserToken(
     userId: number,
     authFrom: string,
-    token: string,
+    sub: string,
   ): Promise<TokenDTO> {
-    const expireAt = new Date();
-    expireAt.setFullYear(expireAt.getFullYear() + 1);
-    const inputToken = this.OauthTokenToToken(authFrom, token);
+    const inputToken = this.OauthTokenToToken(authFrom, sub);
     return await this.prisma.token.upsert({
       where: {
         token: inputToken,
@@ -133,7 +132,6 @@ export class AuthService {
       create: {
         token: inputToken,
         userId: userId,
-        expireAt: expireAt,
       },
     });
   }
@@ -173,10 +171,11 @@ export class AuthService {
     }
     const authFrom = 'google';
     const { email, id_token } = req.user;
-    const userInfo = await this.googleAuthService.getUser(id_token);
-    //const userInfo2 = await this.googleAuthService.verify(id_token);
+    // const userInfo = await this.googleAuthService.getUser(id_token);
+    const userInfo = await this.googleAuthService.verify(id_token);
 
-    if (userInfo.verified_email && userInfo.email == email) {
+    if (userInfo['email_verified'] && userInfo['email'] == email) {
+      const sub = userInfo['sub'];
       const user = await this.userService.findUserByAuthFromAndEmail(
         authFrom,
         email,
@@ -188,16 +187,12 @@ export class AuthService {
           message: '유저 정보가 없습니다. 회원가입을 진행합니다.',
           authFrom: authFrom,
           email: email,
-          accessToken: id_token,
+          accessToken: sub,
         };
       } else {
         // 유저 존재 시 토큰을 디비에 담습니다.
         const userId = user.id;
-        const userToken = await this.createUserToken(
-          userId,
-          authFrom,
-          id_token,
-        );
+        const userToken = await this.createToken(userId, authFrom, sub);
         return {
           message: '이미 가입된 유저입니다. 로그인을 진행합니다.',
           accessToken: userToken,
@@ -214,28 +209,46 @@ export class AuthService {
     }
   }
 
-  private OauthTokenToToken(authFrom: string, token: string): string {
-    return authFrom + '_' + token;
+  private OauthTokenToToken(authFrom: string, sub: string): string {
+    return authFrom + '_' + sub;
   }
 
   /**
    * @Token
    * @desc 토큰을 생성합니다. ( 유효기간 1년 )
    */
-  async createUserToken(
+  // async createUserToken(
+  //   userId: number,
+  //   authFrom: string,
+  //   token: string,
+  // ): Promise<TokenDTO> {
+  //   const expireAt = new Date();
+  //   expireAt.setFullYear(expireAt.getFullYear() + 1);
+  //   const inputToken = this.OauthTokenToToken(authFrom, token);
+
+  //   return await this.prisma.token.create({
+  //     data: {
+  //       token: inputToken,
+  //       userId: userId,
+  //       expireAt: expireAt,
+  //     },
+  //   });
+  // }
+
+  /**
+   * @Token
+   * @desc 토큰을 생성합니다. ( id_token을 이용해 받은 구글 sub값 )
+   */
+  async createToken(
     userId: number,
     authFrom: string,
-    token: string,
+    sub: string,
   ): Promise<TokenDTO> {
-    const expireAt = new Date();
-    expireAt.setFullYear(expireAt.getFullYear() + 1);
-    const inputToken = this.OauthTokenToToken(authFrom, token);
-
+    const inputToken = this.OauthTokenToToken(authFrom, sub);
     return await this.prisma.token.create({
       data: {
         token: inputToken,
         userId: userId,
-        expireAt: expireAt,
       },
     });
   }
@@ -243,21 +256,35 @@ export class AuthService {
   /**
    * @Token
    * @desc 토큰을 통해 유저를 조회합니다.
+   * @issue id_token을 이용해 sub값 활용 예정
    */
-  async getUserByToken(accessToken: string): Promise<UserDTO> {
-    const userToken = await this.prisma.token.findUnique({
+  // async getUserByToken(accessToken: string): Promise<UserDTO> {
+  //   const userToken = await this.prisma.token.findUnique({
+  //     where: {
+  //       token: accessToken,
+  //     },
+  //     include: {
+  //       User: true,
+  //     },
+  //   });
+  //   return userToken.User;
+  // }
+
+  /**
+   * @Token
+   * @desc id_token을 통해 유저를 조회합니다.
+   */
+  async getDataByIdToken(id_token: string) {
+    const user = await this.googleAuthService.verify(id_token);
+    const userToken = await this.prisma.token.findFirst({
       where: {
-        token: accessToken,
+        token: user['sub'],
       },
       include: {
         User: true,
       },
     });
+    console.log(userToken.User);
     return userToken.User;
-  }
-
-  async getDataByIdToken(id_token: string) {
-    const user = await this.googleAuthService.verify(id_token);
-    return user;
   }
 }
