@@ -225,13 +225,19 @@ export class LOLService {
     });
   }
 
-  async findManyLOLMatchesByIds(ids: string[]): Promise<LOLMatch[]> {
-    return await this.prisma.lOLMatch.findMany({
+  async findManyMatchesByIds(ids: string[]): Promise<Match[]> {
+    const lolMatches = await this.prisma.lOLMatch.findMany({
       where: {
         id: {
           in: ids,
         },
       },
     });
+    return lolMatches.map(this.convertLOLMatchToMatch);
+  }
+
+  convertLOLMatchToMatch(param: LOLMatch): Match {
+    const inputed = param as any; // for jsonObject to jsonValue
+    return { metadata: inputed.metadata, info: inputed.info };
   }
 }

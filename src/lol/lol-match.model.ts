@@ -1,9 +1,4 @@
-export interface Match {
-  metadata: {
-    dataVersion: string;
-    matchId: string;
-    participants: string[];
-  };
+export interface MatchInfo {
   info: {
     gameCreation: number;
     gameDuration: number;
@@ -42,3 +37,13 @@ export interface Match {
     }[];
   };
 }
+
+export interface MatchMetadata {
+  metadata: {
+    dataVersion: string;
+    matchId: string;
+    participants: string[];
+  };
+}
+
+export interface Match extends MatchInfo, MatchMetadata {}

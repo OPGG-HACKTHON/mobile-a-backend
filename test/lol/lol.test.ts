@@ -4,6 +4,7 @@ import { LOLService } from '../../src/lol/lol.service';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { PrismaService } from '../../src/prisma/prisma.service';
+import { MatchMetadata } from '../../src/lol/lol-match.model';
 
 describe('simple etst', () => {
   let app: INestApplication;
@@ -102,10 +103,16 @@ describe('simple etst', () => {
         return result.value;
       }),
     );
-    const res = await lolService.findManyLOLMatchesByIds([
+    const res = await lolService.findManyMatchesByIds([
       'KR_5376935655',
       'KR_5376789640',
     ]);
-    console.log(res);
+    expect(res[0].metadata.matchId).toBe('KR_5376935655');
+    expect(res[0].info.gameId).toBe(5376935655);
+    expect(res[0].info.participants[0].assists).toBe(9);
+
+    expect(res[1].metadata.matchId).toBe('KR_5376789640');
+    expect(res[1].info.gameId).toBe(5376789640);
+    expect(res[1].info.participants[0].assists).toBe(10);
   });
 });
