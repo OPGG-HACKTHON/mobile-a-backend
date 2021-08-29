@@ -87,7 +87,7 @@ model LOLChampion {
   updatedAt          DateTime             @updatedAt
   LOLSummaryPersonal LOLSummaryPersonal[]
   LOLSummarySchool   LOLSummarySchool[]
-
+  LOLChampionMastery LOLChampionMastery[]
 }
 
 // LoL summary Personal
@@ -154,13 +154,14 @@ model LOLTier {
 
 // CHAMPION-MASTERY-V4 - /lol/champion-mastery/v4/champion-masteries/by-summoner/{encryptedSummonerId}
 model LOLChampionMastery {
-  id             Int        @id @default(autoincrement())
-  championId     Int
+  id             Int         @id @default(autoincrement())
+  LOLChampion    LOLChampion @relation(fields: [LOLChampionId], references: [id])
+  LOLChampionId  String
   championPoints Int
   lastPlayTime   DateTime
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
-  LOLAccount     LOLAccount @relation(fields: [LOLAccountId], references: [id])
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  LOLAccount     LOLAccount  @relation(fields: [LOLAccountId], references: [id])
   LOLAccountId   String
 }
 
