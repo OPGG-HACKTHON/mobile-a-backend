@@ -12,6 +12,9 @@ export class TierInfo {
 
 export class ProfileInfo {
   @ApiProperty()
+  name: string;
+
+  @ApiProperty()
   profileIconId: number;
 
   @ApiProperty()
@@ -24,7 +27,7 @@ export class ProfileInfo {
   tierInfo: TierInfo;
 }
 
-export class Profile {
+export class ProfileDTO {
   @ApiProperty()
   id: number;
 

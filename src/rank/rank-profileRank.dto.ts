@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Profile } from '../user/user.types';
+import { ProfileDTO } from '../user/user-profile.dto';
 
-export class ProfileRank extends Profile {
+export class ProfileRank extends ProfileDTO {
   @ApiProperty()
   seqNo: number;
 }

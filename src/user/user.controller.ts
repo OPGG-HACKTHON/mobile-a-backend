@@ -6,7 +6,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { Profile } from './user.types';
+import { ProfileDTO } from './user-profile.dto';
 import { ParseIntPipe } from '@nestjs/common';
 import { UserDTO } from '../common/dto/user.dto';
 @ApiTags('User')
@@ -44,11 +44,11 @@ export class UserController {
     summary: '유저 프로필 데이터 조회',
     description: '유저의 프로필 조회를 진행합니다.',
   })
-  @ApiOkResponse({ description: '유저 프로필 조회 성공', type: Profile })
+  @ApiOkResponse({ description: '유저 프로필 조회 성공', type: ProfileDTO })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   async getUserProfile(
     @Param('id', ParseIntPipe) userId: number,
-  ): Promise<Profile> {
+  ): Promise<ProfileDTO> {
     return await this.userService.getProfileByUserId(userId);
   }
 

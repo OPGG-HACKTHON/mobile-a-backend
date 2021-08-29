@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Profile } from './user.types';
+import { ProfileDTO } from './user-profile.dto';
 import { UserDTO } from '../common/dto/user.dto';
 import { SignUpParam } from 'src/auth/auth-signup.param';
 import { LOLService } from '../lol/lol.service';
@@ -20,7 +20,7 @@ export class UserService {
     return this.PROFILE_IMAGE_URL + '/' + profileIconId.toString() + '.png';
   }
 
-  async getProfileByUserId(userId: number): Promise<Profile> {
+  async getProfileByUserId(userId: number): Promise<ProfileDTO> {
     const user = await this.prisma.user.findUnique({
       where: {
         id: userId,
@@ -36,11 +36,12 @@ export class UserService {
     if (!user.LOLAccountId) {
       throw new Error('lol 계정이 존재하지 않습니다.');
     }
-    const { profileIconId, summonerLevel } = user.LOLAccount;
+    const { profileIconId, summonerLevel, name } = user.LOLAccount;
     const { tier, rank, leaguePoints } = user.LOLAccount.LOLTier;
     return {
       id: userId,
       lol: {
+        name,
         profileIconId,
         profileIconImageUrl: this.getProfileImageUrl(profileIconId),
         summonerLevel,
