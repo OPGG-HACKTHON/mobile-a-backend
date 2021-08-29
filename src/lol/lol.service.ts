@@ -6,6 +6,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Match } from './lol-match.model';
 import { LOLMatch } from '@prisma/client';
 import { CHAMPION } from './lol-champion.model';
+import { CHAMPION_MASTERY } from './lol-championMastery.model';
 @Injectable()
 export class LOLService implements OnApplicationBootstrap {
   private readonly API_KEY = process.env.LOL_API_KEY;
@@ -21,6 +22,9 @@ export class LOLService implements OnApplicationBootstrap {
   private readonly CHAMPION_INFO_URL =
     'https://static.opggmobilea.com/dragontail-11.15.1/11.15.1/data/ko_KR/champion.json';
   private readonly DEFAULT_MATCH_MAX_COUNT = 10;
+
+  private readonly CHAMPION_MASTERY_V4_URL =
+    'https://kr.api.riotgames.com/lol/champion-mastery/v4/champion-masteries';
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -282,5 +286,70 @@ export class LOLService implements OnApplicationBootstrap {
   convertLOLMatchToMatch(param: LOLMatch): Match {
     const inputed = param as any; // for jsonObject to jsonValue
     return { metadata: inputed.metadata, info: inputed.info };
+  }
+
+  async setupChampionMasteriesByAccountId(LOLAccountId: string): Promise<void> {
+    const rawChampionMasteries = await this.getChampionMasteriesByAccountId(
+      LOLAccountId,
+    );
+    const championMasteriesies = rawChampionMasteries.map(
+      ({ lastPlayTime, ...rest }) => {
+        return {
+          lastPlayTime: new Date(lastPlayTime),
+          ...rest,
+        };
+      },
+    );
+    const champions = await this.prisma.lOLChampion.findMany({
+      where: {
+        key: {
+          in: championMasteriesies.map(({ championId }) => championId),
+        },
+      },
+    });
+    //
+    const championIdToLOLChampionIdMap = new Map<number, string>();
+    champions.forEach(({ key, id }) =>
+      championIdToLOLChampionIdMap.set(key, id),
+    );
+
+    await this.prisma.$transaction(
+      championMasteriesies.map((champion) => {
+        const LOLChampionId = championIdToLOLChampionIdMap.get(
+          champion.championId,
+        );
+        return this.prisma.lOLChampionMastery.upsert({
+          where: {
+            LOLChampionMastery_LOLChampionId_LOLAccountId_uniqueConstraint: {
+              LOLAccountId: LOLAccountId,
+              LOLChampionId: LOLChampionId,
+            },
+          },
+          create: {
+            LOLChampionId: LOLChampionId,
+            championPoints: champion.championPoints,
+            lastPlayTime: champion.lastPlayTime,
+            LOLAccountId: LOLAccountId,
+          },
+          update: {
+            championPoints: champion.championPoints,
+            lastPlayTime: champion.lastPlayTime,
+          },
+        });
+      }),
+    );
+  }
+
+  async getChampionMasteriesByAccountId(
+    id: string,
+  ): Promise<CHAMPION_MASTERY[]> {
+    const result = await got
+      .get(this.CHAMPION_MASTERY_V4_URL + '/by-summoner' + '/' + id, {
+        headers: {
+          'X-Riot-Token': this.API_KEY,
+        },
+      })
+      .json<CHAMPION_MASTERY[]>();
+    return result;
   }
 }

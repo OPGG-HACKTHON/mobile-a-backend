@@ -73,7 +73,7 @@ model LOLAccount {
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   User               User?
-  LOLChampionMastery LOLChampionMastery?
+  LOLChampionMastery LOLChampionMastery[]
   LOLTier            LOLTier?
   LOLSummaryPersonal LOLSummaryPersonal[]
 }
@@ -163,6 +163,8 @@ model LOLChampionMastery {
   updatedAt      DateTime    @updatedAt
   LOLAccount     LOLAccount  @relation(fields: [LOLAccountId], references: [id])
   LOLAccountId   String
+
+  @@unique([LOLChampionId, LOLAccountId], name: "LOLChampionMastery_LOLChampionId_LOLAccountId_uniqueConstraint")
 }
 
 // MATCH-V5  - /lol/match/v5/matches/{matchId}

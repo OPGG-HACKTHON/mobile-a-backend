@@ -158,4 +158,40 @@ describe('simple etst', () => {
     expect(akshan.key).toBe(166);
     expect(akshan.name).toBe('아크샨');
   });
+
+  it('lol champion get mastery by lol accountId', async () => {
+    // if lol api key changed will be fail
+    const result = await lolService.getChampionMasteriesByAccountId(
+      '65c_hOoDrNNWLfWaPgtudAr15hBpQoeYuQjzf195cUvl5w',
+    );
+    expect(result.length).toBeGreaterThan(100);
+    expect(result[0].championId).toBeTruthy();
+    expect(result[0].championLevel).toBeTruthy();
+    expect(result[0].championPoints).toBeTruthy();
+    expect(result[0].lastPlayTime).toBeTruthy();
+    expect(result[99].championId).toBeTruthy();
+    expect(result[99].championLevel).toBeTruthy();
+    expect(result[99].championPoints).toBeTruthy();
+    expect(result[99].lastPlayTime).toBeTruthy();
+  });
+
+  it('lol setup champion mastery by lol accountId', async () => {
+    // setup
+    const result = await lolService.upsertLOLAccountByLOLName('kkangsan');
+    expect(result).toBeTruthy();
+    // if lol api key changed will be fail
+    await lolService.setupChampionMasteriesByAccountId(result);
+    const championMasteryCount = await prismaService.lOLChampionMastery.count();
+    expect(championMasteryCount).toBeGreaterThan(100);
+
+    const ivernMastery = await prismaService.lOLChampionMastery.findUnique({
+      where: {
+        LOLChampionMastery_LOLChampionId_LOLAccountId_uniqueConstraint: {
+          LOLChampionId: 'Ivern',
+          LOLAccountId: result,
+        },
+      },
+    });
+    expect(ivernMastery.championPoints).toBeGreaterThanOrEqual(135225);
+  });
 });
