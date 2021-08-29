@@ -1,6 +1,7 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import got from 'got';
-import { SUMMONER, Tier, LEAGUE } from './lol.types';
+import { Tier } from './lol-tier.model';
+import { SUMMONER } from './lol-summoner.model';
 import { PrismaService } from '../prisma/prisma.service';
 import { Match } from './lol-match.model';
 import { LOLMatch } from '@prisma/client';
@@ -58,7 +59,7 @@ export class LOLService implements OnApplicationBootstrap {
           'X-Riot-Token': this.API_KEY,
         },
       })
-      .json<LEAGUE[]>();
+      .json<(Tier & { queueType: 'RANKED_FLEX_SR' & 'RANKED_SOLO_5x5' })[]>();
     const result = apiResults.filter(
       (apiResult) => apiResult.queueType === 'RANKED_SOLO_5x5',
     );
