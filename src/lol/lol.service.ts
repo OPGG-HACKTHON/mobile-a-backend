@@ -1,12 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import got from 'got';
 import { SUMMONER, Tier, LEAGUE } from './lol.types';
 import { PrismaService } from '../prisma/prisma.service';
 import { Match } from './lol-match.model';
 import { LOLMatch } from '@prisma/client';
-
+import { CHAMPION } from './lol-champion.model';
 @Injectable()
-export class LOLService {
+export class LOLService implements OnApplicationBootstrap {
   private readonly API_KEY = process.env.LOL_API_KEY;
   private readonly SUMMONER_V4_URL =
     'https://kr.api.riotgames.com/lol/summoner/v4/summoners';
@@ -17,9 +17,25 @@ export class LOLService {
   private readonly MATCH_V5_URL =
     'https://asia.api.riotgames.com/lol/match/v5/matches';
 
+  private readonly CHAMPION_INFO_URL =
+    'https://static.opggmobilea.com/dragontail-11.15.1/11.15.1/data/ko_KR/champion.json';
   private readonly DEFAULT_MATCH_MAX_COUNT = 10;
 
   constructor(private readonly prisma: PrismaService) {}
+
+  async onApplicationBootstrap() {
+    const championsRaw = await got
+      .get(this.CHAMPION_INFO_URL)
+      .json<{ data: CHAMPION }>();
+    const champions = Object.keys(championsRaw.data).map((champion) => {
+      const { id, name, key } = championsRaw.data[champion];
+      return { id, name, key: parseInt(key) };
+    });
+    await this.prisma.lOLChampion.createMany({
+      data: champions,
+      skipDuplicates: true,
+    });
+  }
 
   async getLOLAccountByLOLName(param: string): Promise<SUMMONER> {
     const result = await got
@@ -141,10 +157,12 @@ export class LOLService {
 
     await this.prisma.lOLSummaryPersonal.upsert({
       where: {
-        LOLAccountId_LOLSummaryElementId: {
-          LOLAccountId: id,
-          LOLSummaryElementId: category.id,
-        },
+        LOLSummaryPersonal_LOLAccountId_LOLSummaryElementId_LOLChampionId_uniqueConstraint:
+          {
+            LOLAccountId: id,
+            LOLSummaryElementId: category.id,
+            LOLChampionId: '',
+          },
       },
       update: {
         value: tierSummaryValue.toString(),

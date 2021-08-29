@@ -78,32 +78,48 @@ model LOLAccount {
   LOLSummaryPersonal LOLSummaryPersonal[]
 }
 
+// data - ko_KR - champion
+model LOLChampion {
+  id                 String               @id
+  name               String               @unique
+  key                Int                  @unique
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  LOLSummaryPersonal LOLSummaryPersonal[]
+  LOLSummarySchool   LOLSummarySchool[]
+
+}
+
 // LoL summary Personal
 model LOLSummaryPersonal {
+  id                  Int               @id @default(autoincrement())
   LOLAccount          LOLAccount        @relation(fields: [LOLAccountId], references: [id])
   LOLAccountId        String
   LOLSummaryElement   LOLSummaryElement @relation(fields: [LOLSummaryElementId], references: [id])
   LOLSummaryElementId Int
-  championId          Int?
+  LOLChampion         LOLChampion?      @relation(fields: [LOLChampionId], references: [id])
+  LOLChampionId       String?
   value               String
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
 
-  @@id([LOLAccountId, LOLSummaryElementId])
+  @@unique([LOLAccountId, LOLSummaryElementId, LOLChampionId], name: "LOLSummaryPersonal_LOLAccountId_LOLSummaryElementId_LOLChampionId_uniqueConstraint")
 }
 
 // LoL summary School
 model LOLSummarySchool {
+  id                  Int               @id @default(autoincrement())
   School              School            @relation(fields: [SchoolId], references: [id])
   SchoolId            String
   LOLSummaryElement   LOLSummaryElement @relation(fields: [LOLSummaryElementId], references: [id])
   LOLSummaryElementId Int
-  championId          Int?
+  LOLChampion         LOLChampion?      @relation(fields: [LOLChampionId], references: [id])
+  LOLChampionId       String?
   value               String
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
 
-  @@id([SchoolId, LOLSummaryElementId])
+  @@unique([SchoolId, LOLSummaryElementId, LOLChampionId], name: "LOLSummarySchool_SchoolId_LOLSummaryElementId_LOLChampionId_uniqueConstraint")
 }
 
 // LoL Category

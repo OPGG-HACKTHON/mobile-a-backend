@@ -129,4 +129,33 @@ describe('simple etst', () => {
     const matches = await prismaService.lOLMatch.count();
     expect(matches).toBe(10); // DEFAULT_MATCH_MAX_COUNT
   });
+
+  it('lol champion setup check', async () => {
+    const aatrox = await prismaService.lOLChampion.findUnique({
+      where: {
+        id: 'Aatrox',
+      },
+    });
+    expect(aatrox.id).toBe('Aatrox');
+    expect(aatrox.key).toBe(266);
+    expect(aatrox.name).toBe('아트록스');
+
+    const zilean = await prismaService.lOLChampion.findUnique({
+      where: {
+        id: 'Zilean',
+      },
+    });
+    expect(zilean.id).toBe('Zilean');
+    expect(zilean.key).toBe(26);
+    expect(zilean.name).toBe('질리언');
+
+    const akshan = await prismaService.lOLChampion.findUnique({
+      where: {
+        id: 'Akshan',
+      },
+    });
+    expect(akshan.id).toBe('Akshan');
+    expect(akshan.key).toBe(166);
+    expect(akshan.name).toBe('아크샨');
+  });
 });
