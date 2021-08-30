@@ -281,27 +281,18 @@ export class AuthService {
    * @Token
    * @desc id_token을 통해 유저를 조회합니다.
    */
-  async getUserByToken(id_token: string) {
+  async getUserByToken(authFrom: string, id_token: string) {
     const token = await this.getTokenByGoogleTicketPayload(id_token);
+    const inputToken = this.OauthTokenToToken(authFrom, token);
+
     const userToken = await this.prisma.token.findFirst({
       where: {
-        token: token,
+        token: inputToken,
       },
       include: {
         User: true,
       },
     });
-
-    if (!userToken) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: '회원가입이 필요한 유저입니다.',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    } else {
-      return userToken.User;
-    }
+    return userToken.User;
   }
 }

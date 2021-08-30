@@ -114,7 +114,10 @@ export class AuthController {
   @ApiQuery({ name: 'token' })
   @ApiOkResponse({ description: '유저 정보 조회 성공', type: UserDTO })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  async getUserByToken(@Query('token') token: string): Promise<UserDTO> {
-    return await this.authService.getUserByToken(token);
+  async getUserByToken(
+    @Query('authFrom') authFrom: string,
+    @Query('token') token: string,
+  ): Promise<UserDTO> {
+    return await this.authService.getUserByToken(authFrom, token);
   }
 }
