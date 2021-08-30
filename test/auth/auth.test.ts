@@ -96,5 +96,10 @@ describe('simple etst', () => {
 
     expect(token.token).toBe('google_foo-token');
     expect(token.userId).toBe(1);
+
+    //
+    const findedUser = await authService.getUserByToken('google_foo-token');
+    expect(findedUser.email).toBe('abc@abc.com');
+    expect(findedUser.schoolId).toBe('1');
   });
 });
