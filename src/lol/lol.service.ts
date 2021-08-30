@@ -7,6 +7,7 @@ import { Match } from './lol-match.model';
 import { LOLMatch } from '@prisma/client';
 import { CHAMPION } from './lol-champion.model';
 import { CHAMPION_MASTERY } from './lol-championMastery.model';
+import { LOLChampionDTO } from './lol-champion.dto';
 @Injectable()
 export class LOLService implements OnApplicationBootstrap {
   private readonly API_KEY = process.env.LOL_API_KEY;
@@ -26,9 +27,31 @@ export class LOLService implements OnApplicationBootstrap {
   private readonly CHAMPION_MASTERY_V4_URL =
     'https://kr.api.riotgames.com/lol/champion-mastery/v4/champion-masteries';
 
+  private readonly CHAMPION_IMAGE_URL =
+    'https://static.opggmobilea.com/dragontail-11.15.1/11.15.1/img/champion';
+
+  championsOrderByName: LOLChampionDTO[];
+  championIdAndChampionDTOMap = new Map<number, LOLChampionDTO>();
+
   constructor(private readonly prisma: PrismaService) {}
 
   async onApplicationBootstrap() {
+    const champions = await this.getRawChampionsData();
+    this.setChampionMemoryCacheByRawChampionsData(champions);
+    // create champions
+    await this.prisma.lOLChampion.createMany({
+      data: champions,
+      skipDuplicates: true,
+    });
+  }
+
+  async getRawChampionsData(): Promise<
+    {
+      id: string;
+      name: string;
+      key: number;
+    }[]
+  > {
     const championsRaw = await got
       .get(this.CHAMPION_INFO_URL)
       .json<{ data: CHAMPION }>();
@@ -36,10 +59,28 @@ export class LOLService implements OnApplicationBootstrap {
       const { id, name, key } = championsRaw.data[champion];
       return { id, name, key: parseInt(key) };
     });
-    await this.prisma.lOLChampion.createMany({
-      data: champions,
-      skipDuplicates: true,
-    });
+    return champions;
+  }
+
+  setChampionMemoryCacheByRawChampionsData(
+    params: {
+      id: string;
+      name: string;
+      key: number;
+    }[],
+  ): void {
+    this.championsOrderByName = params
+      .map((champion) => {
+        const championDTO = {
+          id: champion.key,
+          name: champion.name,
+          enName: champion.id,
+          imageUrl: this.CHAMPION_IMAGE_URL + '/' + champion.id + '.png',
+        };
+        this.championIdAndChampionDTOMap.set(champion.key, championDTO);
+        return championDTO;
+      })
+      .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
   }
 
   async getLOLAccountByLOLName(param: string): Promise<SUMMONER> {
@@ -351,5 +392,13 @@ export class LOLService implements OnApplicationBootstrap {
       })
       .json<CHAMPION_MASTERY[]>();
     return result;
+  }
+
+  getChampions(): LOLChampionDTO[] {
+    return this.championsOrderByName;
+  }
+
+  getChampionById(id: number): LOLChampionDTO {
+    return this.championIdAndChampionDTOMap.get(id);
   }
 }
