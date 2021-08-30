@@ -293,6 +293,17 @@ export class AuthService {
         User: true,
       },
     });
-    return userToken.User;
+
+    if (!userToken) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: '회원가입이 필요한 유저입니다.',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    } else {
+      return userToken.User;
+    }
   }
 }
