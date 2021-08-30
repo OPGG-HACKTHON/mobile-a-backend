@@ -16,7 +16,7 @@ enum Role {
 }
 
 model Token {
-  token     String    @id
+  token     String    @id @unique
   User      User      @relation(fields: [userId], references: [id])
   userId    Int
   expireAt  DateTime?

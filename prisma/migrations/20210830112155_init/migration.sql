@@ -143,6 +143,9 @@ CREATE TABLE "LOLMatch" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Token.token_unique" ON "Token"("token");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "User_authFrom_email_uniqueConstraint" ON "User"("authFrom", "email");
 
 -- CreateIndex

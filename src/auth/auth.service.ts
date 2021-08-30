@@ -238,7 +238,7 @@ export class AuthService {
    * @desc Google sub 값을 리턴합니다. ( id_token을 이용해 받은 구글 sub값 )
    */
   async getTokenByGoogleTicketPayload(token: string) {
-    const user = this.googleAuthService.getUser(token);
+    const user = await this.googleAuthService.verify(token);
     return user['sub'];
   }
 
@@ -283,7 +283,7 @@ export class AuthService {
    */
   async getUserByToken(id_token: string) {
     const token = await this.getTokenByGoogleTicketPayload(id_token);
-    const userToken = await this.prisma.token.findUnique({
+    const userToken = await this.prisma.token.findFirst({
       where: {
         token: token,
       },
@@ -291,6 +291,17 @@ export class AuthService {
         User: true,
       },
     });
-    return userToken.User;
+
+    if (!userToken) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: '회원가입이 필요한 유저입니다.',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    } else {
+      return userToken.User;
+    }
   }
 }
