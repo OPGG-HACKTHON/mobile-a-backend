@@ -70,7 +70,7 @@ describe('google oauth test', () => {
 
     const tokenTest = await prismaService.token.create({
       data: {
-        token: 'testToken',
+        token: 'google_116605817241027933549',
         userId: 1,
         expireAt: expireAtForTest,
       },
@@ -85,7 +85,7 @@ describe('google oauth test', () => {
 
     const testTime = new Date();
     const { token, userId, expireAt } = tokenTest;
-    expect(token).toBe('testToken');
+    expect(token).toBe('google_116605817241027933549');
     expect(userId).toBe(1);
     expect(expireAt.valueOf()).toBeGreaterThan(testTime.valueOf());
   });

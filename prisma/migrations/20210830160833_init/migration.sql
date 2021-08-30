@@ -5,7 +5,7 @@ CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN');
 CREATE TABLE "Token" (
     "token" TEXT NOT NULL,
     "userId" INTEGER NOT NULL,
-    "expireAt" TIMESTAMP(3) NOT NULL,
+    "expireAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -154,6 +154,9 @@ CREATE TABLE "LOLMatch" (
 
     PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Token.token_unique" ON "Token"("token");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_authFrom_email_uniqueConstraint" ON "User"("authFrom", "email");

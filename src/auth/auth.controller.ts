@@ -91,18 +91,30 @@ export class AuthController {
     return userData;
   }
 
+  // @Post('/validate')
+  // @ApiOperation({
+  //   summary: '토큰을 통해 유저 정보 조회',
+  //   description:
+  //     '로그인으로 응답받은 토큰을 이용해 유저 정보 조회를 진행합니다.',
+  // })
+  // @ApiQuery({ name: 'accessToken' })
+  // @ApiOkResponse({ description: '유저 정보 조회 성공', type: UserDTO })
+  // @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  // async googleTokenTest(
+  //   @Query('accessToken') accessToken: string,
+  // ): Promise<UserDTO> {
+  //   return await this.authService.getUserByToken(accessToken);
+  // }
+
   @Post('/validate')
   @ApiOperation({
-    summary: '토큰을 통해 유저 정보 조회',
-    description:
-      '로그인으로 응답받은 토큰을 이용해 유저 정보 조회를 진행합니다.',
+    summary: '유저 정보 조회',
+    description: '토큰을 이용해 유저 정보 조회를 진행합니다.',
   })
-  @ApiQuery({ name: 'accessToken' })
+  @ApiQuery({ name: 'token' })
   @ApiOkResponse({ description: '유저 정보 조회 성공', type: UserDTO })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  async googleTokenTest(
-    @Query('accessToken') accessToken: string,
-  ): Promise<UserDTO> {
-    return await this.authService.getUserByToken(accessToken);
+  async getUserByToken(@Query('token') token: string): Promise<UserDTO> {
+    return await this.authService.getUserByToken(token);
   }
 }

@@ -8,5 +8,5 @@ export class TokenDTO {
   userId: number;
 
   @ApiProperty()
-  expireAt: Date;
+  expireAt?: Date;
 }
