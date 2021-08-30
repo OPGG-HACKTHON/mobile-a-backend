@@ -6,7 +6,6 @@ import { GoogleAuthService } from './passport/google-auth.service';
 import { User } from '@prisma/client';
 import { LoginParam } from './auth-login.param';
 import { LoginDTO } from './auth-login.dto';
-import { UserDTO } from 'src/common/dto/user.dto';
 import { TokenDTO } from './auth-token.dto';
 
 @Injectable()
@@ -46,8 +45,8 @@ export class AuthService {
     email: string,
   ): Promise<void> {
     try {
-      const googleUser = await this.googleAuthService.getUser(token);
-      if (!googleUser.verified_email) {
+      const googleUser = await this.googleAuthService.verify(token);
+      if (!googleUser['email_verified']) {
         throw new HttpException(
           {
             status: HttpStatus.NON_AUTHORITATIVE_INFORMATION,
@@ -56,7 +55,7 @@ export class AuthService {
           HttpStatus.NON_AUTHORITATIVE_INFORMATION,
         );
       }
-      if (googleUser.email != email) {
+      if (googleUser['email'] != email) {
         throw new HttpException(
           {
             status: HttpStatus.NON_AUTHORITATIVE_INFORMATION,
@@ -78,8 +77,8 @@ export class AuthService {
   }
 
   private async googleLoginByLoginParam(param: LoginParam): Promise<LoginDTO> {
-    const googleUser = await this.googleAuthService.getUser(param.accesstoken);
-    if (!googleUser.verified_email) {
+    const googleUser = await this.googleAuthService.verify(param.accesstoken);
+    if (!googleUser['email_verified']) {
       throw new HttpException(
         {
           status: HttpStatus.NON_AUTHORITATIVE_INFORMATION,
@@ -90,7 +89,7 @@ export class AuthService {
     }
     const user = await this.userService.findUserByAuthFromAndEmail(
       'google',
-      googleUser.email,
+      googleUser['email'],
     );
     if (!user) {
       return {
@@ -122,8 +121,6 @@ export class AuthService {
     authFrom: string,
     token: string,
   ): Promise<TokenDTO> {
-    const expireAt = new Date();
-    expireAt.setFullYear(expireAt.getFullYear() + 1);
     const inputToken = this.OauthTokenToToken(authFrom, token);
     return await this.prisma.token.upsert({
       where: {
@@ -133,7 +130,6 @@ export class AuthService {
       create: {
         token: inputToken,
         userId: userId,
-        expireAt: expireAt,
       },
     });
   }
@@ -172,10 +168,12 @@ export class AuthService {
       );
     }
     const authFrom = 'google';
-    const { email, accessToken } = req.user;
-    const userInfo = await this.googleAuthService.getUser(accessToken);
+    const { email, id_token } = req.user;
+    // const userInfo = await this.googleAuthService.getUser(id_token);
+    const userInfo = await this.googleAuthService.verify(id_token);
 
-    if (userInfo.verified_email && userInfo.email == email) {
+    if (userInfo['email_verified'] && userInfo['email'] == email) {
+      const token = await this.getTokenByGoogleTicketPayload(id_token);
       const user = await this.userService.findUserByAuthFromAndEmail(
         authFrom,
         email,
@@ -187,16 +185,12 @@ export class AuthService {
           message: '유저 정보가 없습니다. 회원가입을 진행합니다.',
           authFrom: authFrom,
           email: email,
-          accessToken: accessToken,
+          accessToken: token,
         };
       } else {
         // 유저 존재 시 토큰을 디비에 담습니다.
         const userId = user.id;
-        const userToken = await this.createUserToken(
-          userId,
-          authFrom,
-          accessToken,
-        );
+        const userToken = await this.createToken(userId, authFrom, token);
         return {
           message: '이미 가입된 유저입니다. 로그인을 진행합니다.',
           accessToken: userToken,
@@ -221,20 +215,47 @@ export class AuthService {
    * @Token
    * @desc 토큰을 생성합니다. ( 유효기간 1년 )
    */
-  async createUserToken(
+  // async createUserToken(
+  //   userId: number,
+  //   authFrom: string,
+  //   token: string,
+  // ): Promise<TokenDTO> {
+  //   const expireAt = new Date();
+  //   expireAt.setFullYear(expireAt.getFullYear() + 1);
+  //   const inputToken = this.OauthTokenToToken(authFrom, token);
+
+  //   return await this.prisma.token.create({
+  //     data: {
+  //       token: inputToken,
+  //       userId: userId,
+  //       expireAt: expireAt,
+  //     },
+  //   });
+  // }
+
+  /**
+   * @Token
+   * @desc Google sub 값을 리턴합니다. ( id_token을 이용해 받은 구글 sub값 )
+   */
+  async getTokenByGoogleTicketPayload(token: string) {
+    const user = await this.googleAuthService.verify(token);
+    return user['sub'];
+  }
+
+  /**
+   * @Token
+   * @desc 토큰을 생성합니다. ( id_token을 이용해 받은 구글 sub값 )
+   */
+  async createToken(
     userId: number,
     authFrom: string,
     token: string,
   ): Promise<TokenDTO> {
-    const expireAt = new Date();
-    expireAt.setFullYear(expireAt.getFullYear() + 1);
     const inputToken = this.OauthTokenToToken(authFrom, token);
-
     return await this.prisma.token.create({
       data: {
         token: inputToken,
         userId: userId,
-        expireAt: expireAt,
       },
     });
   }
@@ -242,17 +263,47 @@ export class AuthService {
   /**
    * @Token
    * @desc 토큰을 통해 유저를 조회합니다.
+   * @issue id_token을 이용해 sub값 활용 예정
    */
-  async getUserByToken(token: string): Promise<UserDTO> {
-    const userToken = await this.prisma.token.findUnique({
+  // async getUserByToken(accessToken: string): Promise<UserDTO> {
+  //   const userToken = await this.prisma.token.findUnique({
+  //     where: {
+  //       token: accessToken,
+  //     },
+  //     include: {
+  //       User: true,
+  //     },
+  //   });
+  //   return userToken.User;
+  // }
+
+  /**
+   * @Token
+   * @desc id_token을 통해 유저를 조회합니다.
+   */
+  async getUserByToken(authFrom: string, id_token: string) {
+    const token = await this.getTokenByGoogleTicketPayload(id_token);
+    const inputToken = this.OauthTokenToToken(authFrom, token);
+
+    const userToken = await this.prisma.token.findFirst({
       where: {
-        token: token,
+        token: inputToken,
       },
       include: {
         User: true,
       },
     });
 
-    return userToken.User;
+    if (!userToken) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: '회원가입이 필요한 유저입니다.',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    } else {
+      return userToken.User;
+    }
   }
 }

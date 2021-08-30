@@ -2,8 +2,20 @@
 CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN');
 
 -- CreateTable
+CREATE TABLE "Token" (
+    "token" TEXT NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "expireAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    PRIMARY KEY ("token")
+);
+
+-- CreateTable
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
+    "authFrom" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -122,7 +134,8 @@ CREATE TABLE "LOLChampionMastery" (
 -- CreateTable
 CREATE TABLE "LOLMatch" (
     "id" TEXT NOT NULL,
-    "resultResponse" JSONB NOT NULL,
+    "metadata" JSONB NOT NULL,
+    "info" JSONB NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -130,7 +143,10 @@ CREATE TABLE "LOLMatch" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User.email_unique" ON "User"("email");
+CREATE UNIQUE INDEX "Token.token_unique" ON "Token"("token");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_authFrom_email_uniqueConstraint" ON "User"("authFrom", "email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_LOLAccountId_unique" ON "User"("LOLAccountId");
@@ -143,6 +159,9 @@ CREATE UNIQUE INDEX "LOLTier.LOLAccountId_unique" ON "LOLTier"("LOLAccountId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "LOLChampionMastery_LOLAccountId_unique" ON "LOLChampionMastery"("LOLAccountId");
+
+-- AddForeignKey
+ALTER TABLE "Token" ADD FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "User" ADD FOREIGN KEY ("LOLAccountId") REFERENCES "LOLAccount"("id") ON DELETE SET NULL ON UPDATE CASCADE;

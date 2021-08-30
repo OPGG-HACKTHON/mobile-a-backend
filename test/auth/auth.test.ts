@@ -92,7 +92,7 @@ describe('simple etst', () => {
       LOLNickName: 'kkangsan',
       schoolId: '1',
     });
-    const token = await authService.createUserToken(1, 'google', 'foo-token');
+    const token = await authService.createToken(1, 'google', 'foo-token');
 
     expect(token.token).toBe('google_foo-token');
     expect(token.userId).toBe(1);
