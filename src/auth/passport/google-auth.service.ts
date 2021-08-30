@@ -25,7 +25,6 @@ export class GoogleAuthService {
       idToken: token,
       audience: process.env.GOOGLE_AUTH_CLIENT_ID,
     });
-    console.log(ticket);
     const payload = ticket.getPayload();
     const userid = payload['sub'];
     return payload;
@@ -42,8 +41,6 @@ export class GoogleAuthService {
     const userInfoResponse = await userInfoClient.get({
       auth: this.oauthClient,
     });
-
-    console.log(userInfoResponse);
 
     return userInfoResponse.data;
   }

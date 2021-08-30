@@ -46,7 +46,6 @@ export class AuthService {
   ): Promise<void> {
     try {
       const googleUser = await this.googleAuthService.verify(token);
-      console.log(googleUser);
       if (!googleUser['email_verified']) {
         throw new HttpException(
           {
@@ -292,7 +291,6 @@ export class AuthService {
         User: true,
       },
     });
-    console.log(userToken.User);
     return userToken.User;
   }
 }
