@@ -65,27 +65,40 @@ CREATE TABLE "LOLAccount" (
 );
 
 -- CreateTable
+CREATE TABLE "LOLChampion" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "key" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "LOLSummaryPersonal" (
+    "id" SERIAL NOT NULL,
     "LOLAccountId" TEXT NOT NULL,
     "LOLSummaryElementId" INTEGER NOT NULL,
-    "championId" INTEGER,
+    "LOLChampionId" TEXT,
     "value" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    PRIMARY KEY ("LOLAccountId","LOLSummaryElementId")
+    PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "LOLSummarySchool" (
+    "id" SERIAL NOT NULL,
     "SchoolId" TEXT NOT NULL,
     "LOLSummaryElementId" INTEGER NOT NULL,
-    "championId" INTEGER,
+    "LOLChampionId" TEXT,
     "value" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    PRIMARY KEY ("SchoolId","LOLSummaryElementId")
+    PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -121,7 +134,7 @@ CREATE TABLE "LOLTier" (
 -- CreateTable
 CREATE TABLE "LOLChampionMastery" (
     "id" SERIAL NOT NULL,
-    "championId" INTEGER NOT NULL,
+    "LOLChampionId" TEXT NOT NULL,
     "championPoints" INTEGER NOT NULL,
     "lastPlayTime" TIMESTAMP(3) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -155,10 +168,22 @@ CREATE UNIQUE INDEX "User_LOLAccountId_unique" ON "User"("LOLAccountId");
 CREATE UNIQUE INDEX "Region.name_unique" ON "Region"("name");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "LOLChampion.name_unique" ON "LOLChampion"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "LOLChampion.key_unique" ON "LOLChampion"("key");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "LOLSummaryPersonal_LOLAccountId_LOLSummaryElementId_LOLChampionId_uniqueConstraint" ON "LOLSummaryPersonal"("LOLAccountId", "LOLSummaryElementId", "LOLChampionId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "LOLSummarySchool_SchoolId_LOLSummaryElementId_LOLChampionId_uniqueConstraint" ON "LOLSummarySchool"("SchoolId", "LOLSummaryElementId", "LOLChampionId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "LOLTier.LOLAccountId_unique" ON "LOLTier"("LOLAccountId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "LOLChampionMastery_LOLAccountId_unique" ON "LOLChampionMastery"("LOLAccountId");
+CREATE UNIQUE INDEX "LOLChampionMastery_LOLChampionId_LOLAccountId_uniqueConstraint" ON "LOLChampionMastery"("LOLChampionId", "LOLAccountId");
 
 -- AddForeignKey
 ALTER TABLE "Token" ADD FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -179,13 +204,22 @@ ALTER TABLE "LOLSummaryPersonal" ADD FOREIGN KEY ("LOLAccountId") REFERENCES "LO
 ALTER TABLE "LOLSummaryPersonal" ADD FOREIGN KEY ("LOLSummaryElementId") REFERENCES "LOLSummaryElement"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "LOLSummaryPersonal" ADD FOREIGN KEY ("LOLChampionId") REFERENCES "LOLChampion"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "LOLSummarySchool" ADD FOREIGN KEY ("SchoolId") REFERENCES "School"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "LOLSummarySchool" ADD FOREIGN KEY ("LOLSummaryElementId") REFERENCES "LOLSummaryElement"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "LOLSummarySchool" ADD FOREIGN KEY ("LOLChampionId") REFERENCES "LOLChampion"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "LOLTier" ADD FOREIGN KEY ("LOLAccountId") REFERENCES "LOLAccount"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LOLChampionMastery" ADD FOREIGN KEY ("LOLChampionId") REFERENCES "LOLChampion"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "LOLChampionMastery" ADD FOREIGN KEY ("LOLAccountId") REFERENCES "LOLAccount"("id") ON DELETE CASCADE ON UPDATE CASCADE;

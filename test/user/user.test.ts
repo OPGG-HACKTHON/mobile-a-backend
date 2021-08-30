@@ -79,8 +79,14 @@ describe('simple etst', () => {
       .set('Accept', 'application/json')
       .type('application/json');
     expect(resProfile.body.id).toBe(1);
-    const { profileIconId, profileIconImageUrl, summonerLevel, tierInfo } =
-      resProfile.body.lol;
+    const {
+      profileIconId,
+      profileIconImageUrl,
+      summonerLevel,
+      tierInfo,
+      name,
+    } = resProfile.body.lol;
+    expect(name).toBeTruthy();
     expect(profileIconId).toBeTruthy();
     expect(profileIconImageUrl).toBeTruthy();
     expect(summonerLevel).toBeTruthy();

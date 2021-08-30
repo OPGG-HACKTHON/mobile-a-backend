@@ -73,37 +73,53 @@ model LOLAccount {
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   User               User?
-  LOLChampionMastery LOLChampionMastery?
+  LOLChampionMastery LOLChampionMastery[]
   LOLTier            LOLTier?
   LOLSummaryPersonal LOLSummaryPersonal[]
 }
 
+// data - ko_KR - champion
+model LOLChampion {
+  id                 String               @id
+  name               String               @unique
+  key                Int                  @unique
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  LOLSummaryPersonal LOLSummaryPersonal[]
+  LOLSummarySchool   LOLSummarySchool[]
+  LOLChampionMastery LOLChampionMastery[]
+}
+
 // LoL summary Personal
 model LOLSummaryPersonal {
+  id                  Int               @id @default(autoincrement())
   LOLAccount          LOLAccount        @relation(fields: [LOLAccountId], references: [id])
   LOLAccountId        String
   LOLSummaryElement   LOLSummaryElement @relation(fields: [LOLSummaryElementId], references: [id])
   LOLSummaryElementId Int
-  championId          Int?
+  LOLChampion         LOLChampion?      @relation(fields: [LOLChampionId], references: [id])
+  LOLChampionId       String?
   value               String
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
 
-  @@id([LOLAccountId, LOLSummaryElementId])
+  @@unique([LOLAccountId, LOLSummaryElementId, LOLChampionId], name: "LOLSummaryPersonal_LOLAccountId_LOLSummaryElementId_LOLChampionId_uniqueConstraint")
 }
 
 // LoL summary School
 model LOLSummarySchool {
+  id                  Int               @id @default(autoincrement())
   School              School            @relation(fields: [SchoolId], references: [id])
   SchoolId            String
   LOLSummaryElement   LOLSummaryElement @relation(fields: [LOLSummaryElementId], references: [id])
   LOLSummaryElementId Int
-  championId          Int?
+  LOLChampion         LOLChampion?      @relation(fields: [LOLChampionId], references: [id])
+  LOLChampionId       String?
   value               String
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
 
-  @@id([SchoolId, LOLSummaryElementId])
+  @@unique([SchoolId, LOLSummaryElementId, LOLChampionId], name: "LOLSummarySchool_SchoolId_LOLSummaryElementId_LOLChampionId_uniqueConstraint")
 }
 
 // LoL Category
@@ -138,14 +154,17 @@ model LOLTier {
 
 // CHAMPION-MASTERY-V4 - /lol/champion-mastery/v4/champion-masteries/by-summoner/{encryptedSummonerId}
 model LOLChampionMastery {
-  id             Int        @id @default(autoincrement())
-  championId     Int
+  id             Int         @id @default(autoincrement())
+  LOLChampion    LOLChampion @relation(fields: [LOLChampionId], references: [id])
+  LOLChampionId  String
   championPoints Int
   lastPlayTime   DateTime
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
-  LOLAccount     LOLAccount @relation(fields: [LOLAccountId], references: [id])
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  LOLAccount     LOLAccount  @relation(fields: [LOLAccountId], references: [id])
   LOLAccountId   String
+
+  @@unique([LOLChampionId, LOLAccountId], name: "LOLChampionMastery_LOLChampionId_LOLAccountId_uniqueConstraint")
 }
 
 // MATCH-V5  - /lol/match/v5/matches/{matchId}
