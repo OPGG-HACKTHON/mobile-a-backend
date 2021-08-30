@@ -10,14 +10,13 @@ export class GoogleAuthService {
     const clientID = process.env.GOOGLE_AUTH_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_AUTH_SECRET;
     const clientRedirectUrl = process.env.GOOGLE_AUTH_CALLBACK_URL;
-    const client = new OAuth2Client(clientID);
 
     this.oauthClient = new google.auth.OAuth2(
       clientID,
       clientSecret,
       clientRedirectUrl,
     );
-    this.client = new OAuth2Client();
+    this.client = new OAuth2Client(clientID);
   }
 
   // new - id_token을 이용한 구글 유저 데이터
@@ -26,8 +25,8 @@ export class GoogleAuthService {
       idToken: token,
       audience: process.env.GOOGLE_AUTH_CLIENT_ID,
     });
+    console.log(ticket);
     const payload = ticket.getPayload();
-    console.log('@@@ payload @@@', payload);
     const userid = payload['sub'];
     return payload;
   }

@@ -111,12 +111,10 @@ export class AuthController {
     summary: '유저 정보 조회',
     description: '토큰을 이용해 유저 정보 조회를 진행합니다.',
   })
-  @ApiQuery({ name: 'id_token' })
+  @ApiQuery({ name: 'token' })
   @ApiOkResponse({ description: '유저 정보 조회 성공', type: UserDTO })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  async getUserByIdToken(
-    @Query('id_token') id_token: string,
-  ): Promise<UserDTO> {
-    return await this.authService.getDataByIdToken(id_token);
+  async getUserByToken(@Query('token') token: string): Promise<UserDTO> {
+    return await this.authService.getUserByToken(token);
   }
 }

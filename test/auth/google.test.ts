@@ -70,7 +70,8 @@ describe('google oauth test', () => {
 
     const tokenTest = await prismaService.token.create({
       data: {
-        token: 'testToken',
+        token:
+          'google_eyJhbGciOiJSUzI1NiIsImtpZCI6IjgxOWQxZTYxNDI5ZGQzZDNjYWVmMTI5YzBhYzJiYWU4YzZkNDZmYmMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI0MDc0MDg3MTgxOTIuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI0MDc0MDg3MTgxOTIuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMTY2MDU4MTcyNDEwMjc5MzM1NDkiLCJhdF9oYXNoIjoiTk00MmJtS1F5eFpUWEZrQzNpY182USIsImlhdCI6MTYzMDIxNDEyMSwiZXhwIjoxNjMwMjE3NzIxfQ.niB7nyMz2QExwZ0i4vpDr_C8VpN7FhSKr7sKOmGJrhORllEv0XRJRMLXO5J8nwmyATFUiLyKgX9_xVkAI32Eghy5U8rnIoq-kJp2rWIARyuRoP-ebMWvlRF8t-nqvBlv4jkRpu9ljQ91MfycClCYZhqAbQeCfUPLIWnzzHO23bkCprErnqPxQH7VXwGvEtumJMWm4-alNH_-ZPDoTKotNANOpJt_Q9NP1lsGfhc9buItlwKFLhvDNzrsl2a1BrkXa5U46ER4i-1cSm0iR5HT4VYc7X2s0_alsa2_5L-79A6bU54NGklDJ_ihdrNmXtmd6ygVzL_MwqGFMPJ7UDKL_g',
         userId: 1,
         expireAt: expireAtForTest,
       },
@@ -85,7 +86,9 @@ describe('google oauth test', () => {
 
     const testTime = new Date();
     const { token, userId, expireAt } = tokenTest;
-    expect(token).toBe('testToken');
+    expect(token).toBe(
+      'google_eyJhbGciOiJSUzI1NiIsImtpZCI6IjgxOWQxZTYxNDI5ZGQzZDNjYWVmMTI5YzBhYzJiYWU4YzZkNDZmYmMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI0MDc0MDg3MTgxOTIuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI0MDc0MDg3MTgxOTIuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMTY2MDU4MTcyNDEwMjc5MzM1NDkiLCJhdF9oYXNoIjoiTk00MmJtS1F5eFpUWEZrQzNpY182USIsImlhdCI6MTYzMDIxNDEyMSwiZXhwIjoxNjMwMjE3NzIxfQ.niB7nyMz2QExwZ0i4vpDr_C8VpN7FhSKr7sKOmGJrhORllEv0XRJRMLXO5J8nwmyATFUiLyKgX9_xVkAI32Eghy5U8rnIoq-kJp2rWIARyuRoP-ebMWvlRF8t-nqvBlv4jkRpu9ljQ91MfycClCYZhqAbQeCfUPLIWnzzHO23bkCprErnqPxQH7VXwGvEtumJMWm4-alNH_-ZPDoTKotNANOpJt_Q9NP1lsGfhc9buItlwKFLhvDNzrsl2a1BrkXa5U46ER4i-1cSm0iR5HT4VYc7X2s0_alsa2_5L-79A6bU54NGklDJ_ihdrNmXtmd6ygVzL_MwqGFMPJ7UDKL_g',
+    );
     expect(userId).toBe(1);
     expect(expireAt.valueOf()).toBeGreaterThan(testTime.valueOf());
   });

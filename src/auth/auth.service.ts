@@ -6,9 +6,7 @@ import { GoogleAuthService } from './passport/google-auth.service';
 import { User } from '@prisma/client';
 import { LoginParam } from './auth-login.param';
 import { LoginDTO } from './auth-login.dto';
-import { UserDTO } from 'src/common/dto/user.dto';
 import { TokenDTO } from './auth-token.dto';
-import { subscribeOn } from 'rxjs';
 
 @Injectable()
 export class AuthService {
@@ -47,8 +45,9 @@ export class AuthService {
     email: string,
   ): Promise<void> {
     try {
-      const googleUser = await this.googleAuthService.getUser(token);
-      if (!googleUser.verified_email) {
+      const googleUser = await this.googleAuthService.verify(token);
+      console.log(googleUser);
+      if (!googleUser['email_verified']) {
         throw new HttpException(
           {
             status: HttpStatus.NON_AUTHORITATIVE_INFORMATION,
@@ -57,7 +56,7 @@ export class AuthService {
           HttpStatus.NON_AUTHORITATIVE_INFORMATION,
         );
       }
-      if (googleUser.email != email) {
+      if (googleUser['email'] != email) {
         throw new HttpException(
           {
             status: HttpStatus.NON_AUTHORITATIVE_INFORMATION,
@@ -79,8 +78,8 @@ export class AuthService {
   }
 
   private async googleLoginByLoginParam(param: LoginParam): Promise<LoginDTO> {
-    const googleUser = await this.googleAuthService.getUser(param.accesstoken);
-    if (!googleUser.verified_email) {
+    const googleUser = await this.googleAuthService.verify(param.accesstoken);
+    if (!googleUser['email_verified']) {
       throw new HttpException(
         {
           status: HttpStatus.NON_AUTHORITATIVE_INFORMATION,
@@ -91,7 +90,7 @@ export class AuthService {
     }
     const user = await this.userService.findUserByAuthFromAndEmail(
       'google',
-      googleUser.email,
+      googleUser['email'],
     );
     if (!user) {
       return {
@@ -121,9 +120,9 @@ export class AuthService {
   async upsertUserToken(
     userId: number,
     authFrom: string,
-    sub: string,
+    token: string,
   ): Promise<TokenDTO> {
-    const inputToken = this.OauthTokenToToken(authFrom, sub);
+    const inputToken = this.OauthTokenToToken(authFrom, token);
     return await this.prisma.token.upsert({
       where: {
         token: inputToken,
@@ -175,7 +174,7 @@ export class AuthService {
     const userInfo = await this.googleAuthService.verify(id_token);
 
     if (userInfo['email_verified'] && userInfo['email'] == email) {
-      const sub = userInfo['sub'];
+      const token = await this.getTokenByGoogleTicketPayload(id_token);
       const user = await this.userService.findUserByAuthFromAndEmail(
         authFrom,
         email,
@@ -187,12 +186,12 @@ export class AuthService {
           message: '유저 정보가 없습니다. 회원가입을 진행합니다.',
           authFrom: authFrom,
           email: email,
-          accessToken: sub,
+          accessToken: token,
         };
       } else {
         // 유저 존재 시 토큰을 디비에 담습니다.
         const userId = user.id;
-        const userToken = await this.createToken(userId, authFrom, sub);
+        const userToken = await this.createToken(userId, authFrom, token);
         return {
           message: '이미 가입된 유저입니다. 로그인을 진행합니다.',
           accessToken: userToken,
@@ -209,8 +208,8 @@ export class AuthService {
     }
   }
 
-  private OauthTokenToToken(authFrom: string, sub: string): string {
-    return authFrom + '_' + sub;
+  private OauthTokenToToken(authFrom: string, token: string): string {
+    return authFrom + '_' + token;
   }
 
   /**
@@ -237,14 +236,23 @@ export class AuthService {
 
   /**
    * @Token
+   * @desc Google sub 값을 리턴합니다. ( id_token을 이용해 받은 구글 sub값 )
+   */
+  async getTokenByGoogleTicketPayload(token: string) {
+    const user = this.googleAuthService.getUser(token);
+    return user['sub'];
+  }
+
+  /**
+   * @Token
    * @desc 토큰을 생성합니다. ( id_token을 이용해 받은 구글 sub값 )
    */
   async createToken(
     userId: number,
     authFrom: string,
-    sub: string,
+    token: string,
   ): Promise<TokenDTO> {
-    const inputToken = this.OauthTokenToToken(authFrom, sub);
+    const inputToken = this.OauthTokenToToken(authFrom, token);
     return await this.prisma.token.create({
       data: {
         token: inputToken,
@@ -274,11 +282,11 @@ export class AuthService {
    * @Token
    * @desc id_token을 통해 유저를 조회합니다.
    */
-  async getDataByIdToken(id_token: string) {
-    const user = await this.googleAuthService.verify(id_token);
+  async getUserByToken(id_token: string) {
+    const token = await this.getTokenByGoogleTicketPayload(id_token);
     const userToken = await this.prisma.token.findFirst({
       where: {
-        token: user['sub'],
+        token: token,
       },
       include: {
         User: true,
