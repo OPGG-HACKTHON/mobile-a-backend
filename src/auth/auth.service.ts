@@ -7,6 +7,7 @@ import { User } from '@prisma/client';
 import { LoginParam } from './auth-login.param';
 import { LoginDTO } from './auth-login.dto';
 import { TokenDTO } from './auth-token.dto';
+import { UserDTO } from '../common/dto/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -99,12 +100,6 @@ export class AuthService {
         accessToken: param.accesstoken,
       };
     }
-    // todo check expired token - exception
-    // const willBeCheckedToken= this.OauthTokenToToken(
-    //   this.GOOGLE_AUTHFROM,
-    //   param.accesstoken,
-    // )
-    // token findORCreate
     const resultToken = await this.upsertUserToken(
       user.id,
       this.GOOGLE_AUTHFROM,
@@ -213,28 +208,6 @@ export class AuthService {
 
   /**
    * @Token
-   * @desc 토큰을 생성합니다. ( 유효기간 1년 )
-   */
-  // async createUserToken(
-  //   userId: number,
-  //   authFrom: string,
-  //   token: string,
-  // ): Promise<TokenDTO> {
-  //   const expireAt = new Date();
-  //   expireAt.setFullYear(expireAt.getFullYear() + 1);
-  //   const inputToken = this.OauthTokenToToken(authFrom, token);
-
-  //   return await this.prisma.token.create({
-  //     data: {
-  //       token: inputToken,
-  //       userId: userId,
-  //       expireAt: expireAt,
-  //     },
-  //   });
-  // }
-
-  /**
-   * @Token
    * @desc Google sub 값을 리턴합니다. ( id_token을 이용해 받은 구글 sub값 )
    */
   async getTokenByGoogleTicketPayload(token: string) {
@@ -262,48 +235,27 @@ export class AuthService {
 
   /**
    * @Token
-   * @desc 토큰을 통해 유저를 조회합니다.
+   * @desc internal 토큰을 통해 유저를 조회합니다.
    * @issue id_token을 이용해 sub값 활용 예정
    */
-  // async getUserByToken(accessToken: string): Promise<UserDTO> {
-  //   const userToken = await this.prisma.token.findUnique({
-  //     where: {
-  //       token: accessToken,
-  //     },
-  //     include: {
-  //       User: true,
-  //     },
-  //   });
-  //   return userToken.User;
-  // }
-
-  /**
-   * @Token
-   * @desc id_token을 통해 유저를 조회합니다.
-   */
-  async getUserByToken(authFrom: string, id_token: string) {
-    const token = await this.getTokenByGoogleTicketPayload(id_token);
-    const inputToken = this.OauthTokenToToken(authFrom, token);
-
-    const userToken = await this.prisma.token.findFirst({
+  async getUserByToken(accessToken: string): Promise<UserDTO> {
+    const userToken = await this.prisma.token.findUnique({
       where: {
-        token: inputToken,
+        token: accessToken,
       },
       include: {
         User: true,
       },
     });
-
     if (!userToken) {
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
-          error: '회원가입이 필요한 유저입니다.',
+          error: '존재하지 않는 토큰입니다.',
         },
         HttpStatus.BAD_REQUEST,
       );
-    } else {
-      return userToken.User;
     }
+    return userToken.User;
   }
 }
