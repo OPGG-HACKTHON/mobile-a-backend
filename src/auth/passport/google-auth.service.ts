@@ -26,7 +26,6 @@ export class GoogleAuthService {
       audience: process.env.GOOGLE_AUTH_CLIENT_ID,
     });
     const payload = ticket.getPayload();
-    const userid = payload['sub'];
     return payload;
   }
 

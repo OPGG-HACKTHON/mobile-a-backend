@@ -283,7 +283,7 @@ export class AuthService {
    */
   async getUserByToken(id_token: string) {
     const token = await this.getTokenByGoogleTicketPayload(id_token);
-    const userToken = await this.prisma.token.findFirst({
+    const userToken = await this.prisma.token.findUnique({
       where: {
         token: token,
       },
