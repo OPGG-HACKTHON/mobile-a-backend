@@ -60,12 +60,6 @@ describe('simple etst', () => {
       },
     });
     expect(lolAccount).toBeTruthy();
-    const lolTier = await prismaService.lOLTier.findFirst({
-      where: {
-        LOLAccountId: lolAccount.id,
-      },
-    });
-    expect(lolTier).toBeTruthy();
   });
 
   it('get recent matchIds ', async () => {

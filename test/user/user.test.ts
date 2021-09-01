@@ -12,6 +12,9 @@ import { LOLService } from '../../src/lol/lol.service';
 import { PrismaModule } from '../../src/prisma/prisma.module';
 import { LOLModule } from '../../src/lol/lol.module';
 import { GoogleAuthService } from '../../src/auth/passport/google-auth.service';
+import { TitleModule } from '../../src/title/title.module';
+import { TitleService } from '../../src/title/title.service';
+
 describe('simple etst', () => {
   let app: INestApplication;
   const prismaService = new PrismaService();
@@ -20,13 +23,14 @@ describe('simple etst', () => {
   beforeEach(async () => {
     await initSchema(prismaService);
     const moduleRef = await Test.createTestingModule({
-      imports: [UserModule, AuthModule, PrismaModule, LOLModule],
+      imports: [UserModule, AuthModule, PrismaModule, LOLModule, TitleModule],
       providers: [
         UserService,
         AuthService,
         PrismaService,
         LOLService,
         GoogleAuthService,
+        TitleService,
       ],
     })
       .overrideProvider(UserService)

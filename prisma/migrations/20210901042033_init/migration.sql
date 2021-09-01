@@ -76,6 +76,18 @@ CREATE TABLE "LOLChampion" (
 );
 
 -- CreateTable
+CREATE TABLE "LOLRankInSchool" (
+    "id" SERIAL NOT NULL,
+    "prevRank" INTEGER,
+    "userId" INTEGER NOT NULL,
+    "LOLSummaryPersonalId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "LOLSummaryPersonal" (
     "id" SERIAL NOT NULL,
     "LOLAccountId" TEXT NOT NULL,
@@ -174,6 +186,9 @@ CREATE UNIQUE INDEX "LOLChampion.name_unique" ON "LOLChampion"("name");
 CREATE UNIQUE INDEX "LOLChampion.key_unique" ON "LOLChampion"("key");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "LOLRankInSchool_LOLSummaryPersonalId_unique" ON "LOLRankInSchool"("LOLSummaryPersonalId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "LOLSummaryPersonal_LOLAccountId_LOLSummaryElementId_LOLChampionId_uniqueConstraint" ON "LOLSummaryPersonal"("LOLAccountId", "LOLSummaryElementId", "LOLChampionId");
 
 -- CreateIndex
@@ -196,6 +211,12 @@ ALTER TABLE "User" ADD FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DEL
 
 -- AddForeignKey
 ALTER TABLE "School" ADD FOREIGN KEY ("regionId") REFERENCES "Region"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LOLRankInSchool" ADD FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LOLRankInSchool" ADD FOREIGN KEY ("LOLSummaryPersonalId") REFERENCES "LOLSummaryPersonal"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "LOLSummaryPersonal" ADD FOREIGN KEY ("LOLAccountId") REFERENCES "LOLAccount"("id") ON DELETE CASCADE ON UPDATE CASCADE;

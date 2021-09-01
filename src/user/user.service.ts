@@ -81,8 +81,7 @@ export class UserService {
       const lolAccountId = await this.lolService.upsertLOLAccountByLOLName(
         param.LOLNickName,
       );
-
-      return await this.prisma.user.create({
+      const result = await this.prisma.user.create({
         data: {
           authFrom: param.authFrom,
           email: param.email,
@@ -90,6 +89,9 @@ export class UserService {
           schoolId: param.schoolId,
         },
       });
+      // todo sync logic to be event
+      await this.lolService.syncAllLOLData(lolAccountId, result.id);
+      return result;
     } else {
       // 유저가 존재하는 경우
       throw new HttpException(

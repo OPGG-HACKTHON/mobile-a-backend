@@ -223,11 +223,29 @@ export class LOLService implements OnApplicationBootstrap {
 
   async upsertLOLAccountByLOLName(param: string): Promise<string> {
     const lolAccount = await this.getLOLAccountByLOLName(param);
-    const lolTier = await this.getLOLTierByLOLId(lolAccount.id);
     await this.upsertLOLAccount(lolAccount);
-    await this.upsertLOLTierWithLOLAccountId(lolAccount.id, lolTier);
-    await this.upsertTierSummaryWithAccountId(lolAccount.id, lolTier);
     return lolAccount.id;
+  }
+
+  async syncAllLOLData(lolAccountId: string, userId: number): Promise<void> {
+    const lolTier = await this.getLOLTierByLOLId(lolAccountId);
+    await this.upsertLOLTierWithLOLAccountId(lolAccountId, lolTier);
+    await this.upsertTierSummaryWithAccountId(lolAccountId, lolTier);
+    //
+    const lOLSummaryPersonal = await this.prisma.lOLSummaryPersonal.findFirst({
+      where: {
+        LOLSummaryElement: {
+          LOLMatchFieldName: '티어',
+        },
+        LOLAccountId: lolAccountId,
+      },
+    });
+    await this.prisma.lOLRankInSchool.create({
+      data: {
+        userId: userId,
+        LOLSummaryPersonalId: lOLSummaryPersonal.id,
+      },
+    });
   }
 
   async setupUserRecentMatchesByAccountId(accountId: string): Promise<void> {
