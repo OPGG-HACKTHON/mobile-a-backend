@@ -7,7 +7,8 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["orderByRelation"]
 }
 
 enum Role {
@@ -37,6 +38,7 @@ model User {
   School       School      @relation(fields: [schoolId], references: [id])
   Token        Token[]
 
+  UserRankInSchool LOLRankInSchool[]
   @@unique([authFrom, email], name: "User_authFrom_email_uniqueConstraint")
 }
 
@@ -90,6 +92,18 @@ model LOLChampion {
   LOLChampionMastery LOLChampionMastery[]
 }
 
+// LoL Rank in School
+model LOLRankInSchool {
+  id                   Int                @id @default(autoincrement())
+  prevRank             Int?
+  User                 User               @relation(fields: [userId], references: [id])
+  userId               Int
+  LOLSummaryPersonal   LOLSummaryPersonal @relation(fields: [LOLSummaryPersonalId], references: [id])
+  LOLSummaryPersonalId Int
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+}
+
 // LoL summary Personal
 model LOLSummaryPersonal {
   id                  Int               @id @default(autoincrement())
@@ -103,6 +117,7 @@ model LOLSummaryPersonal {
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
 
+  UserRankInSchool LOLRankInSchool?
   @@unique([LOLAccountId, LOLSummaryElementId, LOLChampionId], name: "LOLSummaryPersonal_LOLAccountId_LOLSummaryElementId_LOLChampionId_uniqueConstraint")
 }
 

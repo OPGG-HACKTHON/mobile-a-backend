@@ -111,10 +111,14 @@ describe('simple etst', () => {
 
     expect(resRankSchool.body.length).toBe(2);
     expect(resRankSchool.body[0].id).toBe(2); // hide on bush
-    expect(resRankSchool.body[0].seqNo).toBe(1); // hide on bush
+    expect(resRankSchool.body[0].rankNo).toBe(1); // hide on bush
+    expect(resRankSchool.body[0].rankChangedStatus).toBe('NEW'); // hide on bush
 
     expect(resRankSchool.body[1].id).toBe(1); // kkangsan
-    expect(resRankSchool.body[1].seqNo).toBe(2); // kkangsan
+    expect(resRankSchool.body[1].rankNo).toBe(2); // kkangsan
+    // todo - next day ? test?
+    // expect(resRankSchool.body[1].rankChangedStatus).toBe('DOWN'); // hide on bush
+    expect(resRankSchool.body[1].rankChangedStatus).toBe('NEW'); // hide on bush
 
     const { lol } = resRankSchool.body[0];
     expect(resRankSchool.body[0].id).toBeTruthy();
@@ -188,7 +192,7 @@ describe('simple etst', () => {
       .type('application/json');
 
     expect(resRankSchool.body.id).toBe(1); // kkangsan
-    expect(resRankSchool.body.seqNo).toBe(2); // kkangsan
+    expect(resRankSchool.body.rankNo).toBe(2); // kkangsan
 
     const { lol } = resRankSchool.body;
     expect(resRankSchool.body.id).toBeTruthy();

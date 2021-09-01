@@ -5,6 +5,7 @@ import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { PrismaService } from '../../src/prisma/prisma.service';
 import { MatchMetadata } from '../../src/lol/lol-match.model';
+import * as request from 'supertest';
 
 describe('simple etst', () => {
   let app: INestApplication;
@@ -59,12 +60,6 @@ describe('simple etst', () => {
       },
     });
     expect(lolAccount).toBeTruthy();
-    const lolTier = await prismaService.lOLTier.findFirst({
-      where: {
-        LOLAccountId: lolAccount.id,
-      },
-    });
-    expect(lolTier).toBeTruthy();
   });
 
   it('get recent matchIds ', async () => {
@@ -193,5 +188,48 @@ describe('simple etst', () => {
       },
     });
     expect(ivernMastery.championPoints).toBeGreaterThanOrEqual(135225);
+  });
+
+  it('lol setup champion mastery by lol accountId', async () => {
+    const lolChanpions = await request(app.getHttpServer())
+      .get('/lol/champions')
+      .set('Accept', 'application/json')
+      .type('application/json');
+
+    expect(lolChanpions.body.length).toBe(156);
+    expect(lolChanpions.body[0].id).toBe(86);
+    expect(lolChanpions.body[0].name).toBe('가렌');
+    expect(lolChanpions.body[0].enName).toBe('Garen');
+    expect(lolChanpions.body[0].imageUrl).toBe(
+      'https://static.opggmobilea.com/dragontail-11.15.1/11.15.1/img/champion/Garen.png',
+    );
+    expect(lolChanpions.body[155].id).toBe(120);
+    expect(lolChanpions.body[155].name).toBe('헤카림');
+    expect(lolChanpions.body[155].enName).toBe('Hecarim');
+    expect(lolChanpions.body[155].imageUrl).toBe(
+      'https://static.opggmobilea.com/dragontail-11.15.1/11.15.1/img/champion/Hecarim.png',
+    );
+    // by id
+    const lolChanpionsGaren = await request(app.getHttpServer())
+      .get('/lol/champions/86')
+      .set('Accept', 'application/json')
+      .type('application/json');
+    expect(lolChanpionsGaren.body.id).toBe(86);
+    expect(lolChanpionsGaren.body.name).toBe('가렌');
+    expect(lolChanpionsGaren.body.enName).toBe('Garen');
+    expect(lolChanpionsGaren.body.imageUrl).toBe(
+      'https://static.opggmobilea.com/dragontail-11.15.1/11.15.1/img/champion/Garen.png',
+    );
+
+    const lolChanpionsHecarim = await request(app.getHttpServer())
+      .get('/lol/champions/120')
+      .set('Accept', 'application/json')
+      .type('application/json');
+    expect(lolChanpionsHecarim.body.id).toBe(120);
+    expect(lolChanpionsHecarim.body.name).toBe('헤카림');
+    expect(lolChanpionsHecarim.body.enName).toBe('Hecarim');
+    expect(lolChanpionsHecarim.body.imageUrl).toBe(
+      'https://static.opggmobilea.com/dragontail-11.15.1/11.15.1/img/champion/Hecarim.png',
+    );
   });
 });

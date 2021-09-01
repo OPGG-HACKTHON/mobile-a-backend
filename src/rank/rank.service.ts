@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { ProfileRank } from './rank-profileRank.dto';
+import { ProfileRank, RankChangedStatus } from './rank-profileRank.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserService } from '../user/user.service';
+
 @Injectable()
 export class RankService {
   constructor(
@@ -9,44 +10,62 @@ export class RankService {
     private userService: UserService,
   ) {}
 
+  private makeRankChangedStatusByNowRankAndPrevRank(
+    nowRank: number,
+    prevRank?: number,
+  ): RankChangedStatus {
+    let result: RankChangedStatus;
+    if (!prevRank) {
+      result = RankChangedStatus.NEW;
+    } else {
+      const upChanged = prevRank - nowRank;
+      if (upChanged === 0) {
+        result = RankChangedStatus.SAME;
+      } else if (upChanged > 0) {
+        result = RankChangedStatus.UP;
+      } else {
+        result = RankChangedStatus.DOWN;
+      }
+    }
+
+    return result;
+  }
+
   async getProfileRanksByScoolId(schoolId: string): Promise<ProfileRank[]> {
-    const users = await this.prisma.user.findMany({
+    const lolRanksInSchool = await this.prisma.lOLRankInSchool.findMany({
       where: {
-        schoolId: schoolId,
-      },
-    });
-    const lolAccountIds = users.map((user) => user.LOLAccountId);
-    const category = await this.prisma.lOLSummaryElement.findFirst({
-      where: {
-        LOLMatchFieldName: '티어',
-      },
-      include: {
         LOLSummaryPersonal: {
-          where: {
-            LOLAccountId: { in: lolAccountIds },
+          LOLSummaryElement: {
+            LOLMatchFieldName: '티어',
           },
-          orderBy: {
-            value: 'desc',
-          },
-          include: {
-            LOLAccount: {
-              include: {
-                User: true,
-              },
-            },
-          },
+        },
+        User: {
+          schoolId: schoolId,
+        },
+      },
+      orderBy: {
+        LOLSummaryPersonal: {
+          value: 'desc',
         },
       },
     });
-    const rankUsers = category.LOLSummaryPersonal.map(
-      (param) => param.LOLAccount.User,
-    );
-    //
+
     const results: ProfileRank[] = [];
-    for (const [idx, user] of rankUsers.entries()) {
+    for (const [idx, lolRankInSchool] of lolRanksInSchool.entries()) {
       // userIds
-      const { ...rest } = await this.userService.getProfileByUserId(user.id);
-      const inputProfile = { seqNo: idx + 1, ...rest };
+      const { ...rest } = await this.userService.getProfileByUserId(
+        lolRankInSchool.userId,
+      );
+      const rankNo = idx + 1;
+      const rankChangedStatus = this.makeRankChangedStatusByNowRankAndPrevRank(
+        rankNo,
+        lolRankInSchool.prevRank,
+      );
+      const inputProfile = {
+        rankNo: rankNo,
+        rankChangedStatus: rankChangedStatus,
+        ...rest,
+      };
       results.push(inputProfile);
     }
     return results;
@@ -56,43 +75,41 @@ export class RankService {
     schoolId: string,
     userId: number,
   ): Promise<ProfileRank> {
-    const users = await this.prisma.user.findMany({
+    const lolRanksInSchool = await this.prisma.lOLRankInSchool.findMany({
       where: {
-        schoolId: schoolId,
-      },
-    });
-    const lolAccountIds = users.map((user) => user.LOLAccountId);
-    const category = await this.prisma.lOLSummaryElement.findFirst({
-      where: {
-        LOLMatchFieldName: '티어',
-      },
-      include: {
         LOLSummaryPersonal: {
-          where: {
-            LOLAccountId: { in: lolAccountIds },
+          LOLSummaryElement: {
+            LOLMatchFieldName: '티어',
           },
-          orderBy: {
-            value: 'desc',
-          },
-          include: {
-            LOLAccount: {
-              include: {
-                User: true,
-              },
-            },
-          },
+        },
+        User: {
+          schoolId: schoolId,
+        },
+      },
+      orderBy: {
+        LOLSummaryPersonal: {
+          value: 'desc',
         },
       },
     });
-    const rankUsers = category.LOLSummaryPersonal.map(
-      (param) => param.LOLAccount.User,
-    );
-    //
+
     let result: ProfileRank;
-    for (const [idx, user] of rankUsers.entries()) {
-      if (user.id === userId) {
-        const { ...rest } = await this.userService.getProfileByUserId(user.id);
-        const inputProfile = { seqNo: idx + 1, ...rest };
+    for (const [idx, lolRankInSchool] of lolRanksInSchool.entries()) {
+      if (lolRankInSchool.userId === userId) {
+        const { ...rest } = await this.userService.getProfileByUserId(
+          lolRankInSchool.userId,
+        );
+        const rankNo = idx + 1;
+        const rankChangedStatus =
+          this.makeRankChangedStatusByNowRankAndPrevRank(
+            rankNo,
+            lolRankInSchool.prevRank,
+          );
+        const inputProfile = {
+          rankNo: rankNo,
+          rankChangedStatus: rankChangedStatus,
+          ...rest,
+        };
         result = inputProfile;
         break;
       }
