@@ -40,7 +40,7 @@ export class BattleController {
   @Post('/messages/send')
   @HttpCode(201)
   @ApiOperation({
-    summary: '배틀 상대에게 메세지 전송',
+    summary: 'mock 배틀 상대에게 메세지 전송',
     description: '배틀 상대에게 메세지를 전송합니다.',
   })
   @ApiOkResponse({ description: '메세지 데이터 전송 성공', type: MessageDTO })
@@ -63,7 +63,7 @@ export class BattleController {
 
   @Get('/messages/result/users/:id')
   @ApiOperation({
-    summary: '유저가 보냈던 메세지 결과 목록',
+    summary: 'mock 유저가 보냈던 메세지 결과 목록',
     description: '유저가 보냈던 메세지 결과 목록을 조회합니다.',
   })
   @ApiOkResponse({
@@ -104,7 +104,7 @@ export class BattleController {
 
   @Get('/messages/notSeen/users/:id')
   @ApiOperation({
-    summary: '유저가 읽지 않은 메세지 목록',
+    summary: 'mock 유저가 읽지 않은 메세지 목록',
     description: '유저가 읽지 않은 메세지 목록을 조회합니다.',
   })
   @ApiOkResponse({
