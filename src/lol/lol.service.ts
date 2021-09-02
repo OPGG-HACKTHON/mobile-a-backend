@@ -433,8 +433,8 @@ export class LOLService implements OnApplicationBootstrap {
       return {
         id: element.id,
         lolMatchFieldName: element.LOLMatchFieldName,
-        koCategory: '카테고리',
-        koName: element.LOLMatchFieldName,
+        category: '카테고리',
+        name: element.LOLMatchFieldName,
         enName: element.LOLMatchFieldName,
       };
     });

@@ -253,8 +253,8 @@ describe('simple etst', () => {
     expect(lolCompareFieldById.body.lolMatchFieldName).toBe(
       'longestTimeSpentLiving',
     );
-    expect(lolCompareFieldById.body.koCategory).toBe('카테고리');
-    expect(lolCompareFieldById.body.koName).toBe('longestTimeSpentLiving');
+    expect(lolCompareFieldById.body.category).toBe('카테고리');
+    expect(lolCompareFieldById.body.name).toBe('longestTimeSpentLiving');
     expect(lolCompareFieldById.body.enName).toBe('longestTimeSpentLiving');
   });
 });

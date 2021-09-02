@@ -8,10 +8,10 @@ export class LOLCompareFieldDTO {
   lolMatchFieldName: string;
 
   @ApiProperty()
-  koCategory: string;
+  category: string;
 
   @ApiProperty()
-  koName: string;
+  name: string;
 
   @ApiProperty()
   enName: string;
