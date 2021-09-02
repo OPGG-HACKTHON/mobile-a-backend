@@ -7,7 +7,7 @@ import {
 } from '@nestjs/swagger';
 import { LOLService } from './lol.service';
 import { LOLChampionDTO } from './lol-champion.dto';
-
+import { LOLCompareFieldDTO } from './lol-compareField.dto';
 @ApiTags('LOL')
 @Controller('/lol')
 export class LOLController {
@@ -40,5 +40,36 @@ export class LOLController {
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   getChampionById(@Param('id', ParseIntPipe) id: number): LOLChampionDTO {
     return this.lolService.getChampionById(id);
+  }
+
+  @Get('compareFields')
+  @ApiOperation({
+    summary: '비교할 필드들을 조회합니다.',
+    description: '비교 필드들을 조회합니다.',
+  })
+  @ApiOkResponse({
+    description: '필드 결과 조회 성공',
+    type: LOLCompareFieldDTO,
+    isArray: true,
+  })
+  @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  async getCompareFields(): Promise<LOLCompareFieldDTO[]> {
+    return await this.lolService.getCompareFields();
+  }
+
+  @Get('compareFields/:id')
+  @ApiOperation({
+    summary: '비교할 필드들을 조회합니다.',
+    description: '비교 필드들을 조회합니다.',
+  })
+  @ApiOkResponse({
+    description: '필드 결과 조회 성공',
+    type: LOLCompareFieldDTO,
+  })
+  @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  async getCompareFieldById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<LOLCompareFieldDTO> {
+    return await this.lolService.getCompareFieldById(id);
   }
 }

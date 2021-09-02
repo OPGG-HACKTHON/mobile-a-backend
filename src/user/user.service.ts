@@ -103,4 +103,23 @@ export class UserService {
       );
     }
   }
+
+  async searchProfilesBylolNickname(param: string): Promise<ProfileDTO[]> {
+    const users = await this.prisma.user.findMany({
+      where: {
+        LOLAccount: {
+          name: {
+            contains: param,
+            mode: 'insensitive',
+          },
+        },
+      },
+    });
+    const results: ProfileDTO[] = [];
+    for (const user of users) {
+      const profile = await this.getProfileByUserId(user.id);
+      results.push(profile);
+    }
+    return results;
+  }
 }

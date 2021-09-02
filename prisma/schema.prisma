@@ -26,19 +26,19 @@ model Token {
 }
 
 model User {
-  id           Int         @id @default(autoincrement())
-  authFrom     String
-  email        String
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  role         Role        @default(USER)
-  LOLAccount   LOLAccount? @relation(fields: [LOLAccountId], references: [id])
-  LOLAccountId String?
-  schoolId     String
-  School       School      @relation(fields: [schoolId], references: [id])
-  Token        Token[]
+  id              Int               @id @default(autoincrement())
+  authFrom        String
+  email           String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  role            Role              @default(USER)
+  LOLAccount      LOLAccount?       @relation(fields: [LOLAccountId], references: [id])
+  LOLAccountId    String?
+  schoolId        String
+  School          School            @relation(fields: [schoolId], references: [id])
+  Token           Token[]
+  LOLRankInSchool LOLRankInSchool[]
 
-  UserRankInSchool LOLRankInSchool[]
   @@unique([authFrom, email], name: "User_authFrom_email_uniqueConstraint")
 }
 
@@ -116,8 +116,8 @@ model LOLSummaryPersonal {
   value               String
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
+  LOLRankInSchool     LOLRankInSchool?
 
-  UserRankInSchool LOLRankInSchool?
   @@unique([LOLAccountId, LOLSummaryElementId, LOLChampionId], name: "LOLSummaryPersonal_LOLAccountId_LOLSummaryElementId_LOLChampionId_uniqueConstraint")
 }
 

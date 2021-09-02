@@ -3,9 +3,11 @@ import { LOLModule } from '../../src/lol/lol.module';
 import { LOLService } from '../../src/lol/lol.service';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { PrismaService } from '../../src/prisma/prisma.service';
-import { MatchMetadata } from '../../src/lol/lol-match.model';
 import * as request from 'supertest';
+import { TitleModule } from '../../src/title/title.module';
+import { TitleService } from '../../src/title/title.service';
+import { PrismaModule } from '../../src/prisma/prisma.module';
+import { PrismaService } from '../../src/prisma/prisma.service';
 
 describe('simple etst', () => {
   let app: INestApplication;
@@ -14,7 +16,8 @@ describe('simple etst', () => {
   beforeEach(async () => {
     await initSchema(prismaService);
     const moduleRef = await Test.createTestingModule({
-      imports: [LOLModule],
+      imports: [LOLModule, TitleModule, PrismaModule],
+      providers: [LOLService, TitleService, PrismaService],
     })
       .overrideProvider(LOLService)
       .useValue(lolService)
@@ -190,7 +193,7 @@ describe('simple etst', () => {
     expect(ivernMastery.championPoints).toBeGreaterThanOrEqual(135225);
   });
 
-  it('lol setup champion mastery by lol accountId', async () => {
+  it('lol champions', async () => {
     const lolChanpions = await request(app.getHttpServer())
       .get('/lol/champions')
       .set('Accept', 'application/json')
@@ -231,5 +234,27 @@ describe('simple etst', () => {
     expect(lolChanpionsHecarim.body.imageUrl).toBe(
       'https://static.opggmobilea.com/dragontail-11.15.1/11.15.1/img/champion/Hecarim.png',
     );
+  });
+
+  it('lol compare fields', async () => {
+    const lolCompareFields = await request(app.getHttpServer())
+      .get('/lol/compareFields')
+      .set('Accept', 'application/json')
+      .type('application/json');
+
+    expect(lolCompareFields.body.length).toBe(25);
+
+    const lolCompareFieldById = await request(app.getHttpServer())
+      .get('/lol/compareFields/1')
+      .set('Accept', 'application/json')
+      .type('application/json');
+
+    expect(lolCompareFieldById.body.id).toBe(1);
+    expect(lolCompareFieldById.body.lolMatchFieldName).toBe(
+      'longestTimeSpentLiving',
+    );
+    expect(lolCompareFieldById.body.category).toBe('카테고리');
+    expect(lolCompareFieldById.body.name).toBe('longestTimeSpentLiving');
+    expect(lolCompareFieldById.body.enName).toBe('longestTimeSpentLiving');
   });
 });

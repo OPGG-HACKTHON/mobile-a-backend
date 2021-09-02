@@ -1,16 +1,28 @@
 import { Injectable } from '@nestjs/common';
+import { ProfileDTO } from '../user/user-profile.dto';
+import { UserService } from '../user/user.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class BattleService {
-  searchUser(): string {
-    return 'will search user';
-  }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly userService: UserService,
+  ) {}
 
-  compare(): string {
-    return 'will compare between two user data';
-  }
+  // searchUser(): string {
+  //   return 'will search user';
+  // }
 
-  requestChallenge(): string {
-    return 'will request challenge';
+  // compare(): string {
+  //   return 'will compare between two user data';
+  // }
+
+  // requestChallenge(): string {
+  //   return 'will request challenge';
+  // }
+
+  async searchProfilesBylolNickname(param: string): Promise<ProfileDTO[]> {
+    return await this.userService.searchProfilesBylolNickname(param);
   }
 }

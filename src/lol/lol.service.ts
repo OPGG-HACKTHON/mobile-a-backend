@@ -8,6 +8,7 @@ import { LOLMatch } from '@prisma/client';
 import { CHAMPION } from './lol-champion.model';
 import { CHAMPION_MASTERY } from './lol-championMastery.model';
 import { LOLChampionDTO } from './lol-champion.dto';
+import { LOLCompareFieldDTO } from './lol-compareField.dto';
 @Injectable()
 export class LOLService implements OnApplicationBootstrap {
   private readonly API_KEY = process.env.LOL_API_KEY;
@@ -32,6 +33,9 @@ export class LOLService implements OnApplicationBootstrap {
 
   championsOrderByName: LOLChampionDTO[];
   championIdAndChampionDTOMap = new Map<number, LOLChampionDTO>();
+
+  cachedLOLCompareField: LOLCompareFieldDTO[];
+  cachedLOLCompareFieldIdToFieldMap = new Map<number, LOLCompareFieldDTO>();
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -418,5 +422,45 @@ export class LOLService implements OnApplicationBootstrap {
 
   getChampionById(id: number): LOLChampionDTO {
     return this.championIdAndChampionDTOMap.get(id);
+  }
+
+  private async setCacheCompareField(): Promise<void> {
+    const elementsFindAll = await this.prisma.lOLSummaryElement.findMany();
+    const elements = elementsFindAll.filter((element) => {
+      return !['티어'].includes(element.LOLMatchFieldName);
+    });
+    const results = elements.map((element) => {
+      return {
+        id: element.id,
+        lolMatchFieldName: element.LOLMatchFieldName,
+        category: '카테고리',
+        name: element.LOLMatchFieldName,
+        enName: element.LOLMatchFieldName,
+      };
+    });
+    this.cachedLOLCompareField = results;
+    results.forEach((result) => {
+      this.cachedLOLCompareFieldIdToFieldMap.set(result.id, result);
+    });
+  }
+
+  async getCompareFields(): Promise<LOLCompareFieldDTO[]> {
+    if (this.cachedLOLCompareField && this.cachedLOLCompareField.length) {
+      return this.cachedLOLCompareField;
+    } else {
+      await this.setCacheCompareField();
+      return await this.cachedLOLCompareField;
+    }
+  }
+  async getCompareFieldById(param: number): Promise<LOLCompareFieldDTO> {
+    if (
+      this.cachedLOLCompareFieldIdToFieldMap &&
+      this.cachedLOLCompareFieldIdToFieldMap.has(param)
+    ) {
+      return this.cachedLOLCompareFieldIdToFieldMap.get(param);
+    } else {
+      await this.setCacheCompareField();
+      return await this.cachedLOLCompareFieldIdToFieldMap.get(param);
+    }
   }
 }
