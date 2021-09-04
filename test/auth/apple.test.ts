@@ -13,7 +13,7 @@ import { PrismaModule } from '../../src/prisma/prisma.module';
 import { UserModule } from '../../src/user/user.module';
 import { AppleService } from '../../src/auth/passport/apple-auth.service';
 
-describe('google oauth test', () => {
+describe('apple oauth test', () => {
   let app: INestApplication;
   const prismaService = new PrismaService();
   const googleAuthService = new GoogleAuthService();
@@ -43,7 +43,7 @@ describe('google oauth test', () => {
     await prismaService.$disconnect();
   });
 
-  it('google login test,  /auth/google test', async () => {
+  it('apple login test,  /auth/apple test', async () => {
     await prismaService.region.create({
       data: {
         name: '서울',
@@ -61,8 +61,8 @@ describe('google oauth test', () => {
     });
     await prismaService.user.create({
       data: {
-        authFrom: 'google',
-        email: 'tpgns7708@gmail.com',
+        authFrom: 'apple',
+        email: 'tpgns7708@naver.com',
         schoolId: '1',
       },
     });
@@ -72,7 +72,7 @@ describe('google oauth test', () => {
 
     const tokenTest = await prismaService.token.create({
       data: {
-        token: 'google_116605817241027933549',
+        token: 'apple_116605817241027933549',
         userId: 1,
         expireAt: expireAtForTest,
       },
@@ -80,14 +80,14 @@ describe('google oauth test', () => {
 
     const user = await prismaService.user.findFirst({
       where: {
-        authFrom: 'google',
-        email: 'tpgns7708@gmail.com',
+        authFrom: 'apple',
+        email: 'tpgns7708@naver.com',
       },
     });
 
     const testTime = new Date();
     const { token, userId, expireAt } = tokenTest;
-    expect(token).toBe('google_116605817241027933549');
+    expect(token).toBe('apple_116605817241027933549');
     expect(userId).toBe(1);
     expect(expireAt.valueOf()).toBeGreaterThan(testTime.valueOf());
   });

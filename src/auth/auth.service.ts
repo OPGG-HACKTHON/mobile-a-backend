@@ -8,6 +8,7 @@ import { LoginParam } from './auth-login.param';
 import { LoginDTO } from './auth-login.dto';
 import { TokenDTO } from './auth-token.dto';
 import { UserDTO } from '../common/dto/user.dto';
+import { AppleService } from './passport/apple-auth.service';
 
 @Injectable()
 export class AuthService {
@@ -15,19 +16,21 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly userService: UserService,
     private readonly googleAuthService: GoogleAuthService,
+    private readonly appleService: AppleService,
   ) {}
 
   private readonly GOOGLE_AUTHFROM = 'google';
+  private readonly APPLE_AUTHFROM = 'apple';
 
   async signUp(param: SignUpParam): Promise<User> {
     switch (param.authFrom) {
-      case 'google':
+      case this.GOOGLE_AUTHFROM:
         await this.validateGoogleTokenEmailAndInputEmail(
           param.accesstoken,
           param.email,
         );
         break;
-      case 'apple':
+      case this.APPLE_AUTHFROM:
       // console.log('todo');
       default:
         throw new HttpException(
@@ -89,7 +92,7 @@ export class AuthService {
       );
     }
     const user = await this.userService.findUserByAuthFromAndEmail(
-      'google',
+      this.GOOGLE_AUTHFROM,
       googleUser['email'],
     );
     if (!user) {
@@ -132,10 +135,10 @@ export class AuthService {
   async login(param: LoginParam): Promise<LoginDTO> {
     let result: LoginDTO;
     switch (param.authFrom) {
-      case 'google':
+      case this.GOOGLE_AUTHFROM:
         result = await this.googleLoginByLoginParam(param);
         break;
-      case 'apple':
+      case this.APPLE_AUTHFROM:
       // console.log('todo');
       default:
         throw new HttpException(
@@ -162,7 +165,6 @@ export class AuthService {
         HttpStatus.FORBIDDEN,
       );
     }
-    const authFrom = 'google';
     const { email, id_token } = req.user;
     // const userInfo = await this.googleAuthService.getUser(id_token);
     const userInfo = await this.googleAuthService.verify(id_token);
@@ -170,7 +172,7 @@ export class AuthService {
     if (userInfo['email_verified'] && userInfo['email'] == email) {
       const token = await this.getTokenByGoogleTicketPayload(id_token);
       const user = await this.userService.findUserByAuthFromAndEmail(
-        authFrom,
+        this.GOOGLE_AUTHFROM,
         email,
       );
 
@@ -178,14 +180,18 @@ export class AuthService {
       if (!user) {
         return {
           message: '유저 정보가 없습니다. 회원가입을 진행합니다.',
-          authFrom: authFrom,
+          authFrom: this.GOOGLE_AUTHFROM,
           email: email,
           accessToken: token,
         };
       } else {
         // 유저 존재 시 토큰을 디비에 담습니다.
         const userId = user.id;
-        const userToken = await this.createToken(userId, authFrom, token);
+        const userToken = await this.createToken(
+          userId,
+          this.GOOGLE_AUTHFROM,
+          token,
+        );
         return {
           message: '이미 가입된 유저입니다. 로그인을 진행합니다.',
           accessToken: userToken,
@@ -200,6 +206,14 @@ export class AuthService {
         HttpStatus.NON_AUTHORITATIVE_INFORMATION,
       );
     }
+  }
+
+  /**
+   * @Apple
+   */
+  async appleLogin(payload: any) {
+    console.log('... apple oauth test ...');
+    return this.appleService.verifyUser(payload);
   }
 
   private OauthTokenToToken(authFrom: string, token: string): string {
