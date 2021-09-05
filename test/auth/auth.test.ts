@@ -83,6 +83,7 @@ describe('simple etst', () => {
         educationOffice: '서울시교육청',
         regionId: 1,
         address: '어디선가',
+        imageUrl: '',
       },
     });
 

@@ -68,6 +68,7 @@ describe('simple etst', () => {
         educationOffice: '교육청이름',
         regionId: 1,
         address: 'foo',
+        imageUrl: '',
       },
     });
     // setup Title
@@ -148,6 +149,7 @@ describe('simple etst', () => {
         educationOffice: '교육청이름',
         regionId: 1,
         address: 'foo',
+        imageUrl: '',
       },
     });
     // setup Title

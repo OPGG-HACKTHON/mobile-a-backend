@@ -43,6 +43,7 @@ CREATE TABLE "School" (
     "division" TEXT NOT NULL,
     "educationOffice" TEXT NOT NULL,
     "address" TEXT NOT NULL,
+    "imageUrl" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "regionId" INTEGER NOT NULL,
