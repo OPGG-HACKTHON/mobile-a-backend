@@ -170,15 +170,41 @@ export class RankController {
     return [];
   }
 
-  // // ranks/regions/:id
-  // @Get('/regions/:id')
-  // @ApiOperation({
-  //   summary: '지역 내 카테고리별 랭킹 조회',
-  //   description: '지역 내 카테고리별 랭킹 조회를 진행합니다.',
-  // })
-  // @ApiOkResponse({ description: '지역 내에서의 특정 카테고리 랭킹 조회 성공' })
-  // @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  // getRegionRank(@Param('id') category: number) {
-  //   return 'get category ranking of region';
-  // }
+  @Get(
+    '/champions/:championId/compareFields/:compareFieldId/schools/:schoolId/users/:userId',
+  )
+  @ApiOperation({
+    summary: 'mock 학교내 챔피언 개인순위 조회',
+    description: '학교내 챔피언 실력 개인 순위 조회 진행합니다.',
+  })
+  @ApiOkResponse({
+    description: '학교내 챔피언 실력 개인순위 조회 성공',
+    type: ProfileRankWithCompareField,
+  })
+  @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  async getProfileRankWithCompareFieldByParams(
+    @Param('championId', ParseIntPipe) championId: number,
+    @Param('compareFieldId', ParseIntPipe) compareFieldId: number,
+    @Param('schoolId') schoolId: string,
+    @Param('userId', ParseIntPipe) userId: number,
+  ): Promise<ProfileRankWithCompareField> {
+    return {
+      fieldName: '',
+      value: '',
+      rankNo: 123,
+      rankChangedStatus: RankChangedStatus.NEW,
+      id: 213,
+      lol: {
+        name: '',
+        profileIconId: 123,
+        profileIconImageUrl: '',
+        summonerLevel: 123,
+        tierInfo: {
+          tier: '',
+          rank: '',
+          leaguePoints: 123,
+        },
+      },
+    };
+  }
 }
