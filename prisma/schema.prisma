@@ -139,17 +139,19 @@ model LOLSummarySchool {
 
 // LoL Category
 model LOLSummaryElement {
-  id                 Int                  @id @default(autoincrement())
-  LOLMatchFieldName  String?
-  valueDataType      String               @default("Int")
-  calculateType      String
-  sortType           String
-  exposureName       String
-  description        String?
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  LOLSummaryPersonal LOLSummaryPersonal[]
-  LOLSummarySchool   LOLSummarySchool[]
+  id                    Int                  @id @default(autoincrement())
+  LOLMatchFieldName     String?
+  LOLMatchFieldCategory String?
+  LOLMatchFieldKoName   String?
+  valueDataType         String               @default("Int")
+  calculateType         String
+  sortType              String
+  exposureName          String
+  description           String?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  LOLSummaryPersonal    LOLSummaryPersonal[]
+  LOLSummarySchool      LOLSummarySchool[]
 }
 
 // only RANKED_SOLO_5x5

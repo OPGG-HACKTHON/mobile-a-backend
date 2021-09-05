@@ -17,10 +17,14 @@ export class TitleService implements OnApplicationBootstrap {
         const LOLMatchFieldName = row[0];
         const calculateType = row[1];
         const exposureName = row[2];
+        const LOLMatchFieldCategory = row[3];
+        const LOLMatchFieldKoName = row[4];
         return {
           LOLMatchFieldName,
           calculateType,
           exposureName,
+          LOLMatchFieldCategory,
+          LOLMatchFieldKoName,
           sortType: 'DESC',
         };
       });

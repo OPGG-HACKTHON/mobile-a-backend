@@ -117,6 +117,8 @@ CREATE TABLE "LOLSummarySchool" (
 CREATE TABLE "LOLSummaryElement" (
     "id" SERIAL NOT NULL,
     "LOLMatchFieldName" TEXT,
+    "LOLMatchFieldCategory" TEXT,
+    "LOLMatchFieldKoName" TEXT,
     "valueDataType" TEXT NOT NULL DEFAULT E'Int',
     "calculateType" TEXT NOT NULL,
     "sortType" TEXT NOT NULL,
