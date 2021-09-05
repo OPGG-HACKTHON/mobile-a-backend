@@ -8,11 +8,14 @@ import { Tier } from './lol-tier.model';
 import { SUMMONER } from './lol-summoner.model';
 import { PrismaService } from '../prisma/prisma.service';
 import { Match } from './lol-match.model';
-import { LOLMatch } from '@prisma/client';
+import { LOLMatch, LOLSummaryElement } from '@prisma/client';
 import { CHAMPION } from './lol-champion.model';
 import { CHAMPION_MASTERY } from './lol-championMastery.model';
 import { LOLChampionDTO } from './lol-champion.dto';
-import { LOLCompareFieldDTO } from './lol-compareField.dto';
+import {
+  LOLCompareFieldDetailDTO,
+  LOLCompareFieldDTO,
+} from './lol-compareField.dto';
 @Injectable()
 export class LOLService implements OnApplicationBootstrap {
   private readonly API_KEY = process.env.LOL_API_KEY;
@@ -39,7 +42,10 @@ export class LOLService implements OnApplicationBootstrap {
   championIdAndChampionDTOMap = new Map<number, LOLChampionDTO>();
 
   cachedLOLCompareField: LOLCompareFieldDTO[];
-  cachedLOLCompareFieldIdToFieldMap = new Map<number, LOLCompareFieldDTO>();
+  cachedLOLCompareFieldIdToFieldMap = new Map<
+    number,
+    LOLCompareFieldDetailDTO
+  >();
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -428,23 +434,47 @@ export class LOLService implements OnApplicationBootstrap {
     return this.championIdAndChampionDTOMap.get(id);
   }
 
+  private makeLOLElementsToLOLCompareFieldDTOs(
+    elements: LOLSummaryElement[],
+  ): LOLCompareFieldDTO[] {
+    const categoryAndDetailMap = new Map<string, LOLCompareFieldDetailDTO[]>();
+    elements.forEach((element) => {
+      const detaileArr = categoryAndDetailMap.get(
+        element.LOLMatchFieldCategory,
+      );
+      const detail = {
+        id: element.id,
+        lolMatchFieldName: element.LOLMatchFieldName,
+        category: element.LOLMatchFieldCategory,
+        name: element.LOLMatchFieldKoName,
+        enName: element.LOLMatchFieldName,
+      };
+      if (!detaileArr) {
+        const arr: LOLCompareFieldDetailDTO[] = [];
+        arr.push(detail);
+        categoryAndDetailMap.set(element.LOLMatchFieldCategory, arr);
+      } else {
+        detaileArr.push(detail);
+      }
+    });
+    const result: LOLCompareFieldDTO[] = [];
+    categoryAndDetailMap.forEach((detailArr, category) => {
+      result.push({ category: category, fields: detailArr });
+    });
+    return result;
+  }
+
   private async setCacheCompareField(): Promise<void> {
     const elementsFindAll = await this.prisma.lOLSummaryElement.findMany();
     const elements = elementsFindAll.filter((element) => {
       return !['티어'].includes(element.LOLMatchFieldName);
     });
-    const results = elements.map((element) => {
-      return {
-        id: element.id,
-        lolMatchFieldName: element.LOLMatchFieldName,
-        category: '카테고리',
-        name: element.LOLMatchFieldName,
-        enName: element.LOLMatchFieldName,
-      };
-    });
+    const results = this.makeLOLElementsToLOLCompareFieldDTOs(elements);
     this.cachedLOLCompareField = results;
     results.forEach((result) => {
-      this.cachedLOLCompareFieldIdToFieldMap.set(result.id, result);
+      result.fields.forEach((field) => {
+        this.cachedLOLCompareFieldIdToFieldMap.set(field.id, field);
+      });
     });
   }
 
@@ -456,7 +486,9 @@ export class LOLService implements OnApplicationBootstrap {
       return await this.cachedLOLCompareField;
     }
   }
-  async getCompareFieldById(param: number): Promise<LOLCompareFieldDTO> {
+  async getCompareFieldDetailById(
+    param: number,
+  ): Promise<LOLCompareFieldDetailDTO> {
     if (
       this.cachedLOLCompareFieldIdToFieldMap &&
       this.cachedLOLCompareFieldIdToFieldMap.has(param)

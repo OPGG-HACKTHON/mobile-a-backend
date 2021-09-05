@@ -7,7 +7,10 @@ import {
 } from '@nestjs/swagger';
 import { LOLService } from './lol.service';
 import { LOLChampionDTO } from './lol-champion.dto';
-import { LOLCompareFieldDTO } from './lol-compareField.dto';
+import {
+  LOLCompareFieldDetailDTO,
+  LOLCompareFieldDTO,
+} from './lol-compareField.dto';
 @ApiTags('LOL')
 @Controller('/lol')
 export class LOLController {
@@ -64,12 +67,12 @@ export class LOLController {
   })
   @ApiOkResponse({
     description: '필드 결과 조회 성공',
-    type: LOLCompareFieldDTO,
+    type: LOLCompareFieldDetailDTO,
   })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   async getCompareFieldById(
     @Param('id', ParseIntPipe) id: number,
-  ): Promise<LOLCompareFieldDTO> {
-    return await this.lolService.getCompareFieldById(id);
+  ): Promise<LOLCompareFieldDetailDTO> {
+    return await this.lolService.getCompareFieldDetailById(id);
   }
 }
