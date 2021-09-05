@@ -144,6 +144,7 @@ model LOLSummaryElement {
   LOLMatchFieldName     String?
   LOLMatchFieldCategory String?
   LOLMatchFieldKoName   String?
+  LOLMatchFieldDataType String?              @default("Int")
   valueDataType         String               @default("Int")
   calculateType         String
   sortType              String

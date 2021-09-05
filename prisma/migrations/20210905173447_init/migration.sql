@@ -120,6 +120,7 @@ CREATE TABLE "LOLSummaryElement" (
     "LOLMatchFieldName" TEXT,
     "LOLMatchFieldCategory" TEXT,
     "LOLMatchFieldKoName" TEXT,
+    "LOLMatchFieldDataType" TEXT DEFAULT E'Int',
     "valueDataType" TEXT NOT NULL DEFAULT E'Int',
     "calculateType" TEXT NOT NULL,
     "sortType" TEXT NOT NULL,

@@ -30,8 +30,26 @@ describe('title data test', () => {
     await prismaService.$disconnect();
   });
 
-  it('school data test', async () => {
+  it('title data test', async () => {
     const countTitles = await prismaService.lOLSummaryElement.count();
     expect(countTitles).toBe(26);
+  });
+
+  it('title firstBloodKill Boolean, kills Int LOLMatchFieldDataType test', async () => {
+    const killlsField = await prismaService.lOLSummaryElement.findFirst({
+      where: {
+        LOLMatchFieldName: 'kills',
+      },
+    });
+    expect(killlsField.LOLMatchFieldDataType).toBe('Int');
+
+    const firstBloodKillField = await prismaService.lOLSummaryElement.findFirst(
+      {
+        where: {
+          LOLMatchFieldName: 'firstBloodKill',
+        },
+      },
+    );
+    expect(firstBloodKillField.LOLMatchFieldDataType).toBe('Boolean');
   });
 });

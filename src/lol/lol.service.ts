@@ -260,6 +260,10 @@ export class LOLService implements OnApplicationBootstrap {
         LOLSummaryPersonalId: lOLSummaryPersonal.id,
       },
     });
+    // match
+    await this.setupUserRecentMatchesByAccountId(lolAccountId);
+    // mastery
+    await this.setupChampionMasteriesByAccountId(lolAccountId);
   }
 
   async setupUserRecentMatchesByAccountId(accountId: string): Promise<void> {
