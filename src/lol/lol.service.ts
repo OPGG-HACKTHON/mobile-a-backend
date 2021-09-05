@@ -1,4 +1,8 @@
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  OnApplicationBootstrap,
+} from '@nestjs/common';
 import got from 'got';
 import { Tier } from './lol-tier.model';
 import { SUMMONER } from './lol-summoner.model';
@@ -461,6 +465,40 @@ export class LOLService implements OnApplicationBootstrap {
     } else {
       await this.setCacheCompareField();
       return await this.cachedLOLCompareFieldIdToFieldMap.get(param);
+    }
+  }
+
+  async validateLOLNickname(nickname: string): Promise<void> {
+    // nickname
+    let summoner: SUMMONER;
+    try {
+      summoner = await got
+        .get(this.SUMMONER_V4_URL + '/by-name' + '/' + nickname, {
+          headers: {
+            'X-Riot-Token': this.API_KEY,
+          },
+        })
+        .json<SUMMONER>();
+    } catch (err) {
+      throw new BadRequestException('존재하지 않는 롤 닉네임 입니다.');
+    }
+    // Tier
+    try {
+      const apiResults = await got
+        .get(this.LEAGUE_V4_URL + '/' + summoner.id, {
+          headers: {
+            'X-Riot-Token': this.API_KEY,
+          },
+        })
+        .json<(Tier & { queueType: 'RANKED_FLEX_SR' & 'RANKED_SOLO_5x5' })[]>();
+      const result = apiResults.filter(
+        (apiResult) => apiResult.queueType === 'RANKED_SOLO_5x5',
+      );
+      if (!result.length) {
+        throw new Error();
+      }
+    } catch (err) {
+      throw new BadRequestException('티어 정보가 존재하지 않습니다.');
     }
   }
 }

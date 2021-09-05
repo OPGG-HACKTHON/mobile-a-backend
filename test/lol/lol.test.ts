@@ -257,4 +257,18 @@ describe('simple etst', () => {
     expect(lolCompareFieldById.body.name).toBe('longestTimeSpentLiving');
     expect(lolCompareFieldById.body.enName).toBe('longestTimeSpentLiving');
   });
+
+  it('lol nickname validate', async () => {
+    const maybeInvalidateLOLNickName = '129312987417264129_invalidate_nickname';
+
+    await expect(
+      lolService.validateLOLNickname(maybeInvalidateLOLNickName),
+    ).rejects.toThrow('존재하지 않는 롤 닉네임 입니다.');
+
+    // 휘경동불주먹 - unrank
+    const maybeValidateUserAndUnrank = '휘경동불주먹';
+    await expect(
+      lolService.validateLOLNickname(maybeValidateUserAndUnrank),
+    ).rejects.toThrow('티어 정보가 존재하지 않습니다.');
+  });
 });

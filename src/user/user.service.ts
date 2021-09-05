@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ProfileDTO } from './user-profile.dto';
 import { UserDTO } from '../common/dto/user.dto';
@@ -78,6 +78,7 @@ export class UserService {
 
     // 유저가 존재하지 않을 경우
     if (!isUserExist) {
+      await this.lolService.validateLOLNickname(param.LOLNickName);
       const lolAccountId = await this.lolService.upsertLOLAccountByLOLName(
         param.LOLNickName,
       );
@@ -94,13 +95,7 @@ export class UserService {
       return result;
     } else {
       // 유저가 존재하는 경우
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: '이미 가입된 유저입니다.',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException('이미 가입된 유저입니다.');
     }
   }
 
