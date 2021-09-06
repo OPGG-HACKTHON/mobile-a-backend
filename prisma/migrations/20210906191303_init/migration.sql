@@ -94,7 +94,8 @@ CREATE TABLE "LOLSummaryPersonal" (
     "LOLAccountId" TEXT NOT NULL,
     "LOLSummaryElementId" INTEGER NOT NULL,
     "LOLChampionId" TEXT,
-    "value" TEXT NOT NULL,
+    "value" INTEGER NOT NULL,
+    "exposureValue" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

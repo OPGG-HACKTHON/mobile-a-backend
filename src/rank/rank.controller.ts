@@ -167,7 +167,11 @@ export class RankController {
     @Param('compareFieldId', ParseIntPipe) compareFieldId: number,
     @Param('schoolId') schoolId: string,
   ): Promise<ProfileRankWithCompareField[]> {
-    return [];
+    return await this.rankService.getProfilesRankWithCompareFieldByParams(
+      championId,
+      compareFieldId,
+      schoolId,
+    );
   }
 
   @Get(

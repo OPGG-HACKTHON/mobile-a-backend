@@ -114,7 +114,8 @@ model LOLSummaryPersonal {
   LOLSummaryElementId Int
   LOLChampion         LOLChampion?      @relation(fields: [LOLChampionId], references: [id])
   LOLChampionId       String?
-  value               String
+  value               Int
+  exposureValue       String
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
   LOLRankInSchool     LOLRankInSchool?
