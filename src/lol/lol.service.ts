@@ -225,12 +225,14 @@ export class LOLService implements OnApplicationBootstrap {
           },
       },
       update: {
-        value: tierSummaryValue.toString(),
+        value: tierSummaryValue,
+        exposureValue: tierSummaryValue.toString(),
       },
       create: {
         LOLAccountId: id,
         LOLSummaryElementId: category.id,
-        value: tierSummaryValue.toString(),
+        value: tierSummaryValue,
+        exposureValue: tierSummaryValue.toString(),
       },
     });
   }
@@ -259,6 +261,59 @@ export class LOLService implements OnApplicationBootstrap {
         userId: userId,
         LOLSummaryPersonalId: lOLSummaryPersonal.id,
       },
+    });
+    // match
+    await this.setupUserRecentMatchesByAccountId(lolAccountId);
+    // mastery
+    await this.setupChampionMasteriesByAccountId(lolAccountId);
+    // mastery summary
+    await this.upsertLOLSummaryPersonalMasteryByLOLAccountIdAndUserId(
+      lolAccountId,
+      userId,
+    );
+  }
+
+  async upsertLOLSummaryPersonalMasteryByLOLAccountIdAndUserId(
+    accountId: string,
+    userId: number,
+  ): Promise<void> {
+    const lolSummaryElement = await this.prisma.lOLSummaryElement.findFirst({
+      where: {
+        LOLMatchFieldName: '캐릭터숙련도',
+      },
+    });
+    const lolChampionsMastery = await this.prisma.lOLChampionMastery.findMany({
+      where: {
+        LOLAccountId: accountId,
+      },
+    });
+    const lolSummaries = lolChampionsMastery.map((mastery) => {
+      return {
+        LOLAccountId: accountId,
+        LOLSummaryElementId: lolSummaryElement.id,
+        LOLChampionId: mastery.LOLChampionId,
+        value: mastery.championPoints,
+        exposureValue: mastery.championPoints.toString(),
+      };
+    });
+    await this.prisma.lOLSummaryPersonal.createMany({
+      data: lolSummaries,
+    });
+    const createdLOLSummaries = await this.prisma.lOLSummaryPersonal.findMany({
+      where: {
+        LOLSummaryElementId: lolSummaryElement.id,
+        LOLAccountId: accountId,
+      },
+    });
+    const lolRankInSchoolElements = createdLOLSummaries.map((summary) => {
+      return {
+        userId: userId,
+        LOLSummaryPersonalId: summary.id,
+      };
+    });
+    // console.log(lolRankInSchoolElements);
+    await this.prisma.lOLRankInSchool.createMany({
+      data: lolRankInSchoolElements,
     });
   }
 

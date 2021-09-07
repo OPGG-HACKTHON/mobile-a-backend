@@ -15,6 +15,8 @@ import { LOLModule } from '../../src/lol/lol.module';
 import { AuthService } from '../../src/auth/auth.service';
 import { AuthModule } from '../../src/auth/auth.module';
 import { GoogleAuthService } from '../../src/auth/passport/google-auth.service';
+import { TitleModule } from '../../src/title/title.module';
+import { TitleService } from '../../src/title/title.service';
 
 describe('simple etst', () => {
   let app: INestApplication;
@@ -26,7 +28,14 @@ describe('simple etst', () => {
   beforeEach(async () => {
     await initSchema(prismaService);
     const moduleRefAuth = await Test.createTestingModule({
-      imports: [RankModule, UserModule, PrismaModule, LOLModule, AuthModule],
+      imports: [
+        RankModule,
+        UserModule,
+        PrismaModule,
+        LOLModule,
+        AuthModule,
+        TitleModule,
+      ],
       providers: [
         UserService,
         RankService,
@@ -34,6 +43,7 @@ describe('simple etst', () => {
         LOLService,
         AuthService,
         GoogleAuthService,
+        TitleService,
       ],
     })
       .overrideProvider(RankService)
@@ -68,6 +78,7 @@ describe('simple etst', () => {
         educationOffice: '교육청이름',
         regionId: 1,
         address: 'foo',
+        imageUrl: '',
       },
     });
     // setup Title
@@ -148,6 +159,7 @@ describe('simple etst', () => {
         educationOffice: '교육청이름',
         regionId: 1,
         address: 'foo',
+        imageUrl: '',
       },
     });
     // setup Title
@@ -185,7 +197,7 @@ describe('simple etst', () => {
     expect(resSignUp2.LOLAccountId).toBeTruthy();
     expect(resSignUp2.schoolId).toBe('1');
 
-    //e2e;
+    //e2e; // school rank
     const resRankSchool = await request(app.getHttpServer())
       .get(encodeURI('/ranks/schools/1/users/1'))
       .set('Accept', 'application/json')
@@ -204,5 +216,26 @@ describe('simple etst', () => {
     expect(tier).toBeTruthy();
     expect(rank).toBeTruthy();
     expect(leaguePoints >= 0).toBeTruthy();
+
+    // mastery // 르블랑, 숙련도 순위
+    const resMasterySchool = await request(app.getHttpServer())
+      .get(encodeURI('/ranks/champions/7/compareFields/25/schools/1'))
+      .set('Accept', 'application/json')
+      .type('application/json');
+
+    expect(resMasterySchool.body.length).toBe(2);
+    expect(resMasterySchool.body[0].id).toBe(2);
+    expect(resMasterySchool.body[0].lol.name).toBe('Hide on bush');
+    expect(resMasterySchool.body[0].fieldName).toBe('숙련도');
+    expect(resMasterySchool.body[0].rankNo).toBe(1);
+    expect(resMasterySchool.body[0].rankChangedStatus).toBeTruthy();
+    expect(resMasterySchool.body[0].value).toBeTruthy();
+
+    expect(resMasterySchool.body[1].id).toBe(1);
+    expect(resMasterySchool.body[1].lol.name).toBe('KkangSan');
+    expect(resMasterySchool.body[1].fieldName).toBe('숙련도');
+    expect(resMasterySchool.body[1].rankChangedStatus).toBeTruthy();
+    expect(resMasterySchool.body[1].value).toBeTruthy();
+    expect(resMasterySchool.body[1].rankNo).toBe(2);
   });
 });

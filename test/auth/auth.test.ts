@@ -83,6 +83,7 @@ describe('simple etst', () => {
         educationOffice: '서울시교육청',
         regionId: 1,
         address: '어디선가',
+        imageUrl: '',
       },
     });
 
@@ -98,8 +99,11 @@ describe('simple etst', () => {
     expect(token.userId).toBe(1);
 
     //
-    const findedUser = await authService.getUserByToken('google_foo-token');
-    expect(findedUser.email).toBe('abc@abc.com');
-    expect(findedUser.schoolId).toBe('1');
+    const profileWithSchool = await authService.getUserByToken(
+      'google_foo-token',
+    );
+    expect(profileWithSchool.id).toBe(1);
+    expect(profileWithSchool.lol.name).toBe('KkangSan');
+    expect(profileWithSchool.school.id).toBe('1');
   });
 });

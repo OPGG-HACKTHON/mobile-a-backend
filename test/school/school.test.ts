@@ -60,5 +60,8 @@ describe('school data test', () => {
     expect(res.body[0].division).toBeTruthy();
     expect(res.body[0].regionId).toBeTruthy();
     expect(res.body[0].address).toBeTruthy();
+    expect(res.body[0].imageUrl).toBe(
+      'https://static.opggmobilea.com/dragontail-11.15.1/11.15.1/img/profileicon/3458.png',
+    );
   });
 });

@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { ProfileRank, RankChangedStatus } from './rank-profileRank.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserService } from '../user/user.service';
+import { ProfileRankWithCompareField } from './rank-profileRankWithConpareField.dto';
+import { LOLRankInSchool, LOLSummaryPersonal } from '@prisma/client';
 
 @Injectable()
 export class RankService {
@@ -115,5 +117,77 @@ export class RankService {
       }
     }
     return result;
+  }
+
+  async getProfileRankWithCompareFieldArrByLOLRankInSchoolsAndCompareFieldId(
+    params: (LOLRankInSchool & {
+      LOLSummaryPersonal: LOLSummaryPersonal;
+    })[],
+    fieldId: number,
+  ): Promise<ProfileRankWithCompareField[]> {
+    const results: ProfileRankWithCompareField[] = [];
+
+    const field = await this.prisma.lOLSummaryElement.findUnique({
+      where: {
+        id: fieldId,
+      },
+    });
+    const fieldName = field.LOLMatchFieldKoName;
+
+    for (const [idx, param] of params.entries()) {
+      const profile = await this.userService.getProfileByUserId(param.userId);
+      const rankNo = idx + 1;
+      const rankChangedStatus = this.makeRankChangedStatusByNowRankAndPrevRank(
+        rankNo,
+        param.prevRank,
+      );
+      const value = param.LOLSummaryPersonal.exposureValue;
+
+      const result = {
+        ...profile,
+        rankNo,
+        rankChangedStatus,
+        value,
+        fieldName,
+      };
+      results.push(result);
+    }
+    return results;
+  }
+
+  async getProfilesRankWithCompareFieldByParams(
+    championId: number,
+    compareFieldId: number,
+    schoolId: string,
+  ): Promise<ProfileRankWithCompareField[]> {
+    const LOLRankInSchool = await this.prisma.lOLRankInSchool.findMany({
+      where: {
+        LOLSummaryPersonal: {
+          LOLChampion: {
+            key: championId,
+          },
+          LOLSummaryElement: {
+            id: compareFieldId,
+          },
+        },
+        User: {
+          schoolId: schoolId,
+        },
+      },
+      orderBy: {
+        LOLSummaryPersonal: {
+          value: 'desc',
+        },
+      },
+      include: {
+        LOLSummaryPersonal: true,
+      },
+    });
+    const results =
+      await this.getProfileRankWithCompareFieldArrByLOLRankInSchoolsAndCompareFieldId(
+        LOLRankInSchool,
+        compareFieldId,
+      );
+    return results;
   }
 }
