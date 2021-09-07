@@ -8,6 +8,7 @@ import { LoginParam } from './auth-login.param';
 import { LoginDTO } from './auth-login.dto';
 import { TokenDTO } from './auth-token.dto';
 import { UserDTO } from '../common/dto/user.dto';
+import { ProfileWithSchoolDTO } from 'src/user/user-profileWithSchool.dto';
 
 @Injectable()
 export class AuthService {
@@ -19,7 +20,7 @@ export class AuthService {
 
   private readonly GOOGLE_AUTHFROM = 'google';
 
-  async signUp(param: SignUpParam): Promise<User> {
+  async signUp(param: SignUpParam): Promise<ProfileWithSchoolDTO> {
     switch (param.authFrom) {
       case 'google':
         await this.validateGoogleTokenEmailAndInputEmail(
@@ -38,7 +39,12 @@ export class AuthService {
           HttpStatus.BAD_REQUEST,
         );
     }
-    return await this.userService.createUser(param);
+    const createUser = await this.userService.createUser(param);
+    const result = await this.userService.getProfileWithSchoolByUserId(
+      createUser.id,
+    );
+
+    return result;
   }
 
   private async validateGoogleTokenEmailAndInputEmail(
@@ -238,13 +244,17 @@ export class AuthService {
    * @desc internal 토큰을 통해 유저를 조회합니다.
    * @issue id_token을 이용해 sub값 활용 예정
    */
-  async getUserByToken(accessToken: string): Promise<UserDTO> {
+  async getUserByToken(accessToken: string): Promise<ProfileWithSchoolDTO> {
     const userToken = await this.prisma.token.findUnique({
       where: {
         token: accessToken,
       },
       include: {
-        User: true,
+        User: {
+          include: {
+            School: true,
+          },
+        },
       },
     });
     if (!userToken) {
@@ -256,6 +266,9 @@ export class AuthService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return userToken.User;
+    const result = await this.userService.getProfileWithSchoolByUserId(
+      userToken.userId,
+    );
+    return result;
   }
 }
