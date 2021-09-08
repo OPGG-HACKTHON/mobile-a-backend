@@ -27,10 +27,21 @@ export class ProfileInfo {
   tierInfo: TierInfo;
 }
 
+export class ProfileTitle {
+  @ApiProperty()
+  id: number;
+
+  @ApiProperty()
+  exposureName: string;
+}
+
 export class ProfileDTO {
   @ApiProperty()
   id: number;
 
   @ApiProperty({ type: () => ProfileInfo })
   lol: ProfileInfo;
+
+  @ApiProperty({ type: () => ProfileTitle })
+  title: ProfileTitle;
 }

@@ -58,6 +58,10 @@ export class UserService {
         regionId: user.School.regionId,
         address: user.School.address,
       },
+      title: {
+        id: 123,
+        exposureName: '리신 장인',
+      },
     };
   }
 
@@ -87,6 +91,10 @@ export class UserService {
         profileIconImageUrl: this.getProfileImageUrl(profileIconId),
         summonerLevel,
         tierInfo: { tier, rank, leaguePoints },
+      },
+      title: {
+        id: 123,
+        exposureName: '리신 장인',
       },
     };
   }
