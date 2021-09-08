@@ -209,6 +209,10 @@ export class RankController {
           leaguePoints: 123,
         },
       },
+      title: {
+        id: 123,
+        exposureName: '다리우스 장인',
+      },
     };
   }
 }
