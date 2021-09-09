@@ -15,6 +15,7 @@ import { LOLModule } from '../../src/lol/lol.module';
 import { AuthService } from '../../src/auth/auth.service';
 import { AuthModule } from '../../src/auth/auth.module';
 import { GoogleAuthService } from '../../src/auth/passport/google-auth.service';
+import { AppleService } from '../../src/auth/passport/apple-auth.service';
 
 describe('simple etst', () => {
   let app: INestApplication;
@@ -34,6 +35,7 @@ describe('simple etst', () => {
         LOLService,
         AuthService,
         GoogleAuthService,
+        AppleService,
       ],
     })
       .overrideProvider(RankService)
