@@ -43,6 +43,7 @@ CREATE TABLE "School" (
     "division" TEXT NOT NULL,
     "educationOffice" TEXT NOT NULL,
     "address" TEXT NOT NULL,
+    "imageUrl" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "regionId" INTEGER NOT NULL,
@@ -76,6 +77,31 @@ CREATE TABLE "LOLChampion" (
 );
 
 -- CreateTable
+CREATE TABLE "TitleInSchool" (
+    "id" SERIAL NOT NULL,
+    "LOLSummaryElementId" INTEGER NOT NULL,
+    "LOLChampionId" TEXT,
+    "schoolId" TEXT NOT NULL,
+    "titleholderUserId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TitleInSchoolLog" (
+    "id" SERIAL NOT NULL,
+    "titleInSchoolId" INTEGER NOT NULL,
+    "titleholderUserId" INTEGER NOT NULL,
+    "prevUserId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "LOLRankInSchool" (
     "id" SERIAL NOT NULL,
     "prevRank" INTEGER,
@@ -93,7 +119,8 @@ CREATE TABLE "LOLSummaryPersonal" (
     "LOLAccountId" TEXT NOT NULL,
     "LOLSummaryElementId" INTEGER NOT NULL,
     "LOLChampionId" TEXT,
-    "value" TEXT NOT NULL,
+    "value" INTEGER NOT NULL,
+    "exposureValue" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -117,6 +144,9 @@ CREATE TABLE "LOLSummarySchool" (
 CREATE TABLE "LOLSummaryElement" (
     "id" SERIAL NOT NULL,
     "LOLMatchFieldName" TEXT,
+    "LOLMatchFieldCategory" TEXT,
+    "LOLMatchFieldKoName" TEXT,
+    "LOLMatchFieldDataType" TEXT DEFAULT E'Int',
     "valueDataType" TEXT NOT NULL DEFAULT E'Int',
     "calculateType" TEXT NOT NULL,
     "sortType" TEXT NOT NULL,
@@ -211,6 +241,27 @@ ALTER TABLE "User" ADD FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DEL
 
 -- AddForeignKey
 ALTER TABLE "School" ADD FOREIGN KEY ("regionId") REFERENCES "Region"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TitleInSchool" ADD FOREIGN KEY ("LOLSummaryElementId") REFERENCES "LOLSummaryElement"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TitleInSchool" ADD FOREIGN KEY ("LOLChampionId") REFERENCES "LOLChampion"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TitleInSchool" ADD FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TitleInSchool" ADD FOREIGN KEY ("titleholderUserId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TitleInSchoolLog" ADD FOREIGN KEY ("titleInSchoolId") REFERENCES "TitleInSchool"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TitleInSchoolLog" ADD FOREIGN KEY ("titleholderUserId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TitleInSchoolLog" ADD FOREIGN KEY ("prevUserId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "LOLRankInSchool" ADD FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

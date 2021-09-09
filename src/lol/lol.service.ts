@@ -1,14 +1,21 @@
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  OnApplicationBootstrap,
+} from '@nestjs/common';
 import got from 'got';
 import { Tier } from './lol-tier.model';
 import { SUMMONER } from './lol-summoner.model';
 import { PrismaService } from '../prisma/prisma.service';
 import { Match } from './lol-match.model';
-import { LOLMatch } from '@prisma/client';
+import { LOLMatch, LOLSummaryElement } from '@prisma/client';
 import { CHAMPION } from './lol-champion.model';
 import { CHAMPION_MASTERY } from './lol-championMastery.model';
 import { LOLChampionDTO } from './lol-champion.dto';
-import { LOLCompareFieldDTO } from './lol-compareField.dto';
+import {
+  LOLCompareFieldDetailDTO,
+  LOLCompareFieldDTO,
+} from './lol-compareField.dto';
 @Injectable()
 export class LOLService implements OnApplicationBootstrap {
   private readonly API_KEY = process.env.LOL_API_KEY;
@@ -35,7 +42,10 @@ export class LOLService implements OnApplicationBootstrap {
   championIdAndChampionDTOMap = new Map<number, LOLChampionDTO>();
 
   cachedLOLCompareField: LOLCompareFieldDTO[];
-  cachedLOLCompareFieldIdToFieldMap = new Map<number, LOLCompareFieldDTO>();
+  cachedLOLCompareFieldIdToFieldMap = new Map<
+    number,
+    LOLCompareFieldDetailDTO
+  >();
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -215,12 +225,14 @@ export class LOLService implements OnApplicationBootstrap {
           },
       },
       update: {
-        value: tierSummaryValue.toString(),
+        value: tierSummaryValue,
+        exposureValue: tierSummaryValue.toString(),
       },
       create: {
         LOLAccountId: id,
         LOLSummaryElementId: category.id,
-        value: tierSummaryValue.toString(),
+        value: tierSummaryValue,
+        exposureValue: tierSummaryValue.toString(),
       },
     });
   }
@@ -249,6 +261,59 @@ export class LOLService implements OnApplicationBootstrap {
         userId: userId,
         LOLSummaryPersonalId: lOLSummaryPersonal.id,
       },
+    });
+    // match
+    await this.setupUserRecentMatchesByAccountId(lolAccountId);
+    // mastery
+    await this.setupChampionMasteriesByAccountId(lolAccountId);
+    // mastery summary
+    await this.upsertLOLSummaryPersonalMasteryByLOLAccountIdAndUserId(
+      lolAccountId,
+      userId,
+    );
+  }
+
+  async upsertLOLSummaryPersonalMasteryByLOLAccountIdAndUserId(
+    accountId: string,
+    userId: number,
+  ): Promise<void> {
+    const lolSummaryElement = await this.prisma.lOLSummaryElement.findFirst({
+      where: {
+        LOLMatchFieldName: '캐릭터숙련도',
+      },
+    });
+    const lolChampionsMastery = await this.prisma.lOLChampionMastery.findMany({
+      where: {
+        LOLAccountId: accountId,
+      },
+    });
+    const lolSummaries = lolChampionsMastery.map((mastery) => {
+      return {
+        LOLAccountId: accountId,
+        LOLSummaryElementId: lolSummaryElement.id,
+        LOLChampionId: mastery.LOLChampionId,
+        value: mastery.championPoints,
+        exposureValue: mastery.championPoints.toString(),
+      };
+    });
+    await this.prisma.lOLSummaryPersonal.createMany({
+      data: lolSummaries,
+    });
+    const createdLOLSummaries = await this.prisma.lOLSummaryPersonal.findMany({
+      where: {
+        LOLSummaryElementId: lolSummaryElement.id,
+        LOLAccountId: accountId,
+      },
+    });
+    const lolRankInSchoolElements = createdLOLSummaries.map((summary) => {
+      return {
+        userId: userId,
+        LOLSummaryPersonalId: summary.id,
+      };
+    });
+    // console.log(lolRankInSchoolElements);
+    await this.prisma.lOLRankInSchool.createMany({
+      data: lolRankInSchoolElements,
     });
   }
 
@@ -424,23 +489,47 @@ export class LOLService implements OnApplicationBootstrap {
     return this.championIdAndChampionDTOMap.get(id);
   }
 
+  private makeLOLElementsToLOLCompareFieldDTOs(
+    elements: LOLSummaryElement[],
+  ): LOLCompareFieldDTO[] {
+    const categoryAndDetailMap = new Map<string, LOLCompareFieldDetailDTO[]>();
+    elements.forEach((element) => {
+      const detaileArr = categoryAndDetailMap.get(
+        element.LOLMatchFieldCategory,
+      );
+      const detail = {
+        id: element.id,
+        lolMatchFieldName: element.LOLMatchFieldName,
+        category: element.LOLMatchFieldCategory,
+        name: element.LOLMatchFieldKoName,
+        enName: element.LOLMatchFieldName,
+      };
+      if (!detaileArr) {
+        const arr: LOLCompareFieldDetailDTO[] = [];
+        arr.push(detail);
+        categoryAndDetailMap.set(element.LOLMatchFieldCategory, arr);
+      } else {
+        detaileArr.push(detail);
+      }
+    });
+    const result: LOLCompareFieldDTO[] = [];
+    categoryAndDetailMap.forEach((detailArr, category) => {
+      result.push({ category: category, fields: detailArr });
+    });
+    return result;
+  }
+
   private async setCacheCompareField(): Promise<void> {
     const elementsFindAll = await this.prisma.lOLSummaryElement.findMany();
     const elements = elementsFindAll.filter((element) => {
       return !['티어'].includes(element.LOLMatchFieldName);
     });
-    const results = elements.map((element) => {
-      return {
-        id: element.id,
-        lolMatchFieldName: element.LOLMatchFieldName,
-        category: '카테고리',
-        name: element.LOLMatchFieldName,
-        enName: element.LOLMatchFieldName,
-      };
-    });
+    const results = this.makeLOLElementsToLOLCompareFieldDTOs(elements);
     this.cachedLOLCompareField = results;
     results.forEach((result) => {
-      this.cachedLOLCompareFieldIdToFieldMap.set(result.id, result);
+      result.fields.forEach((field) => {
+        this.cachedLOLCompareFieldIdToFieldMap.set(field.id, field);
+      });
     });
   }
 
@@ -452,7 +541,9 @@ export class LOLService implements OnApplicationBootstrap {
       return await this.cachedLOLCompareField;
     }
   }
-  async getCompareFieldById(param: number): Promise<LOLCompareFieldDTO> {
+  async getCompareFieldDetailById(
+    param: number,
+  ): Promise<LOLCompareFieldDetailDTO> {
     if (
       this.cachedLOLCompareFieldIdToFieldMap &&
       this.cachedLOLCompareFieldIdToFieldMap.has(param)
@@ -461,6 +552,40 @@ export class LOLService implements OnApplicationBootstrap {
     } else {
       await this.setCacheCompareField();
       return await this.cachedLOLCompareFieldIdToFieldMap.get(param);
+    }
+  }
+
+  async validateLOLNickname(nickname: string): Promise<void> {
+    // nickname
+    let summoner: SUMMONER;
+    try {
+      summoner = await got
+        .get(this.SUMMONER_V4_URL + '/by-name' + '/' + nickname, {
+          headers: {
+            'X-Riot-Token': this.API_KEY,
+          },
+        })
+        .json<SUMMONER>();
+    } catch (err) {
+      throw new BadRequestException('존재하지 않는 롤 닉네임 입니다.');
+    }
+    // Tier
+    try {
+      const apiResults = await got
+        .get(this.LEAGUE_V4_URL + '/' + summoner.id, {
+          headers: {
+            'X-Riot-Token': this.API_KEY,
+          },
+        })
+        .json<(Tier & { queueType: 'RANKED_FLEX_SR' & 'RANKED_SOLO_5x5' })[]>();
+      const result = apiResults.filter(
+        (apiResult) => apiResult.queueType === 'RANKED_SOLO_5x5',
+      );
+      if (!result.length) {
+        throw new Error();
+      }
+    } catch (err) {
+      throw new BadRequestException('티어 정보가 존재하지 않습니다.');
     }
   }
 }

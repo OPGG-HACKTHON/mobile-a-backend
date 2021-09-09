@@ -14,13 +14,27 @@ export class SchoolService implements OnApplicationBootstrap {
     division: string;
     educationOffice: string;
     address: string;
+    imageUrl: string;
   } {
+    const division = row[2];
+    let imageUrl = '';
+    if (division === '초등학교') {
+      imageUrl =
+        'https://static.opggmobilea.com/dragontail-11.15.1/11.15.1/img/profileicon/3458.png';
+    } else if (division === '중학교') {
+      imageUrl =
+        'https://static.opggmobilea.com/dragontail-11.15.1/11.15.1/img/profileicon/3457.png';
+    } else if (division === '고등학교') {
+      imageUrl =
+        'https://static.opggmobilea.com/dragontail-11.15.1/11.15.1/img/profileicon/3456.png';
+    }
     return {
       id: row[0],
       name: row[1],
-      division: row[2],
+      division: division,
       educationOffice: row[10],
       address: row[8],
+      imageUrl: imageUrl,
     };
   }
 
@@ -89,6 +103,7 @@ export class SchoolService implements OnApplicationBootstrap {
         regionId: regionNameToIdMap.get(
           this.schoolAddressToRegion(row.address),
         ),
+        imageUrl: row.imageUrl,
       };
     });
     await this.prisma.school.createMany({

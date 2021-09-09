@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ProfileDTO } from './user-profile.dto';
 import { UserDTO } from '../common/dto/user.dto';
@@ -6,6 +6,7 @@ import { SignUpParam } from 'src/auth/auth-signup.param';
 import { LOLService } from '../lol/lol.service';
 import { User } from '@prisma/client';
 import { UserCreateParam } from './user-create.param';
+import { ProfileWithSchoolDTO } from './user-profileWithSchool.dto';
 @Injectable()
 export class UserService {
   constructor(
@@ -18,6 +19,50 @@ export class UserService {
 
   private getProfileImageUrl(profileIconId: number) {
     return this.PROFILE_IMAGE_URL + '/' + profileIconId.toString() + '.png';
+  }
+
+  async getProfileWithSchoolByUserId(
+    userId: number,
+  ): Promise<ProfileWithSchoolDTO> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        LOLAccount: {
+          include: {
+            LOLTier: true,
+          },
+        },
+        School: true,
+      },
+    });
+    if (!user.LOLAccountId) {
+      throw new Error('lol 계정이 존재하지 않습니다.');
+    }
+    const { profileIconId, summonerLevel, name } = user.LOLAccount;
+    const { tier, rank, leaguePoints } = user.LOLAccount.LOLTier;
+    return {
+      id: userId,
+      lol: {
+        name,
+        profileIconId,
+        profileIconImageUrl: this.getProfileImageUrl(profileIconId),
+        summonerLevel,
+        tierInfo: { tier, rank, leaguePoints },
+      },
+      school: {
+        id: user.School.id,
+        name: user.School.name,
+        division: user.School.division,
+        regionId: user.School.regionId,
+        address: user.School.address,
+      },
+      title: {
+        id: 123,
+        exposureName: '리신 장인',
+      },
+    };
   }
 
   async getProfileByUserId(userId: number): Promise<ProfileDTO> {
@@ -46,6 +91,10 @@ export class UserService {
         profileIconImageUrl: this.getProfileImageUrl(profileIconId),
         summonerLevel,
         tierInfo: { tier, rank, leaguePoints },
+      },
+      title: {
+        id: 123,
+        exposureName: '리신 장인',
       },
     };
   }
@@ -78,6 +127,7 @@ export class UserService {
 
     // 유저가 존재하지 않을 경우
     if (!isUserExist) {
+      await this.lolService.validateLOLNickname(param.LOLNickName);
       const lolAccountId = await this.lolService.upsertLOLAccountByLOLName(
         param.LOLNickName,
       );
@@ -94,13 +144,7 @@ export class UserService {
       return result;
     } else {
       // 유저가 존재하는 경우
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: '이미 가입된 유저입니다.',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException('이미 가입된 유저입니다.');
     }
   }
 

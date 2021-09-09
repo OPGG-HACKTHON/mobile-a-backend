@@ -242,7 +242,9 @@ describe('simple etst', () => {
       .set('Accept', 'application/json')
       .type('application/json');
 
-    expect(lolCompareFields.body.length).toBe(25);
+    expect(lolCompareFields.body.length).toBe(9);
+    expect(lolCompareFields.body[0].category).toBe('챔피언');
+    expect(lolCompareFields.body[0].fields[0].name).toBe('최고 생존시간');
 
     const lolCompareFieldById = await request(app.getHttpServer())
       .get('/lol/compareFields/1')
@@ -253,8 +255,22 @@ describe('simple etst', () => {
     expect(lolCompareFieldById.body.lolMatchFieldName).toBe(
       'longestTimeSpentLiving',
     );
-    expect(lolCompareFieldById.body.category).toBe('카테고리');
-    expect(lolCompareFieldById.body.name).toBe('longestTimeSpentLiving');
+    expect(lolCompareFieldById.body.category).toBe('챔피언');
+    expect(lolCompareFieldById.body.name).toBe('최고 생존시간');
     expect(lolCompareFieldById.body.enName).toBe('longestTimeSpentLiving');
+  });
+
+  it('lol nickname validate', async () => {
+    const maybeInvalidateLOLNickName = '129312987417264129_invalidate_nickname';
+
+    await expect(
+      lolService.validateLOLNickname(maybeInvalidateLOLNickName),
+    ).rejects.toThrow('존재하지 않는 롤 닉네임 입니다.');
+
+    // 휘경동불주먹 - unrank
+    const maybeValidateUserAndUnrank = '휘경동불주먹';
+    await expect(
+      lolService.validateLOLNickname(maybeValidateUserAndUnrank),
+    ).rejects.toThrow('티어 정보가 존재하지 않습니다.');
   });
 });

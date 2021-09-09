@@ -26,18 +26,21 @@ model Token {
 }
 
 model User {
-  id              Int               @id @default(autoincrement())
-  authFrom        String
-  email           String
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  role            Role              @default(USER)
-  LOLAccount      LOLAccount?       @relation(fields: [LOLAccountId], references: [id])
-  LOLAccountId    String?
-  schoolId        String
-  School          School            @relation(fields: [schoolId], references: [id])
-  Token           Token[]
-  LOLRankInSchool LOLRankInSchool[]
+  id                       Int                @id @default(autoincrement())
+  authFrom                 String
+  email                    String
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
+  role                     Role               @default(USER)
+  LOLAccount               LOLAccount?        @relation(fields: [LOLAccountId], references: [id])
+  LOLAccountId             String?
+  schoolId                 String
+  School                   School             @relation(fields: [schoolId], references: [id])
+  Token                    Token[]
+  LOLRankInSchool          LOLRankInSchool[]
+  TitleInSchoolLog         TitleInSchoolLog[] @relation("TitleInSchoolLogTitleholder")
+  TitleInSchoolLogPrevUser TitleInSchoolLog[] @relation("TitleInSchoolLogPrevUser")
+  TitleInSchool            TitleInSchool[]
 
   @@unique([authFrom, email], name: "User_authFrom_email_uniqueConstraint")
 }
@@ -56,12 +59,14 @@ model School {
   division         String
   educationOffice  String
   address          String
+  imageUrl         String
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
   Region           Region             @relation(fields: [regionId], references: [id])
   regionId         Int
   User             User[]
   LOLSummarySchool LOLSummarySchool[]
+  TitleInSchool    TitleInSchool[]
 }
 
 // SUMMONER-V4
@@ -90,6 +95,34 @@ model LOLChampion {
   LOLSummaryPersonal LOLSummaryPersonal[]
   LOLSummarySchool   LOLSummarySchool[]
   LOLChampionMastery LOLChampionMastery[]
+  TitleInSchool      TitleInSchool[]
+}
+
+model TitleInSchool {
+  id                  Int                @id @default(autoincrement())
+  LOLSummaryElement   LOLSummaryElement  @relation(fields: [LOLSummaryElementId], references: [id])
+  LOLSummaryElementId Int
+  LOLChampion         LOLChampion?       @relation(fields: [LOLChampionId], references: [id])
+  LOLChampionId       String?
+  School              School             @relation(fields: [schoolId], references: [id])
+  schoolId            String
+  TitleholderUser     User               @relation(fields: [titleholderUserId], references: [id])
+  titleholderUserId   Int
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  TitleInSchoolLog    TitleInSchoolLog[]
+}
+
+model TitleInSchoolLog {
+  id                Int           @id @default(autoincrement())
+  TitleInSchool     TitleInSchool @relation(fields: [titleInSchoolId], references: [id])
+  titleInSchoolId   Int
+  TitleholderUser   User          @relation(name: "TitleInSchoolLogTitleholder", fields: [titleholderUserId], references: [id])
+  titleholderUserId Int
+  prevUser          User          @relation(name: "TitleInSchoolLogPrevUser", fields: [prevUserId], references: [id])
+  prevUserId        Int
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 }
 
 // LoL Rank in School
@@ -113,7 +146,8 @@ model LOLSummaryPersonal {
   LOLSummaryElementId Int
   LOLChampion         LOLChampion?      @relation(fields: [LOLChampionId], references: [id])
   LOLChampionId       String?
-  value               String
+  value               Int
+  exposureValue       String
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
   LOLRankInSchool     LOLRankInSchool?
@@ -139,17 +173,21 @@ model LOLSummarySchool {
 
 // LoL Category
 model LOLSummaryElement {
-  id                 Int                  @id @default(autoincrement())
-  LOLMatchFieldName  String?
-  valueDataType      String               @default("Int")
-  calculateType      String
-  sortType           String
-  exposureName       String
-  description        String?
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  LOLSummaryPersonal LOLSummaryPersonal[]
-  LOLSummarySchool   LOLSummarySchool[]
+  id                    Int                  @id @default(autoincrement())
+  LOLMatchFieldName     String?
+  LOLMatchFieldCategory String?
+  LOLMatchFieldKoName   String?
+  LOLMatchFieldDataType String?              @default("Int")
+  valueDataType         String               @default("Int")
+  calculateType         String
+  sortType              String
+  exposureName          String
+  description           String?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  LOLSummaryPersonal    LOLSummaryPersonal[]
+  LOLSummarySchool      LOLSummarySchool[]
+  TitleInSchool         TitleInSchool[]
 }
 
 // only RANKED_SOLO_5x5

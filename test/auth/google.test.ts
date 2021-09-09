@@ -57,6 +57,7 @@ describe('google oauth test', () => {
         educationOffice: '교육청',
         regionId: 1,
         address: '어디선가',
+        imageUrl: '',
       },
     });
     await prismaService.user.create({

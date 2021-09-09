@@ -1,18 +1,26 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class LOLCompareFieldDTO {
+export class LOLCompareFieldDetailDTO {
   @ApiProperty()
   id: number;
 
   @ApiProperty()
-  lolMatchFieldName: string;
+  category: string;
 
   @ApiProperty()
-  category: string;
+  lolMatchFieldName: string;
 
   @ApiProperty()
   name: string;
 
   @ApiProperty()
   enName: string;
+}
+
+export class LOLCompareFieldDTO {
+  @ApiProperty()
+  category: string;
+
+  @ApiProperty({ type: () => LOLCompareFieldDetailDTO, isArray: true })
+  fields: LOLCompareFieldDetailDTO[];
 }

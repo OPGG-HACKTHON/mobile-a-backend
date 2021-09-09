@@ -25,6 +25,7 @@ import { SignUpParam } from './auth-signup.param';
 import { UserDTO } from '../common/dto/user.dto';
 import { LoginParam } from './auth-login.param';
 import { LoginDTO } from './auth-login.dto';
+import { ProfileWithSchoolDTO } from '../user/user-profileWithSchool.dto';
 @ApiTags('Auth')
 @Controller('/auth')
 export class AuthController {
@@ -62,10 +63,10 @@ export class AuthController {
     summary: '회원가입',
     description: '회원가입을 진행합니다.',
   })
-  @ApiOkResponse({ description: '회원가입 성공', type: UserDTO })
+  @ApiOkResponse({ description: '회원가입 성공', type: ProfileWithSchoolDTO })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   @ApiBody({ type: SignUpParam })
-  async signUp(@Body() param: SignUpParam) {
+  async signUp(@Body() param: SignUpParam): Promise<ProfileWithSchoolDTO> {
     return await this.authService.signUp(param);
   }
 
@@ -140,9 +141,14 @@ export class AuthController {
     description: '토큰을 이용해 유저 정보 조회를 진행합니다.',
   })
   @ApiQuery({ name: 'token' })
-  @ApiOkResponse({ description: '유저 정보 조회 성공', type: UserDTO })
+  @ApiOkResponse({
+    description: '유저 정보 조회 성공',
+    type: ProfileWithSchoolDTO,
+  })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  async getUserByToken(@Query('token') token: string): Promise<UserDTO> {
+  async getUserByToken(
+    @Query('token') token: string,
+  ): Promise<ProfileWithSchoolDTO> {
     return await this.authService.getUserByToken(token);
   }
 }

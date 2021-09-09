@@ -11,6 +11,9 @@ export class School {
   division: string;
 
   @ApiProperty()
+  imageUrl: string;
+
+  @ApiProperty()
   region: string;
 
   @ApiProperty()

@@ -4,10 +4,10 @@ export class LoginDTO {
   @ApiProperty()
   message: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   authFrom?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   email?: string;
 
   @ApiProperty()
