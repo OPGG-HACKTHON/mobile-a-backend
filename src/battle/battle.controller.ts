@@ -19,6 +19,7 @@ import { ProfileDTO } from '../user/user-profile.dto';
 import { MessageParam } from './battle-message.param';
 import { MessageDTO } from './battle-message.dto';
 import { MessageType } from './battle-message-type.model';
+import { BattleResult, ProfileBattleDTO } from './battle-log.dto';
 
 @ApiTags('Battle')
 @Controller('/battles')
@@ -150,13 +151,90 @@ export class BattleController {
   })
   @ApiOkResponse({
     description: '배틀 상대 조회 성공',
-    type: ProfileDTO,
+    type: ProfileBattleDTO,
     isArray: true,
   })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
   async searchProfilesBylolNickname(
     @Param('lolNickname') searchParam: string,
-  ): Promise<ProfileDTO[]> {
+  ): Promise<ProfileBattleDTO[]> {
     return await this.battleService.searchProfilesBylolNickname(searchParam);
+  }
+
+  @Get('users/:id/logs')
+  @ApiOperation({
+    summary: 'mock 유저의 최근 배틀 결과 조회',
+    description: 'mock 유저의 최근 배틀 결과 조회합니다.',
+  })
+  @ApiOkResponse({
+    description: '유저의 최근 배틀 결과 조회',
+    type: ProfileBattleDTO,
+    isArray: true,
+  })
+  @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  async getRecentBattleLogsByUserId(
+    @Param('id', ParseIntPipe) userId: number,
+  ): Promise<ProfileBattleDTO[]> {
+    return [
+      {
+        id: 213,
+        lol: {
+          name: '쪼렙이다 말로하자',
+          profileIconId: 123,
+          profileIconImageUrl: '',
+          summonerLevel: 123,
+          tierInfo: {
+            tier: '',
+            rank: '',
+            leaguePoints: 123,
+          },
+        },
+        title: {
+          id: 111,
+          exposureName: '리신 장인',
+        },
+        result: BattleResult.WIN,
+      },
+
+      {
+        id: 213,
+        lol: {
+          name: '쪼렙이다 말로하자',
+          profileIconId: 123,
+          profileIconImageUrl: '',
+          summonerLevel: 123,
+          tierInfo: {
+            tier: '',
+            rank: '',
+            leaguePoints: 123,
+          },
+        },
+        title: {
+          id: 111,
+          exposureName: '다리우스 장인',
+        },
+        result: BattleResult.DRAW,
+      },
+
+      {
+        id: 213,
+        lol: {
+          name: '쪼렙이다 말로하자',
+          profileIconId: 123,
+          profileIconImageUrl: '',
+          summonerLevel: 123,
+          tierInfo: {
+            tier: '',
+            rank: '',
+            leaguePoints: 123,
+          },
+        },
+        title: {
+          id: 111,
+          exposureName: '리신 장인',
+        },
+        result: BattleResult.LOSE,
+      },
+    ];
   }
 }
