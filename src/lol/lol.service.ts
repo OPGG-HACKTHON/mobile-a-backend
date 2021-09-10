@@ -349,6 +349,7 @@ export class LOLService implements OnApplicationBootstrap {
           '/' +
           id +
           '/ids?' +
+          'type=ranked&' +
           'start=0&' +
           'count=' +
           this.DEFAULT_MATCH_MAX_COUNT,
@@ -586,6 +587,31 @@ export class LOLService implements OnApplicationBootstrap {
       }
     } catch (err) {
       throw new BadRequestException('티어 정보가 존재하지 않습니다.');
+    }
+    try {
+      const result = await got
+        .get(
+          this.MATCH_V5_URL +
+            '/by-puuid' +
+            '/' +
+            summoner.puuid +
+            '/ids?' +
+            'type=ranked&' +
+            'start=0&' +
+            'count=' +
+            this.DEFAULT_MATCH_MAX_COUNT,
+          {
+            headers: {
+              'X-Riot-Token': this.API_KEY,
+            },
+          },
+        )
+        .json<string[]>();
+      if (!result.length) {
+        throw new Error();
+      }
+    } catch (err) {
+      throw new BadRequestException('랭크 매치 정보가 존재하지 않습니다.');
     }
   }
 }
