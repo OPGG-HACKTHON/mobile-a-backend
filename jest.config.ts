@@ -22,5 +22,5 @@ export default {
     '^.+\\.(js|ts|tsx)$': 'ts-jest',
   },
 
-  testTimeout: 100000,
+  testTimeout: 500000,
 };
