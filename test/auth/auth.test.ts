@@ -87,12 +87,36 @@ describe('simple etst', () => {
       },
     });
 
-    await userService.createUser({
-      authFrom: 'google',
-      email: 'abc@abc.com',
-      LOLNickName: 'kkangsan',
-      schoolId: '1',
+    await prismaService.lOLAccount.create({
+      data: {
+        id: '65c_hOoDrNNWLfWaPgtudAr15hBpQoeYuQjzf195cUvl5w',
+        accountId: 'U57EDkh62tbK9Qit4xy85K7sCAe3EDLVeyEUc3902gdR',
+        puuid:
+          'PvRocf7pG6jnpKC0aKugs4c-0joi8pUUsV2RKNCjN2fOICtfFqqcRXa9tMTwmmGhJvbnPo2H0nN99A',
+        name: 'KkangSan',
+        profileIconId: 29,
+        summonerLevel: 148,
+      },
     });
+    await prismaService.lOLTier.create({
+      data: {
+        tier: 'foo',
+        rank: 'foo',
+        leaguePoints: 1234,
+        wins: 1234,
+        losses: 1234,
+        LOLAccountId: '65c_hOoDrNNWLfWaPgtudAr15hBpQoeYuQjzf195cUvl5w',
+      },
+    });
+    await prismaService.user.create({
+      data: {
+        authFrom: 'google',
+        email: 'abc@abc.com',
+        LOLAccountId: '65c_hOoDrNNWLfWaPgtudAr15hBpQoeYuQjzf195cUvl5w',
+        schoolId: '1',
+      },
+    });
+
     const token = await authService.createToken(1, 'google', 'foo-token');
 
     expect(token.token).toBe('google_foo-token');

@@ -106,7 +106,9 @@ CREATE TABLE "LOLRankInSchool" (
     "id" SERIAL NOT NULL,
     "prevRank" INTEGER,
     "userId" INTEGER NOT NULL,
+    "schoolId" TEXT NOT NULL,
     "LOLSummaryPersonalId" INTEGER NOT NULL,
+    "LOLSummaryElementId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -119,7 +121,7 @@ CREATE TABLE "LOLSummaryPersonal" (
     "LOLAccountId" TEXT NOT NULL,
     "LOLSummaryElementId" INTEGER NOT NULL,
     "LOLChampionId" TEXT,
-    "value" INTEGER NOT NULL,
+    "value" DOUBLE PRECISION NOT NULL,
     "exposureValue" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -267,7 +269,13 @@ ALTER TABLE "TitleInSchoolLog" ADD FOREIGN KEY ("prevUserId") REFERENCES "User"(
 ALTER TABLE "LOLRankInSchool" ADD FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "LOLRankInSchool" ADD FOREIGN KEY ("schoolId") REFERENCES "School"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "LOLRankInSchool" ADD FOREIGN KEY ("LOLSummaryPersonalId") REFERENCES "LOLSummaryPersonal"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LOLRankInSchool" ADD FOREIGN KEY ("LOLSummaryElementId") REFERENCES "LOLSummaryElement"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "LOLSummaryPersonal" ADD FOREIGN KEY ("LOLAccountId") REFERENCES "LOLAccount"("id") ON DELETE CASCADE ON UPDATE CASCADE;

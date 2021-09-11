@@ -81,15 +81,6 @@ describe('simple etst', () => {
         imageUrl: '',
       },
     });
-    // setup Title
-    await prismaService.lOLSummaryElement.create({
-      data: {
-        LOLMatchFieldName: '티어',
-        calculateType: 'foo',
-        sortType: 'desc',
-        exposureName: 'foo',
-      },
-    });
     const res = await userService.createUser({
       authFrom: 'google',
       email: 'abc1@abc.com',
@@ -141,81 +132,6 @@ describe('simple etst', () => {
     expect(tier).toBeTruthy();
     expect(rank).toBeTruthy();
     expect(leaguePoints >= 0).toBeTruthy();
-  });
-
-  it('school profileRank with schoolId and userId test', async () => {
-    // setup
-    // school - foo
-    await prismaService.region.create({
-      data: {
-        name: '서울',
-      },
-    });
-    await prismaService.school.create({
-      data: {
-        id: '1',
-        name: 'foo',
-        division: 'foo',
-        educationOffice: '교육청이름',
-        regionId: 1,
-        address: 'foo',
-        imageUrl: '',
-      },
-    });
-    // setup Title
-    await prismaService.lOLSummaryElement.create({
-      data: {
-        LOLMatchFieldName: '티어',
-        calculateType: 'foo',
-        sortType: 'desc',
-        exposureName: 'foo',
-      },
-    });
-
-    const res = await userService.createUser({
-      authFrom: 'google',
-      email: 'abc1@abc.com',
-      LOLNickName: 'kkangsan',
-      schoolId: '1',
-    });
-
-    const { id, email, LOLAccountId, schoolId } = res;
-    expect(id).toBe(1);
-    expect(email).toBe('abc1@abc.com');
-    expect(LOLAccountId).toBeTruthy();
-    expect(schoolId).toBe('1');
-
-    const resSignUp2 = await userService.createUser({
-      authFrom: 'google',
-      email: 'abc2@abc.com',
-      LOLNickName: 'hide on bush',
-      schoolId: '1',
-    });
-
-    expect(resSignUp2.id).toBe(2);
-    expect(resSignUp2.email).toBe('abc2@abc.com');
-    expect(resSignUp2.LOLAccountId).toBeTruthy();
-    expect(resSignUp2.schoolId).toBe('1');
-
-    //e2e; // school rank
-    const resRankSchool = await request(app.getHttpServer())
-      .get(encodeURI('/ranks/schools/1/users/1'))
-      .set('Accept', 'application/json')
-      .type('application/json');
-
-    expect(resRankSchool.body.id).toBe(1); // kkangsan
-    expect(resRankSchool.body.rankNo).toBe(2); // kkangsan
-
-    const { lol } = resRankSchool.body;
-    expect(resRankSchool.body.id).toBeTruthy();
-    const { profileIconId, profileIconImageUrl, summonerLevel, tierInfo } = lol;
-    expect(profileIconId).toBeTruthy();
-    expect(profileIconImageUrl).toBeTruthy();
-    expect(summonerLevel).toBeTruthy();
-    const { tier, rank, leaguePoints } = tierInfo;
-    expect(tier).toBeTruthy();
-    expect(rank).toBeTruthy();
-    expect(leaguePoints >= 0).toBeTruthy();
 
     // mastery // 르블랑, 숙련도 순위
     const resMasterySchool = await request(app.getHttpServer())
@@ -228,13 +144,13 @@ describe('simple etst', () => {
     expect(resMasterySchool.body[0].lol.name).toBe('Hide on bush');
     expect(resMasterySchool.body[0].fieldName).toBe('숙련도');
     expect(resMasterySchool.body[0].rankNo).toBe(1);
-    expect(resMasterySchool.body[0].rankChangedStatus).toBeTruthy();
+    expect(resMasterySchool.body[0].rankChangedStatus).toBe('NEW');
     expect(resMasterySchool.body[0].value).toBeTruthy();
 
     expect(resMasterySchool.body[1].id).toBe(1);
     expect(resMasterySchool.body[1].lol.name).toBe('KkangSan');
     expect(resMasterySchool.body[1].fieldName).toBe('숙련도');
-    expect(resMasterySchool.body[1].rankChangedStatus).toBeTruthy();
+    expect(resMasterySchool.body[1].rankChangedStatus).toBe('NEW');
     expect(resMasterySchool.body[1].value).toBeTruthy();
     expect(resMasterySchool.body[1].rankNo).toBe(2);
   });

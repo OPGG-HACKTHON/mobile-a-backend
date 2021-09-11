@@ -8,7 +8,7 @@ import { Tier } from './lol-tier.model';
 import { SUMMONER } from './lol-summoner.model';
 import { PrismaService } from '../prisma/prisma.service';
 import { Match } from './lol-match.model';
-import { LOLMatch, LOLSummaryElement } from '@prisma/client';
+import { LOLMatch, LOLSummaryElement, Prisma, User } from '@prisma/client';
 import { CHAMPION } from './lol-champion.model';
 import { CHAMPION_MASTERY } from './lol-championMastery.model';
 import { LOLChampionDTO } from './lol-champion.dto';
@@ -30,7 +30,7 @@ export class LOLService implements OnApplicationBootstrap {
 
   private readonly CHAMPION_INFO_URL =
     'https://static.opggmobilea.com/dragontail-11.15.1/11.15.1/data/ko_KR/champion.json';
-  private readonly DEFAULT_MATCH_MAX_COUNT = 10;
+  private readonly DEFAULT_MATCH_MAX_COUNT = 50;
 
   private readonly CHAMPION_MASTERY_V4_URL =
     'https://kr.api.riotgames.com/lol/champion-mastery/v4/champion-masteries';
@@ -247,7 +247,12 @@ export class LOLService implements OnApplicationBootstrap {
     const lolTier = await this.getLOLTierByLOLId(lolAccountId);
     await this.upsertLOLTierWithLOLAccountId(lolAccountId, lolTier);
     await this.upsertTierSummaryWithAccountId(lolAccountId, lolTier);
-    //
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+    // Tier
     const lOLSummaryPersonal = await this.prisma.lOLSummaryPersonal.findFirst({
       where: {
         LOLSummaryElement: {
@@ -258,25 +263,233 @@ export class LOLService implements OnApplicationBootstrap {
     });
     await this.prisma.lOLRankInSchool.create({
       data: {
-        userId: userId,
+        LOLSummaryElementId: lOLSummaryPersonal.LOLSummaryElementId,
+        userId: user.id,
+        schoolId: user.schoolId,
         LOLSummaryPersonalId: lOLSummaryPersonal.id,
       },
     });
-    // match
-    await this.setupUserRecentMatchesByAccountId(lolAccountId);
-    // mastery
-    await this.setupChampionMasteriesByAccountId(lolAccountId);
-    // mastery summary
-    await this.upsertLOLSummaryPersonalMasteryByLOLAccountIdAndUserId(
+
+    // mastery - summary
+    await this.upsertLOLSummaryPersonalMasteryByLOLAccountIdAndUser(
       lolAccountId,
-      userId,
+      user,
     );
+
+    // match - summary
+    await this.setLOLSummaryPersonalByLOLAccountIdAndUserId(lolAccountId, user);
+  }
+  async setLOLSummaryPersonalByLOLAccountIdAndUserId(
+    lolAccountId: string,
+    user: User,
+  ): Promise<void> {
+    const lolInfo = await this.prisma.lOLAccount.findUnique({
+      where: {
+        id: lolAccountId,
+      },
+    });
+    const matchIds = await this.getRecentMacthIdsBypuuid(lolInfo.puuid);
+    await this.setupUserRecentMatchesByAccountId(matchIds);
+    const matches = await this.prisma.lOLMatch.findMany({
+      where: {
+        id: {
+          in: matchIds,
+        },
+      },
+    });
+    const elemets = await this.prisma.lOLSummaryElement.findMany();
+    const elementWithFields = elemets.filter(
+      (ele) => !['캐릭터숙련도', '티어'].includes(ele.LOLMatchFieldName),
+    );
+    const createInputs: {
+      LOLAccountId: string;
+      LOLSummaryElementId: number;
+      LOLChampionId: string;
+      value: number;
+      exposureValue: string;
+    }[] = [];
+
+    for (const elementWithField of elementWithFields) {
+      const matchesValues =
+        this.parseChampionIdAndLOLMatchFieldDatasByPuuidAndMatchesAndLOLSummaryElement(
+          lolInfo.puuid,
+          matches,
+          elementWithField,
+        );
+      if (elementWithField.calculateType === '평균') {
+        const matchesAndAvgValue = matchesValues.map((matchesValue) => {
+          let avgValue =
+            matchesValue.values.reduce((sum, value) => {
+              return (sum += value);
+            }, 0) / matchesValue.values.length;
+          avgValue = Math.round((avgValue + Number.EPSILON) * 10) / 10;
+          return {
+            championId: matchesValue.championId,
+            avgValue: avgValue,
+          };
+        });
+        for (const matchAndAvgValue of matchesAndAvgValue) {
+          const lolChampion = await this.prisma.lOLChampion.findUnique({
+            where: {
+              key: matchAndAvgValue.championId,
+            },
+          });
+          const createInput = {
+            LOLAccountId: lolAccountId,
+            LOLSummaryElementId: elementWithField.id,
+            LOLChampionId: lolChampion.id,
+            value: matchAndAvgValue.avgValue,
+            exposureValue: matchAndAvgValue.avgValue.toString(),
+          };
+          createInputs.push(createInput);
+        }
+      }
+      if (elementWithField.calculateType === '최고기록') {
+        const matchesAndMaxValue = matchesValues.map((matchesValue) => {
+          return {
+            championId: matchesValue.championId,
+            maxValue: Math.max(...matchesValue.values),
+          };
+        });
+        for (const matchAndMaxValue of matchesAndMaxValue) {
+          const lolChampion = await this.prisma.lOLChampion.findUnique({
+            where: {
+              key: matchAndMaxValue.championId,
+            },
+          });
+          const exposureValueDate = new Date(0);
+          exposureValueDate.setSeconds(matchAndMaxValue.maxValue);
+          const createInput = {
+            LOLAccountId: lolAccountId,
+            LOLSummaryElementId: elementWithField.id,
+            LOLChampionId: lolChampion.id,
+            value: matchAndMaxValue.maxValue,
+            exposureValue: new Date(matchAndMaxValue.maxValue * 1000)
+              .toISOString()
+              .slice(11, 19),
+          };
+          createInputs.push(createInput);
+        }
+      }
+    }
+
+    await this.upsertManyLOLSummaryPersonalAndLOLRankInSchoolByParamAndUser(
+      createInputs,
+      user,
+    );
+    // const results = await this.prisma.lOLRankInSchool.findMany();
+    // results.forEach((result) => console.log(result));
   }
 
-  async upsertLOLSummaryPersonalMasteryByLOLAccountIdAndUserId(
-    accountId: string,
-    userId: number,
+  // todo - skip for performance
+  // async syncNowRankToPrevRankByUserAndElementId(
+  //   user: User,
+  //   elementId: number,
+  // ): Promise<void> {
+  //   const userRanks = await this.prisma.lOLRankInSchool.findMany({
+  //     where: {
+  //       schoolId: user.schoolId,
+  //       LOLSummaryElementId: elementId,
+  //     },
+  //     orderBy: {
+  //       LOLSummaryPersonal: {
+  //         value: 'desc',
+  //       },
+  //     },
+  //   });
+  //   for (const [idx, userRank] of userRanks.entries()) {
+  //     await this.prisma.lOLRankInSchool.update({
+  //       where: {
+  //         id: userRank.id,
+  //       },
+  //       data: {
+  //         prevRank: idx + 1,
+  //       },
+  //     });
+  //   }
+  // }
+
+  async upsertManyLOLSummaryPersonalAndLOLRankInSchoolByParamAndUser(
+    params: {
+      LOLAccountId: string;
+      LOLSummaryElementId: number;
+      LOLChampionId: string;
+      value: number;
+      exposureValue: string;
+    }[],
+    user: User,
   ): Promise<void> {
+    // todo - skip for performance
+    // await this.syncNowRankToPrevRankByUserAndElementId(
+    //   user,
+    //   param.LOLSummaryElementId,
+    // );
+    const promises = [];
+    for (const param of params) {
+      const promise = this.prisma.lOLSummaryPersonal.upsert({
+        where: {
+          LOLSummaryPersonal_LOLAccountId_LOLSummaryElementId_LOLChampionId_uniqueConstraint:
+            {
+              LOLAccountId: param.LOLAccountId,
+              LOLSummaryElementId: param.LOLSummaryElementId,
+              LOLChampionId: param.LOLChampionId,
+            },
+        },
+        create: {
+          ...param,
+          LOLRankInSchool: {
+            create: {
+              LOLSummaryElementId: param.LOLSummaryElementId,
+              userId: user.id,
+              schoolId: user.schoolId,
+            },
+          },
+        },
+        update: {
+          value: param.value,
+          exposureValue: param.exposureValue,
+        },
+      });
+      promises.push(promise);
+    }
+    await Promise.all(promises);
+  }
+
+  parseChampionIdAndLOLMatchFieldDatasByPuuidAndMatchesAndLOLSummaryElement(
+    puuid: string,
+    matches: LOLMatch[],
+    lolSummaryElement: LOLSummaryElement,
+  ): { championId: number; values: number[] }[] {
+    const result: { championId: number; values: number[] }[] = [];
+    const championIdToValues = new Map<number, number[]>();
+    matches.forEach((match) => {
+      const matchResults = match.info['participants'];
+      const matchResult = matchResults.find((result) => result.puuid === puuid);
+      const championId = matchResult['championId'] as number;
+      let value = matchResult[lolSummaryElement.LOLMatchFieldName] as
+        | number
+        | boolean;
+      if (typeof value === 'boolean') {
+        value = value === true ? 1 : 0;
+      }
+      const values = championIdToValues.get(championId);
+      if (values) {
+        values.push(value);
+      } else {
+        championIdToValues.set(championId, [value]);
+      }
+    });
+    championIdToValues.forEach((values, championId) => {
+      result.push({ championId: championId, values: values });
+    });
+    return result;
+  }
+
+  async upsertLOLSummaryPersonalMasteryByLOLAccountIdAndUser(
+    lolAccountId: string,
+    user: User,
+  ): Promise<void> {
+    await this.setupChampionMasteriesByAccountId(lolAccountId);
     const lolSummaryElement = await this.prisma.lOLSummaryElement.findFirst({
       where: {
         LOLMatchFieldName: '캐릭터숙련도',
@@ -284,12 +497,12 @@ export class LOLService implements OnApplicationBootstrap {
     });
     const lolChampionsMastery = await this.prisma.lOLChampionMastery.findMany({
       where: {
-        LOLAccountId: accountId,
+        LOLAccountId: lolAccountId,
       },
     });
     const lolSummaries = lolChampionsMastery.map((mastery) => {
       return {
-        LOLAccountId: accountId,
+        LOLAccountId: lolAccountId,
         LOLSummaryElementId: lolSummaryElement.id,
         LOLChampionId: mastery.LOLChampionId,
         value: mastery.championPoints,
@@ -302,29 +515,30 @@ export class LOLService implements OnApplicationBootstrap {
     const createdLOLSummaries = await this.prisma.lOLSummaryPersonal.findMany({
       where: {
         LOLSummaryElementId: lolSummaryElement.id,
-        LOLAccountId: accountId,
+        LOLAccountId: lolAccountId,
       },
     });
     const lolRankInSchoolElements = createdLOLSummaries.map((summary) => {
       return {
-        userId: userId,
+        userId: user.id,
+        schoolId: user.schoolId,
         LOLSummaryPersonalId: summary.id,
+        LOLSummaryElementId: lolSummaryElement.id,
       };
     });
-    // console.log(lolRankInSchoolElements);
+    // todo - skip for performance
+    // await this.syncNowRankToPrevRankByUserAndElementId(
+    //   user,
+    //   lolSummaryElement.id,
+    // );
     await this.prisma.lOLRankInSchool.createMany({
       data: lolRankInSchoolElements,
     });
   }
 
-  async setupUserRecentMatchesByAccountId(accountId: string): Promise<void> {
-    const lolAccount = await this.prisma.lOLAccount.findUnique({
-      where: {
-        id: accountId,
-      },
-    });
-    const puuid = lolAccount.puuid;
-    const recentMatchIds = await this.getRecentMacthIdsBypuuid(puuid);
+  async setupUserRecentMatchesByAccountId(
+    recentMatchIds: string[],
+  ): Promise<void> {
     const existMatches = await this.findManyMatchesByIds(recentMatchIds);
     const existMatchIds = existMatches.map((match) => match.metadata.matchId);
     const needCreateMatches = recentMatchIds.filter(
