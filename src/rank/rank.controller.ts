@@ -114,11 +114,11 @@ export class RankController {
   // ranks/schools/:id
   @Get('/schools/:id')
   @ApiOperation({
-    summary: '학교 내 개인별 랭킹 조회',
-    description: '학교 내 개인별 랭킹 조회를 진행합니다.',
+    summary: '학교 내 개인별(티어) 랭킹 조회',
+    description: '학교 내 개인별(티어) 랭킹 조회를 진행합니다.',
   })
   @ApiOkResponse({
-    description: '학교 내에서의 개인별 랭킹 조회 성공',
+    description: '학교 내에서의 (티어) 개인별 랭킹 조회 성공',
     type: ProfileRank,
     isArray: true,
   })
@@ -153,7 +153,7 @@ export class RankController {
 
   @Get('/champions/:championId/compareFields/:compareFieldId/schools/:schoolId')
   @ApiOperation({
-    summary: 'mock 학교내 챔피언 실력 비교',
+    summary: '학교내 챔피언 실력 비교',
     description: '학교내 챔피언 실력 비교를 진행합니다.',
   })
   @ApiOkResponse({
