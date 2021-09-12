@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   OnApplicationBootstrap,
 } from '@nestjs/common';
 import got from 'got';
@@ -16,6 +17,7 @@ import {
   LOLCompareFieldDetailDTO,
   LOLCompareFieldDTO,
 } from './lol-compareField.dto';
+import { LOLTierParam } from '../auth/auth-signup-random.param';
 @Injectable()
 export class LOLService implements OnApplicationBootstrap {
   private readonly API_KEY = process.env.LOL_API_KEY;
@@ -30,13 +32,16 @@ export class LOLService implements OnApplicationBootstrap {
 
   private readonly CHAMPION_INFO_URL =
     'https://static.opggmobilea.com/dragontail-11.15.1/11.15.1/data/ko_KR/champion.json';
-  private readonly DEFAULT_MATCH_MAX_COUNT = 50;
+  private readonly DEFAULT_MATCH_MAX_COUNT = 20;
 
   private readonly CHAMPION_MASTERY_V4_URL =
     'https://kr.api.riotgames.com/lol/champion-mastery/v4/champion-masteries';
 
   private readonly CHAMPION_IMAGE_URL =
     'https://static.opggmobilea.com/dragontail-11.15.1/11.15.1/img/champion';
+
+  private readonly LEAGUE_V4_ENTRIES_RANK_SOLO_URL =
+    'https://kr.api.riotgames.com/lol/league/v4/entries/RANKED_SOLO_5x5';
 
   championsOrderByName: LOLChampionDTO[];
   championIdAndChampionDTOMap = new Map<number, LOLChampionDTO>();
@@ -99,7 +104,7 @@ export class LOLService implements OnApplicationBootstrap {
 
   async getLOLAccountByLOLName(param: string): Promise<SUMMONER> {
     const result = await got
-      .get(this.SUMMONER_V4_URL + '/by-name' + '/' + param, {
+      .get(encodeURI(this.SUMMONER_V4_URL + '/by-name' + '/' + param), {
         headers: {
           'X-Riot-Token': this.API_KEY,
         },
@@ -113,7 +118,7 @@ export class LOLService implements OnApplicationBootstrap {
 
   async getLOLTierByLOLId(param: string): Promise<Tier> {
     const apiResults = await got
-      .get(this.LEAGUE_V4_URL + '/' + param, {
+      .get(encodeURI(this.LEAGUE_V4_URL + '/' + param), {
         headers: {
           'X-Riot-Token': this.API_KEY,
         },
@@ -334,14 +339,16 @@ export class LOLService implements OnApplicationBootstrap {
               key: matchAndAvgValue.championId,
             },
           });
-          const createInput = {
-            LOLAccountId: lolAccountId,
-            LOLSummaryElementId: elementWithField.id,
-            LOLChampionId: lolChampion.id,
-            value: matchAndAvgValue.avgValue,
-            exposureValue: matchAndAvgValue.avgValue.toString(),
-          };
-          createInputs.push(createInput);
+          if (lolChampion) {
+            const createInput = {
+              LOLAccountId: lolAccountId,
+              LOLSummaryElementId: elementWithField.id,
+              LOLChampionId: lolChampion.id,
+              value: matchAndAvgValue.avgValue,
+              exposureValue: matchAndAvgValue.avgValue.toString(),
+            };
+            createInputs.push(createInput);
+          }
         }
       }
       if (elementWithField.calculateType === '최고기록') {
@@ -359,16 +366,18 @@ export class LOLService implements OnApplicationBootstrap {
           });
           const exposureValueDate = new Date(0);
           exposureValueDate.setSeconds(matchAndMaxValue.maxValue);
-          const createInput = {
-            LOLAccountId: lolAccountId,
-            LOLSummaryElementId: elementWithField.id,
-            LOLChampionId: lolChampion.id,
-            value: matchAndMaxValue.maxValue,
-            exposureValue: new Date(matchAndMaxValue.maxValue * 1000)
-              .toISOString()
-              .slice(11, 19),
-          };
-          createInputs.push(createInput);
+          if (lolChampion) {
+            const createInput = {
+              LOLAccountId: lolAccountId,
+              LOLSummaryElementId: elementWithField.id,
+              LOLChampionId: lolChampion.id,
+              value: matchAndMaxValue.maxValue,
+              exposureValue: new Date(matchAndMaxValue.maxValue * 1000)
+                .toISOString()
+                .slice(11, 19),
+            };
+            createInputs.push(createInput);
+          }
         }
       }
     }
@@ -558,15 +567,17 @@ export class LOLService implements OnApplicationBootstrap {
   async getRecentMacthIdsBypuuid(id: string): Promise<string[]> {
     const result = await got
       .get(
-        this.MATCH_V5_URL +
-          '/by-puuid' +
-          '/' +
-          id +
-          '/ids?' +
-          'type=ranked&' +
-          'start=0&' +
-          'count=' +
-          this.DEFAULT_MATCH_MAX_COUNT,
+        encodeURI(
+          this.MATCH_V5_URL +
+            '/by-puuid' +
+            '/' +
+            id +
+            '/ids?' +
+            'type=ranked&' +
+            'start=0&' +
+            'count=' +
+            this.DEFAULT_MATCH_MAX_COUNT,
+        ),
         {
           headers: {
             'X-Riot-Token': this.API_KEY,
@@ -687,11 +698,14 @@ export class LOLService implements OnApplicationBootstrap {
     id: string,
   ): Promise<CHAMPION_MASTERY[]> {
     const result = await got
-      .get(this.CHAMPION_MASTERY_V4_URL + '/by-summoner' + '/' + id, {
-        headers: {
-          'X-Riot-Token': this.API_KEY,
+      .get(
+        encodeURI(this.CHAMPION_MASTERY_V4_URL + '/by-summoner' + '/' + id),
+        {
+          headers: {
+            'X-Riot-Token': this.API_KEY,
+          },
         },
-      })
+      )
       .json<CHAMPION_MASTERY[]>();
     return result;
   }
@@ -775,7 +789,7 @@ export class LOLService implements OnApplicationBootstrap {
     let summoner: SUMMONER;
     try {
       summoner = await got
-        .get(this.SUMMONER_V4_URL + '/by-name' + '/' + nickname, {
+        .get(encodeURI(this.SUMMONER_V4_URL + '/by-name' + '/' + nickname), {
           headers: {
             'X-Riot-Token': this.API_KEY,
           },
@@ -787,7 +801,7 @@ export class LOLService implements OnApplicationBootstrap {
     // Tier
     try {
       const apiResults = await got
-        .get(this.LEAGUE_V4_URL + '/' + summoner.id, {
+        .get(encodeURI(this.LEAGUE_V4_URL + '/' + summoner.id), {
           headers: {
             'X-Riot-Token': this.API_KEY,
           },
@@ -805,15 +819,17 @@ export class LOLService implements OnApplicationBootstrap {
     try {
       const result = await got
         .get(
-          this.MATCH_V5_URL +
-            '/by-puuid' +
-            '/' +
-            summoner.puuid +
-            '/ids?' +
-            'type=ranked&' +
-            'start=0&' +
-            'count=' +
-            this.DEFAULT_MATCH_MAX_COUNT,
+          encodeURI(
+            this.MATCH_V5_URL +
+              '/by-puuid' +
+              '/' +
+              summoner.puuid +
+              '/ids?' +
+              'type=ranked&' +
+              'start=0&' +
+              'count=' +
+              this.DEFAULT_MATCH_MAX_COUNT,
+          ),
           {
             headers: {
               'X-Riot-Token': this.API_KEY,
@@ -827,5 +843,40 @@ export class LOLService implements OnApplicationBootstrap {
     } catch (err) {
       throw new BadRequestException('랭크 매치 정보가 존재하지 않습니다.');
     }
+  }
+
+  async getRandomSummonerNameByTier(
+    tier: LOLTierParam,
+  ): Promise<string | undefined> {
+    //    /IRON/IV?page=20
+    const divisions = ['I', 'II', 'III', 'IV'];
+    const urlTier = tier.toString();
+    const urlDivision = divisions[Math.floor(Math.random() * 4)];
+    const urlPage = Math.floor(Math.random() * 150);
+    const result = await got
+      .get(
+        encodeURI(
+          this.LEAGUE_V4_ENTRIES_RANK_SOLO_URL +
+            '/' +
+            urlTier +
+            '/' +
+            urlDivision +
+            '?page=' +
+            urlPage,
+        ),
+        {
+          headers: {
+            'X-Riot-Token': this.API_KEY,
+          },
+        },
+      )
+      .json<{ summonerName?: string }[]>();
+    const randIdx = Math.floor(Math.random() * (result.length + 1));
+    if (!result.length || !result[randIdx].summonerName) {
+      throw new InternalServerErrorException(
+        '랜덤한 소환사 명을 찾지 못하였습니다. 재시도해주세요.',
+      );
+    }
+    return result[randIdx].summonerName;
   }
 }

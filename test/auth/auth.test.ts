@@ -28,6 +28,7 @@ describe('simple etst', () => {
     prismaService,
     userService,
     googleAuthService,
+    lolService,
   );
   beforeEach(async () => {
     await initSchema(prismaService);

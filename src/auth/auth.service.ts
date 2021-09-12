@@ -1,4 +1,9 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { SignUpParam } from './auth-signup.param';
 import { UserService } from '../user/user.service';
@@ -9,6 +14,8 @@ import { LoginDTO } from './auth-login.dto';
 import { TokenDTO } from './auth-token.dto';
 import { UserDTO } from '../common/dto/user.dto';
 import { ProfileWithSchoolDTO } from 'src/user/user-profileWithSchool.dto';
+import { LOLTierParam, SignUpRandomParam } from './auth-signup-random.param';
+import { LOLService } from '../lol/lol.service';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +23,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly userService: UserService,
     private readonly googleAuthService: GoogleAuthService,
+    private readonly lolService: LOLService,
   ) {}
 
   private readonly GOOGLE_AUTHFROM = 'google';
@@ -270,5 +278,60 @@ export class AuthService {
       userToken.userId,
     );
     return result;
+  }
+
+  async signUpRandomUser(
+    param: SignUpRandomParam,
+  ): Promise<ProfileWithSchoolDTO> {
+    const seletedTier = LOLTierParam[param.tier] || this.selectRandomTier();
+    const seletedSommonerName =
+      await this.lolService.getRandomSummonerNameByTier(seletedTier);
+    await this.validateRandomSummonerName(seletedSommonerName);
+    const createUserParam = {
+      authFrom: 'google',
+      email: Date.now().toString() + '@' + 'test.com',
+      LOLNickName: seletedSommonerName,
+      schoolId: param.schoolId,
+    };
+    const createUser = await this.userService.createUser(createUserParam);
+    const result = await this.userService.getProfileWithSchoolByUserId(
+      createUser.id,
+    );
+
+    return result;
+  }
+
+  async validateRandomSummonerName(summonerName?: string): Promise<void> {
+    //
+    if (!summonerName) {
+      throw new InternalServerErrorException(
+        '다시 시도해주세요. (LOL 서버로부터 소환사명을 가져올수 없습니다.)',
+      );
+    }
+
+    const findSommoner = await this.prisma.lOLAccount.findFirst({
+      where: {
+        name: summonerName,
+      },
+    });
+    if (findSommoner) {
+      throw new InternalServerErrorException(
+        '다시 시도해주세요. (이미 생성된 소환사 입니다.)',
+      );
+    }
+    await this.lolService.validateLOLNickname(summonerName);
+  }
+
+  selectRandomTier(): LOLTierParam {
+    const tierArr = [
+      LOLTierParam.DIAMOND,
+      LOLTierParam.PLATINUM,
+      LOLTierParam.GOLD,
+      LOLTierParam.SILVER,
+      LOLTierParam.BRONZE,
+      LOLTierParam.IRON,
+    ];
+    const idx = Math.floor(Math.random() * 6);
+    return tierArr[idx];
   }
 }

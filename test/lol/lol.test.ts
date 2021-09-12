@@ -70,7 +70,7 @@ describe('simple etst', () => {
     const result = await lolService.getRecentMacthIdsBypuuid(
       'PvRocf7pG6jnpKC0aKugs4c-0joi8pUUsV2RKNCjN2fOICtfFqqcRXa9tMTwmmGhJvbnPo2H0nN99A',
     );
-    expect(result.length).toBeGreaterThan(40);
+    expect(result.length).toBeGreaterThan(15);
     expect(result[0]).toBeTruthy();
     expect(result[9]).toBeTruthy();
   });
@@ -127,7 +127,7 @@ describe('simple etst', () => {
     );
     await lolService.setupUserRecentMatchesByAccountId(matchIds);
     const matches = await prismaService.lOLMatch.count();
-    expect(matches).toBeGreaterThan(40); // DEFAULT_MATCH_MAX_COUNT
+    expect(matches).toBeGreaterThan(15); // DEFAULT_MATCH_MAX_COUNT
   });
 
   it('lol champion setup check', async () => {
@@ -244,7 +244,7 @@ describe('simple etst', () => {
       .set('Accept', 'application/json')
       .type('application/json');
 
-    expect(lolCompareFields.body.length).toBe(9);
+    expect(lolCompareFields.body.length).toBe(8);
     expect(lolCompareFields.body[0].category).toBe('챔피언');
     expect(lolCompareFields.body[0].fields[0].name).toBe('최고 생존시간');
 
