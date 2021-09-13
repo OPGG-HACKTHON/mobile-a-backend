@@ -162,6 +162,7 @@ export class RankService {
   ): Promise<ProfileRankWithCompareField[]> {
     const LOLRankInSchool = await this.prisma.lOLRankInSchool.findMany({
       where: {
+        schoolId: schoolId,
         LOLSummaryPersonal: {
           LOLChampion: {
             key: championId,
@@ -169,9 +170,6 @@ export class RankService {
           LOLSummaryElement: {
             id: compareFieldId,
           },
-        },
-        User: {
-          schoolId: schoolId,
         },
       },
       orderBy: {
@@ -189,5 +187,58 @@ export class RankService {
         compareFieldId,
       );
     return results;
+  }
+
+  async getProfileRankWithCompareFieldByParams(
+    championId: number,
+    compareFieldId: number,
+    schoolId: string,
+    userId: number,
+  ): Promise<ProfileRankWithCompareField> {
+    const LOLRankInSchool = await this.prisma.lOLRankInSchool.findMany({
+      where: {
+        schoolId: schoolId,
+        LOLSummaryPersonal: {
+          LOLChampion: {
+            key: championId,
+          },
+          LOLSummaryElement: {
+            id: compareFieldId,
+          },
+        },
+      },
+      orderBy: {
+        LOLSummaryPersonal: {
+          value: 'desc',
+        },
+      },
+      include: {
+        LOLSummaryPersonal: true,
+      },
+    });
+    const field = await this.prisma.lOLSummaryElement.findUnique({
+      where: {
+        id: compareFieldId,
+      },
+    });
+    const fieldName = field.LOLMatchFieldKoName;
+    const profile = await this.userService.getProfileByUserId(userId);
+    // default result
+    const result = {
+      fieldName: fieldName,
+      value: '-',
+      rankNo: 0,
+      rankChangedStatus: RankChangedStatus.SAME,
+      ...profile,
+    };
+    for (const [index, element] of LOLRankInSchool.entries()) {
+      if (element.userId === userId) {
+        result.rankNo = index + 1;
+        result.value = element.LOLSummaryPersonal.exposureValue;
+        result.rankChangedStatus = RankChangedStatus.NEW;
+        break;
+      }
+    }
+    return result;
   }
 }
