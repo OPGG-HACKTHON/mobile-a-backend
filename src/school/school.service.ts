@@ -20,13 +20,13 @@ export class SchoolService implements OnApplicationBootstrap {
     let imageUrl = '';
     if (division === '초등학교') {
       imageUrl =
-        'https://static.opggmobilea.com/dragontail-11.15.1/11.15.1/img/profileicon/3458.png';
+        'https://static.opggmobilea.com/dragontail-11.18.1/11.18.1/img/profileicon/3458.png';
     } else if (division === '중학교') {
       imageUrl =
-        'https://static.opggmobilea.com/dragontail-11.15.1/11.15.1/img/profileicon/3457.png';
+        'https://static.opggmobilea.com/dragontail-11.18.1/11.18.1/img/profileicon/3457.png';
     } else if (division === '고등학교') {
       imageUrl =
-        'https://static.opggmobilea.com/dragontail-11.15.1/11.15.1/img/profileicon/3456.png';
+        'https://static.opggmobilea.com/dragontail-11.18.1/11.18.1/img/profileicon/3456.png';
     }
     return {
       id: row[0],

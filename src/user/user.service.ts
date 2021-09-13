@@ -15,7 +15,7 @@ export class UserService {
   ) {}
   private readonly DOMAIN_URL = 'https://static.opggmobilea.com/';
   private readonly PROFILE_IMAGE_URL =
-    this.DOMAIN_URL + 'dragontail-11.15.1/11.15.1/img/profileicon';
+    this.DOMAIN_URL + 'dragontail-11.18.1/11.18.1/img/profileicon';
 
   private getProfileImageUrl(profileIconId: number) {
     return this.PROFILE_IMAGE_URL + '/' + profileIconId.toString() + '.png';
