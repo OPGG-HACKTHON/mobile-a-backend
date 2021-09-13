@@ -31,6 +31,7 @@ describe('simple etst', () => {
     userService,
     googleAuthService,
     appleService,
+    lolService,
   );
   beforeEach(async () => {
     await initSchema(prismaService);

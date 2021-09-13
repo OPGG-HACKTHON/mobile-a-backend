@@ -26,6 +26,7 @@ import { UserDTO } from '../common/dto/user.dto';
 import { LoginParam } from './auth-login.param';
 import { LoginDTO } from './auth-login.dto';
 import { ProfileWithSchoolDTO } from '../user/user-profileWithSchool.dto';
+import { SignUpRandomParam } from './auth-signup-random.param';
 @ApiTags('Auth')
 @Controller('/auth')
 export class AuthController {
@@ -151,5 +152,22 @@ export class AuthController {
     @Query('token') token: string,
   ): Promise<ProfileWithSchoolDTO> {
     return await this.authService.getUserByToken(token);
+  }
+
+  @Post('/signup/random')
+  @ApiOperation({
+    summary: '램덤 유저 생성',
+    description: '램덤 유저를 생성합니다.',
+  })
+  @ApiOkResponse({
+    description: '램덤 유저 생성',
+    type: ProfileWithSchoolDTO,
+  })
+  @ApiBody({ type: SignUpRandomParam })
+  @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  async signUpRandomUser(
+    @Body() param: SignUpRandomParam,
+  ): Promise<ProfileWithSchoolDTO> {
+    return await this.authService.signUpRandomUser(param);
   }
 }
