@@ -38,7 +38,7 @@ export class LOLService implements OnApplicationBootstrap {
     'https://kr.api.riotgames.com/lol/champion-mastery/v4/champion-masteries';
 
   private readonly CHAMPION_IMAGE_URL =
-    'https://static.opggmobilea.com/dragontail-11.15.1/11.15.1/img/champion';
+    'https://static.opggmobilea.com/dragontail-11.15.1/img/champion';
 
   private readonly LEAGUE_V4_ENTRIES_RANK_SOLO_URL =
     'https://kr.api.riotgames.com/lol/league/v4/entries/RANKED_SOLO_5x5';
@@ -94,7 +94,12 @@ export class LOLService implements OnApplicationBootstrap {
           id: champion.key,
           name: champion.name,
           enName: champion.id,
-          imageUrl: this.CHAMPION_IMAGE_URL + '/' + champion.id + '.png',
+          imageUrl:
+            this.CHAMPION_IMAGE_URL + '/tiles/' + champion.id + '_0.jpg',
+          loadingUrl:
+            this.CHAMPION_IMAGE_URL + '/loading/' + champion.id + '_0.jpg',
+          splashUrl:
+            this.CHAMPION_IMAGE_URL + '/splash/' + champion.id + '_0.jpg',
         };
         this.championIdAndChampionDTOMap.set(champion.key, championDTO);
         return championDTO;
