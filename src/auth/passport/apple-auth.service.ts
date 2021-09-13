@@ -11,11 +11,12 @@ export class AppleService {
   privateKey = process.env.PRIVATE_KEY;
 
   async verifyUser(payload: any): Promise<any> {
+    console.log(this.privateKey);
     const clientSecret = appleSignin.getClientSecret({
       clientID: this.clientID,
       teamId: this.teamID,
       keyIdentifier: this.keyID,
-      privateKeyPath: path.join(__dirname, this.privateKey),
+      privateKeyPath: this.privateKey,
     });
 
     const tokens = await appleSignin.getAuthorizationToken(payload.code, {

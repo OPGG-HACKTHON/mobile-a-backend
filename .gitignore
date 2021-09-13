@@ -37,4 +37,5 @@ lerna-debug.log*
 .env
 dotenv
 !dotenv/sample.env
-/secrets
+AuthKey_ZC25JZUJ4G.p8
+/passport/AuthKey_ZC25JZUJ4G.p8

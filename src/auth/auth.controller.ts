@@ -119,20 +119,21 @@ export class AuthController {
     description: '애플 로그인을 진행합니다.',
   })
   @ApiOkResponse({ description: '애플 로그인 성공' })
+  @ApiQuery({ name: 'token' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  async appleLogin(@Body() payload: any): Promise<any> {
-    console.log('payload:', payload);
-    if (!payload.code) {
+  async appleLogin(@Query('token') token: string): Promise<any> {
+    console.log('token:', token);
+    if (!token) {
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
-          error: 'Payload 에러',
+          error: 'token 에러',
         },
         HttpStatus.BAD_REQUEST,
       );
     }
 
-    return this.authService.appleLogin(payload);
+    return this.authService.appleLogin(token);
   }
 
   @Post('/validate')

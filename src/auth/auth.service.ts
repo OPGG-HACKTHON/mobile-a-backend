@@ -217,9 +217,9 @@ export class AuthService {
   /**
    * @Apple
    */
-  async appleLogin(payload: any) {
+  async appleLogin(token: any) {
     console.log('... apple oauth test ...');
-    return this.appleService.verifyUser(payload);
+    return this.appleService.verifyUser(token);
   }
 
   private OauthTokenToToken(authFrom: string, token: string): string {

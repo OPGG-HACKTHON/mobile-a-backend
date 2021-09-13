@@ -70,7 +70,7 @@ describe('simple etst', () => {
     const result = await lolService.getRecentMacthIdsBypuuid(
       'PvRocf7pG6jnpKC0aKugs4c-0joi8pUUsV2RKNCjN2fOICtfFqqcRXa9tMTwmmGhJvbnPo2H0nN99A',
     );
-    expect(result.length).toBe(10);
+    expect(result.length).toBeGreaterThan(40);
     expect(result[0]).toBeTruthy();
     expect(result[9]).toBeTruthy();
   });
@@ -122,10 +122,12 @@ describe('simple etst', () => {
         name: 'KkangSan',
       },
     });
-    const lolAccountId = lolAccount.id;
-    await lolService.setupUserRecentMatchesByAccountId(lolAccountId);
+    const matchIds = await lolService.getRecentMacthIdsBypuuid(
+      lolAccount.puuid,
+    );
+    await lolService.setupUserRecentMatchesByAccountId(matchIds);
     const matches = await prismaService.lOLMatch.count();
-    expect(matches).toBe(10); // DEFAULT_MATCH_MAX_COUNT
+    expect(matches).toBeGreaterThan(40); // DEFAULT_MATCH_MAX_COUNT
   });
 
   it('lol champion setup check', async () => {
@@ -242,7 +244,7 @@ describe('simple etst', () => {
       .set('Accept', 'application/json')
       .type('application/json');
 
-    expect(lolCompareFields.body.length).toBe(9);
+    expect(lolCompareFields.body.length).toBe(8);
     expect(lolCompareFields.body[0].category).toBe('챔피언');
     expect(lolCompareFields.body[0].fields[0].name).toBe('최고 생존시간');
 
@@ -273,4 +275,49 @@ describe('simple etst', () => {
       lolService.validateLOLNickname(maybeValidateUserAndUnrank),
     ).rejects.toThrow('티어 정보가 존재하지 않습니다.');
   });
+
+  // skip - rank e2e test for match req down
+  // it('lol LOL Summary setup test', async () => {
+  //   // setup lolAccount
+  //   await prismaService.lOLAccount.create({
+  //     data: {
+  //       id: '65c_hOoDrNNWLfWaPgtudAr15hBpQoeYuQjzf195cUvl5w',
+  //       accountId: 'U57EDkh62tbK9Qit4xy85K7sCAe3EDLVeyEUc3902gdR',
+  //       puuid:
+  //         'PvRocf7pG6jnpKC0aKugs4c-0joi8pUUsV2RKNCjN2fOICtfFqqcRXa9tMTwmmGhJvbnPo2H0nN99A',
+  //       name: 'KkangSan',
+  //       profileIconId: 29,
+  //       summonerLevel: 148,
+  //     },
+  //   });
+  //   await prismaService.region.create({
+  //     data: {
+  //       name: '서울',
+  //     },
+  //   });
+  //   await prismaService.school.create({
+  //     data: {
+  //       id: '1',
+  //       name: '가나다초등학교',
+  //       division: '초딩',
+  //       educationOffice: '서울시교육청',
+  //       regionId: 1,
+  //       address: '어디선가',
+  //       imageUrl: '',
+  //     },
+  //   });
+  //   const user = await prismaService.user.create({
+  //     data: {
+  //       authFrom: 'foo',
+  //       email: 'foo',
+  //       LOLAccountId: '65c_hOoDrNNWLfWaPgtudAr15hBpQoeYuQjzf195cUvl5w',
+  //       schoolId: '1',
+  //     },
+  //   });
+  //   // "65c_hOoDrNNWLfWaPgtudAr15hBpQoeYuQjzf195cUvl5w"
+  //   await lolService.setLOLSummaryPersonalByLOLAccountIdAndUserId(
+  //     '65c_hOoDrNNWLfWaPgtudAr15hBpQoeYuQjzf195cUvl5w',
+  //     user,
+  //   );
+  // });
 });
