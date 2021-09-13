@@ -7,6 +7,8 @@ import {
   Get,
   UseGuards,
   Req,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -107,6 +109,33 @@ export class AuthController {
   // ): Promise<UserDTO> {
   //   return await this.authService.getUserByToken(accessToken);
   // }
+
+  /**
+   * @Apple
+   */
+  // /auth/apple
+  @Post('apple')
+  @ApiOperation({
+    summary: '애플 로그인',
+    description: '애플 로그인을 진행합니다.',
+  })
+  @ApiOkResponse({ description: '애플 로그인 성공' })
+  @ApiQuery({ name: 'token' })
+  @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  async appleLogin(@Query('token') token: string): Promise<any> {
+    console.log('token:', token);
+    if (!token) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'token 에러',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return this.authService.appleLogin(token);
+  }
 
   @Post('/validate')
   @ApiOperation({
