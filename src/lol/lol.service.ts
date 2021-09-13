@@ -31,14 +31,14 @@ export class LOLService implements OnApplicationBootstrap {
     'https://asia.api.riotgames.com/lol/match/v5/matches';
 
   private readonly CHAMPION_INFO_URL =
-    'https://static.opggmobilea.com/dragontail-11.15.1/11.15.1/data/ko_KR/champion.json';
+    'https://static.opggmobilea.com/dragontail-11.18.1/11.18.1/data/ko_KR/champion.json';
   private readonly DEFAULT_MATCH_MAX_COUNT = 20;
 
   private readonly CHAMPION_MASTERY_V4_URL =
     'https://kr.api.riotgames.com/lol/champion-mastery/v4/champion-masteries';
 
   private readonly CHAMPION_IMAGE_URL =
-    'https://static.opggmobilea.com/dragontail-11.15.1/img/champion';
+    'https://static.opggmobilea.com/dragontail-11.18.1/img/champion';
 
   private readonly LEAGUE_V4_ENTRIES_RANK_SOLO_URL =
     'https://kr.api.riotgames.com/lol/league/v4/entries/RANKED_SOLO_5x5';
@@ -90,6 +90,22 @@ export class LOLService implements OnApplicationBootstrap {
   ): void {
     this.championsOrderByName = params
       .map((champion) => {
+        // 피들스틱 예외처리
+        if (champion.key === 9) {
+          const championDTO = {
+            id: champion.key,
+            name: champion.name,
+            enName: champion.id,
+            imageUrl:
+              this.CHAMPION_IMAGE_URL + '/tiles/' + 'FiddleSticks' + '_0.jpg',
+            loadingUrl:
+              this.CHAMPION_IMAGE_URL + '/loading/' + 'FiddleSticks' + '_0.jpg',
+            splashUrl:
+              this.CHAMPION_IMAGE_URL + '/splash/' + 'FiddleSticks' + '_0.jpg',
+          };
+          this.championIdAndChampionDTOMap.set(champion.key, championDTO);
+          return championDTO;
+        }
         const championDTO = {
           id: champion.key,
           name: champion.name,

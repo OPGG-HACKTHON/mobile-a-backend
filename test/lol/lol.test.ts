@@ -206,26 +206,40 @@ describe('simple etst', () => {
     expect(lolChanpions.body[0].name).toBe('가렌');
     expect(lolChanpions.body[0].enName).toBe('Garen');
     expect(lolChanpions.body[0].imageUrl).toBe(
-      'https://static.opggmobilea.com/dragontail-11.15.1/img/champion/tiles/Garen_0.jpg',
+      'https://static.opggmobilea.com/dragontail-11.18.1/img/champion/tiles/Garen_0.jpg',
     );
     expect(lolChanpions.body[0].loadingUrl).toBe(
-      'https://static.opggmobilea.com/dragontail-11.15.1/img/champion/loading/Garen_0.jpg',
+      'https://static.opggmobilea.com/dragontail-11.18.1/img/champion/loading/Garen_0.jpg',
     );
     expect(lolChanpions.body[0].splashUrl).toBe(
-      'https://static.opggmobilea.com/dragontail-11.15.1/img/champion/splash/Garen_0.jpg',
+      'https://static.opggmobilea.com/dragontail-11.18.1/img/champion/splash/Garen_0.jpg',
     );
 
+    // 피들스틱 image url 예외처리
+    expect(lolChanpions.body[151].id).toBe(9);
+    expect(lolChanpions.body[151].name).toBe('피들스틱');
+    expect(lolChanpions.body[151].enName).toBe('Fiddlesticks');
+    expect(lolChanpions.body[151].imageUrl).toBe(
+      'https://static.opggmobilea.com/dragontail-11.18.1/img/champion/tiles/FiddleSticks_0.jpg',
+    );
+    expect(lolChanpions.body[151].loadingUrl).toBe(
+      'https://static.opggmobilea.com/dragontail-11.18.1/img/champion/loading/FiddleSticks_0.jpg',
+    );
+    expect(lolChanpions.body[151].splashUrl).toBe(
+      'https://static.opggmobilea.com/dragontail-11.18.1/img/champion/splash/FiddleSticks_0.jpg',
+    );
+    //
     expect(lolChanpions.body[155].id).toBe(120);
     expect(lolChanpions.body[155].name).toBe('헤카림');
     expect(lolChanpions.body[155].enName).toBe('Hecarim');
     expect(lolChanpions.body[155].imageUrl).toBe(
-      'https://static.opggmobilea.com/dragontail-11.15.1/img/champion/tiles/Hecarim_0.jpg',
+      'https://static.opggmobilea.com/dragontail-11.18.1/img/champion/tiles/Hecarim_0.jpg',
     );
     expect(lolChanpions.body[155].loadingUrl).toBe(
-      'https://static.opggmobilea.com/dragontail-11.15.1/img/champion/loading/Hecarim_0.jpg',
+      'https://static.opggmobilea.com/dragontail-11.18.1/img/champion/loading/Hecarim_0.jpg',
     );
     expect(lolChanpions.body[155].splashUrl).toBe(
-      'https://static.opggmobilea.com/dragontail-11.15.1/img/champion/splash/Hecarim_0.jpg',
+      'https://static.opggmobilea.com/dragontail-11.18.1/img/champion/splash/Hecarim_0.jpg',
     );
     // by id
     const lolChanpionsGaren = await request(app.getHttpServer())
@@ -236,13 +250,13 @@ describe('simple etst', () => {
     expect(lolChanpionsGaren.body.name).toBe('가렌');
     expect(lolChanpionsGaren.body.enName).toBe('Garen');
     expect(lolChanpionsGaren.body.imageUrl).toBe(
-      'https://static.opggmobilea.com/dragontail-11.15.1/img/champion/tiles/Garen_0.jpg',
+      'https://static.opggmobilea.com/dragontail-11.18.1/img/champion/tiles/Garen_0.jpg',
     );
     expect(lolChanpionsGaren.body.loadingUrl).toBe(
-      'https://static.opggmobilea.com/dragontail-11.15.1/img/champion/loading/Garen_0.jpg',
+      'https://static.opggmobilea.com/dragontail-11.18.1/img/champion/loading/Garen_0.jpg',
     );
     expect(lolChanpionsGaren.body.splashUrl).toBe(
-      'https://static.opggmobilea.com/dragontail-11.15.1/img/champion/splash/Garen_0.jpg',
+      'https://static.opggmobilea.com/dragontail-11.18.1/img/champion/splash/Garen_0.jpg',
     );
     const lolChanpionsHecarim = await request(app.getHttpServer())
       .get('/lol/champions/120')
@@ -252,13 +266,13 @@ describe('simple etst', () => {
     expect(lolChanpionsHecarim.body.name).toBe('헤카림');
     expect(lolChanpionsHecarim.body.enName).toBe('Hecarim');
     expect(lolChanpionsHecarim.body.imageUrl).toBe(
-      'https://static.opggmobilea.com/dragontail-11.15.1/img/champion/tiles/Hecarim_0.jpg',
+      'https://static.opggmobilea.com/dragontail-11.18.1/img/champion/tiles/Hecarim_0.jpg',
     );
     expect(lolChanpionsHecarim.body.loadingUrl).toBe(
-      'https://static.opggmobilea.com/dragontail-11.15.1/img/champion/loading/Hecarim_0.jpg',
+      'https://static.opggmobilea.com/dragontail-11.18.1/img/champion/loading/Hecarim_0.jpg',
     );
     expect(lolChanpionsHecarim.body.splashUrl).toBe(
-      'https://static.opggmobilea.com/dragontail-11.15.1/img/champion/splash/Hecarim_0.jpg',
+      'https://static.opggmobilea.com/dragontail-11.18.1/img/champion/splash/Hecarim_0.jpg',
     );
   });
 
