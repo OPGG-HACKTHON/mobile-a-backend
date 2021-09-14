@@ -42,6 +42,21 @@ export class UserService {
     }
     const { profileIconId, summonerLevel, name } = user.LOLAccount;
     const { tier, rank, leaguePoints } = user.LOLAccount.LOLTier;
+    let title = { id: 0, exposureName: '타이틀을 설정해 보세요' };
+    if (user.selectedTitleId) {
+      const findTitle = await this.prisma.titleInSchool.findUnique({
+        where: {
+          id: user.selectedTitleId,
+        },
+      });
+      if (
+        findTitle &&
+        (findTitle.titleholderUserId === null ||
+          findTitle.titleholderUserId === user.id)
+      ) {
+        title = { id: findTitle.id, exposureName: findTitle.exposureTitle };
+      }
+    }
     return {
       id: userId,
       lol: {
@@ -58,10 +73,7 @@ export class UserService {
         regionId: user.School.regionId,
         address: user.School.address,
       },
-      title: {
-        id: 123,
-        exposureName: '리신 장인',
-      },
+      title: title,
     };
   }
 
@@ -83,6 +95,21 @@ export class UserService {
     }
     const { profileIconId, summonerLevel, name } = user.LOLAccount;
     const { tier, rank, leaguePoints } = user.LOLAccount.LOLTier;
+    let title = { id: 0, exposureName: '타이틀을 설정해 보세요' };
+    if (user.selectedTitleId) {
+      const findTitle = await this.prisma.titleInSchool.findUnique({
+        where: {
+          id: user.selectedTitleId,
+        },
+      });
+      if (
+        findTitle &&
+        (findTitle.titleholderUserId === null ||
+          findTitle.titleholderUserId === user.id)
+      ) {
+        title = { id: findTitle.id, exposureName: findTitle.exposureTitle };
+      }
+    }
     return {
       id: userId,
       lol: {
@@ -92,10 +119,7 @@ export class UserService {
         summonerLevel,
         tierInfo: { tier, rank, leaguePoints },
       },
-      title: {
-        id: 123,
-        exposureName: '리신 장인',
-      },
+      title: title,
     };
   }
 
