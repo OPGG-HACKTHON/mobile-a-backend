@@ -101,19 +101,21 @@ model LOLChampion {
 }
 
 model TitleInSchool {
-  id                  Int                @id @default(autoincrement())
-  LOLSummaryElement   LOLSummaryElement? @relation(fields: [LOLSummaryElementId], references: [id])
-  LOLSummaryElementId Int?
-  LOLChampion         LOLChampion?       @relation(fields: [LOLChampionId], references: [id])
-  LOLChampionId       String?
-  School              School?            @relation(fields: [schoolId], references: [id])
-  schoolId            String?
-  TitleholderUser     User?              @relation(fields: [titleholderUserId], references: [id])
-  titleholderUserId   Int?
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
-  exposureTitle       String
-  TitleInSchoolLog    TitleInSchoolLog[]
+  id                   Int                 @id @default(autoincrement())
+  LOLSummaryPersonal   LOLSummaryPersonal? @relation(fields: [LOLSummaryPersonalId], references: [id])
+  LOLSummaryPersonalId Int?
+  LOLChampion          LOLChampion?        @relation(fields: [LOLChampionId], references: [id])
+  LOLChampionId        String?
+  School               School?             @relation(fields: [schoolId], references: [id])
+  schoolId             String?
+  TitleholderUser      User?               @relation(fields: [titleholderUserId], references: [id])
+  titleholderUserId    Int?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  exposureTitle        String
+  TitleInSchoolLog     TitleInSchoolLog[]
+  LOLSummaryElement    LOLSummaryElement?  @relation(fields: [lOLSummaryElementId], references: [id])
+  lOLSummaryElementId  Int?
 }
 
 model TitleInSchoolLog {
@@ -159,6 +161,7 @@ model LOLSummaryPersonal {
   updatedAt           DateTime          @updatedAt
   LOLRankInSchool     LOLRankInSchool?
 
+  TitleInSchool TitleInSchool[]
   @@unique([LOLAccountId, LOLSummaryElementId, LOLChampionId], name: "LOLSummaryPersonal_LOLAccountId_LOLSummaryElementId_LOLChampionId_uniqueConstraint")
 }
 

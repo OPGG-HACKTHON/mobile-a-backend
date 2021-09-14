@@ -46,7 +46,7 @@ export class TitleController {
   //titles/users/:id/logs
   @Get('/users/:id/logs')
   @ApiOperation({
-    summary: 'mock 유저의 타이틀 히스토리 조회',
+    summary: '유저의 타이틀 히스토리 조회',
     description: '유저 타이틀 히스토리를 조회 합니다.',
   })
   @ApiOkResponse({
@@ -65,7 +65,7 @@ export class TitleController {
   // put /titles/users/:id
   @Put('/users/:id')
   @ApiOperation({
-    summary: 'mock 유저 타이틀 수정',
+    summary: '유저 타이틀 수정',
     description: '유저 타이틀 수정을 진행합니다.',
   })
   @ApiOkResponse({ description: '유저 타이틀 수정 성공', type: Boolean })

@@ -100,8 +100,8 @@ export class TitleService implements OnApplicationBootstrap {
         ],
       },
     });
-    const results: TitleDTO[] = titles.map(({ id, exposureTitle }) => {
-      return { id: id, exposureName: exposureTitle };
+    const results: TitleDTO[] = titles.map((title) => {
+      return { id: title.id, exposureName: title.exposureTitle };
     });
     return results;
   }
@@ -114,6 +114,16 @@ export class TitleService implements OnApplicationBootstrap {
       },
       include: {
         TitleInSchool: true,
+        TitleholderUser: {
+          include: {
+            LOLAccount: true,
+          },
+        },
+        prevUser: {
+          include: {
+            LOLAccount: true,
+          },
+        },
       },
       orderBy: [
         {
@@ -122,15 +132,43 @@ export class TitleService implements OnApplicationBootstrap {
       ],
     });
     const results: TitleLogDTO[] = titleLogs.map((titleLog) => {
-      return {
+      // get
+      const result = {
         id: titleLog.id,
         exposureName: titleLog.TitleInSchool.exposureTitle,
-        titleStatus:
-          titleLog.titleholderUserId === userId
-            ? TitleStatus.GET
-            : TitleStatus.LOSE,
         createdAt: titleLog.createdAt,
+        titleStatus: TitleStatus.GET,
+        fromLOLNickName: '-',
+        logValue: '-',
       };
+      const createdAtMonthAndDate =
+        (result.createdAt.getUTCMonth() + 1).toString() +
+        '월' +
+        result.createdAt.getUTCDate().toString() +
+        '일';
+      if (titleLog.titleholderUserId === userId) {
+        result.titleStatus = TitleStatus.GET;
+        result.fromLOLNickName = titleLog.prevUser.LOLAccount.name;
+        result.logValue =
+          createdAtMonthAndDate +
+          ' ' +
+          result.exposureName +
+          ' 타이틀을 ' +
+          titleLog.prevUser.LOLAccount.name +
+          ' 로 부터 뺏었습니다.';
+      } // lose
+      else {
+        result.titleStatus = TitleStatus.LOSE;
+        result.fromLOLNickName = titleLog.TitleholderUser.LOLAccount.name;
+        result.logValue =
+          createdAtMonthAndDate +
+          ' ' +
+          result.exposureName +
+          ' 타이틀을 ' +
+          titleLog.TitleholderUser.LOLAccount.name +
+          ' 로부터 뺏겼습니다.';
+      }
+      return result;
     });
     return results;
   }

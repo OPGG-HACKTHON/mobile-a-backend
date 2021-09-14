@@ -10,6 +10,9 @@ export class TitleLogDTO {
   id: number;
 
   @ApiProperty()
+  fromLOLNickName: string;
+
+  @ApiProperty()
   exposureName: string;
 
   @ApiProperty({ enum: TitleStatus, description: 'get or lose status' })
@@ -17,4 +20,7 @@ export class TitleLogDTO {
 
   @ApiProperty()
   createdAt: Date;
+
+  @ApiProperty()
+  logValue: string;
 }
