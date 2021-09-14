@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import got from 'got';
 import { TitleDTO } from './title.dto';
 import { TitleLogDTO, TitleStatus } from './title-log.dto';
+import * as _ from 'lodash';
 
 @Injectable()
 export class TitleService implements OnApplicationBootstrap {
@@ -87,8 +88,7 @@ export class TitleService implements OnApplicationBootstrap {
   }
 
   async getTitlesByUserId(userId: number): Promise<TitleDTO[]> {
-    const titles = await this.prisma.titleInSchool.findMany({
-      take: 15,
+    let titles = await this.prisma.titleInSchool.findMany({
       where: {
         OR: [
           {
@@ -100,6 +100,7 @@ export class TitleService implements OnApplicationBootstrap {
         ],
       },
     });
+    titles = _.sampleSize(titles, 15);
     const results: TitleDTO[] = titles.map((title) => {
       return { id: title.id, exposureName: title.exposureTitle };
     });
