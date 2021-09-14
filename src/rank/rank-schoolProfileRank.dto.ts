@@ -9,26 +9,17 @@ export class SchoolProfileRank {
   rankChangedStatus: RankChangedStatus;
 
   @ApiProperty()
+  imageUrl: string;
+
+  @ApiProperty()
   point: number;
 
   @ApiProperty()
-  id: number;
+  id: string;
 
   @ApiProperty()
   name: string;
 
   @ApiProperty()
   division: string;
-
-  @ApiProperty()
-  region: string;
-
-  @ApiProperty()
-  address: string;
-
-  @ApiProperty()
-  createdAt: Date;
-
-  @ApiProperty()
-  updatedAt: Date;
 }

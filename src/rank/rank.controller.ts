@@ -28,62 +28,28 @@ export class RankController {
   //   return 'get all ranking';
   // }
 
-  //
-  @Get('/regions/:id')
+  @Get('/regions/:regionId/divisions/:divisionId')
   @ApiOperation({
-    summary: 'mock 지역 내 학교 랭킹 목록 조회',
-    description: '지역 내 학교 랭킹 목록을 조회합니다.',
+    summary: '지역 디비전 내 학교 랭킹 목록 조회',
+    description: '지역 디비전 내 학교 랭킹 목록 조회합니다.',
   })
   @ApiOkResponse({
-    description: '지역 내 학교 랭킹 목록을 조회합니다.',
+    description: '지역 디비전 내 학교 랭킹 목록 조회 합니다.',
     type: SchoolProfileRank,
     isArray: true,
   })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  async getSchoolProfileRanksByRegionId(
-    @Param('id', ParseIntPipe) regionlId: number,
+  async getSchoolProfileRanksByRegionIdAndDvision(
+    @Param('regionId', ParseIntPipe) regionlId: number,
+    @Param('divisionId') divisionId: string,
   ): Promise<SchoolProfileRank[]> {
-    return [
-      {
-        rankNo: 10,
-        rankChangedStatus: RankChangedStatus.NEW,
-        point: 123421,
-        id: 1234,
-        name: '서울 고등학교',
-        division: '고등학교',
-        region: '서울',
-        address: '서울시 동대문구 동대문동 동대문로 123',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        rankNo: 10,
-        rankChangedStatus: RankChangedStatus.NEW,
-        point: 123421,
-        id: 1234,
-        name: '서울 고등학교',
-        division: '고등학교',
-        region: '서울',
-        address: '서울시 동대문구 동대문동 동대문로 123',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        rankNo: 10,
-        rankChangedStatus: RankChangedStatus.NEW,
-        point: 123421,
-        id: 1234,
-        name: '서울 고등학교',
-        division: '고등학교',
-        region: '서울',
-        address: '서울시 동대문구 동대문동 동대문로 123',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ];
+    return await this.rankService.getSchoolProfileRanksByRegionIdAndDvision(
+      regionlId,
+      divisionId,
+    );
   }
 
-  @Get('/regions/:regionId/schools/:schoolId')
+  @Get('/regions/:regionId/divisions/:divisionId/schools/:schoolId')
   @ApiOperation({
     summary: 'mock 지역 내 학교 랭킹 조회',
     description: '지역 내 학교 랭킹 조회를 진행합니다.',
@@ -93,23 +59,100 @@ export class RankController {
     type: SchoolProfileRank,
   })
   @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  async getSchoolProfileRanksByRegionIdAndSchoolId(
+  async getSchoolProfileRanksByRegionIdAndDivisionAndSchoolId(
     @Param('regionId', ParseIntPipe) regionlId: number,
+    @Param('divisionId') divisionId: string,
     @Param('schoolId') schoolId: string,
   ): Promise<SchoolProfileRank> {
-    return {
-      rankNo: 10,
-      rankChangedStatus: RankChangedStatus.NEW,
-      point: 123421,
-      id: 1234,
-      name: '서울 고등학교',
-      division: '고등학교',
-      region: '서울',
-      address: '서울시 동대문구 동대문동 동대문로 123',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    return await this.rankService.getSchoolProfileRanksByRegionIdAndDivisionAndSchoolId(
+      regionlId,
+      divisionId,
+      schoolId,
+    );
   }
+
+  // //
+  // @Get('/regions/:id')
+  // @ApiOperation({
+  //   summary: 'mock 지역 내 학교 랭킹 목록 조회',
+  //   description: '지역 내 학교 랭킹 목록을 조회합니다.',
+  // })
+  // @ApiOkResponse({
+  //   description: '지역 내 학교 랭킹 목록을 조회합니다.',
+  //   type: SchoolProfileRank,
+  //   isArray: true,
+  // })
+  // @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  // async getSchoolProfileRanksByRegionId(
+  //   @Param('id', ParseIntPipe) regionlId: number,
+  // ): Promise<SchoolProfileRank[]> {
+  //   return [
+  //     {
+  //       rankNo: 10,
+  //       rankChangedStatus: RankChangedStatus.NEW,
+  //       point: 123421,
+  //       id: '1234',
+  //       name: '서울 고등학교',
+  //       division: '고등학교',
+  //       region: '서울',
+  //       address: '서울시 동대문구 동대문동 동대문로 123',
+  //       createdAt: new Date(),
+  //       updatedAt: new Date(),
+  //     },
+  //     {
+  //       rankNo: 10,
+  //       rankChangedStatus: RankChangedStatus.NEW,
+  //       point: 123421,
+  //       id: '1234',
+  //       name: '서울 고등학교',
+  //       division: '고등학교',
+  //       region: '서울',
+  //       address: '서울시 동대문구 동대문동 동대문로 123',
+  //       createdAt: new Date(),
+  //       updatedAt: new Date(),
+  //     },
+  //     {
+  //       rankNo: 10,
+  //       rankChangedStatus: RankChangedStatus.NEW,
+  //       point: 123421,
+  //       id: '1234',
+  //       name: '서울 고등학교',
+  //       division: '고등학교',
+  //       region: '서울',
+  //       address: '서울시 동대문구 동대문동 동대문로 123',
+  //       createdAt: new Date(),
+  //       updatedAt: new Date(),
+  //     },
+  //   ];
+  // }
+
+  // @Get('/regions/:regionId/schools/:schoolId')
+  // @ApiOperation({
+  //   summary: 'mock 지역 내 학교 랭킹 조회',
+  //   description: '지역 내 학교 랭킹 조회를 진행합니다.',
+  // })
+  // @ApiOkResponse({
+  //   description: '지역 내 학교 랭킹 조회를 진행합니다.',
+  //   type: SchoolProfileRank,
+  // })
+  // @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  // async getSchoolProfileRanksByRegionIdAndSchoolId(
+  //   @Param('regionId', ParseIntPipe) regionlId: number,
+  //   @Param('schoolId') schoolId: string,
+  // ): Promise<SchoolProfileRank> {
+  //   return {
+  //     rankNo: 10,
+  //     rankChangedStatus: RankChangedStatus.NEW,
+  //     point: 123421,
+  //     id: '1234',
+  //     name: '서울 고등학교',
+  //     division: '고등학교',
+  //     region: '서울',
+  //     address: '서울시 동대문구 동대문동 동대문로 123',
+  //     createdAt: new Date(),
+  //     updatedAt: new Date(),
+  //   };
+  // }
 
   // ranks/schools/:id
   @Get('/schools/:id')

@@ -65,6 +65,7 @@ model School {
   updatedAt        DateTime           @updatedAt
   Region           Region             @relation(fields: [regionId], references: [id])
   regionId         Int
+  totalvalue       Int                @default(0)
   User             User[]
   LOLSummarySchool LOLSummarySchool[]
   TitleInSchool    TitleInSchool[]
