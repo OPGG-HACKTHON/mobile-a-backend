@@ -282,7 +282,7 @@ describe('simple etst', () => {
       .set('Accept', 'application/json')
       .type('application/json');
 
-    expect(lolCompareFields.body.length).toBe(8);
+    expect(lolCompareFields.body.length).toBe(7);
     expect(lolCompareFields.body[0].category).toBe('챔피언');
     expect(lolCompareFields.body[0].fields[0].name).toBe('최고 생존시간');
 

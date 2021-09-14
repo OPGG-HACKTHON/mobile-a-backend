@@ -9,7 +9,14 @@ import { Tier } from './lol-tier.model';
 import { SUMMONER } from './lol-summoner.model';
 import { PrismaService } from '../prisma/prisma.service';
 import { Match } from './lol-match.model';
-import { LOLMatch, LOLSummaryElement, Prisma, User } from '@prisma/client';
+import {
+  LOLChampion,
+  LOLMatch,
+  LOLSummaryElement,
+  LOLSummaryPersonal,
+  TitleInSchool,
+  User,
+} from '@prisma/client';
 import { CHAMPION } from './lol-champion.model';
 import { CHAMPION_MASTERY } from './lol-championMastery.model';
 import { LOLChampionDTO } from './lol-champion.dto';
@@ -304,7 +311,144 @@ export class LOLService implements OnApplicationBootstrap {
 
     // match - summary
     await this.setLOLSummaryPersonalByLOLAccountIdAndUserId(lolAccountId, user);
+
+    // title - setUp
+    await this.setTitlesByLOLAccountIdAndUser(lolAccountId, user);
   }
+
+  async setTitlesByLOLAccountIdAndUser(
+    lolAccountId: string,
+    user: User,
+  ): Promise<void> {
+    let mySummaryArr = await this.prisma.lOLSummaryPersonal.findMany({
+      where: {
+        LOLAccountId: lolAccountId,
+      },
+      include: {
+        LOLSummaryElement: true,
+      },
+    });
+    const tierSummart = await this.prisma.lOLSummaryElement.findFirst({
+      where: {
+        LOLMatchFieldName: '티어',
+      },
+    });
+    // 티어는 타이틀 적용하지 않음
+    mySummaryArr = mySummaryArr.filter(
+      (mySummary) => ![tierSummart.id].includes(mySummary.LOLSummaryElementId),
+    );
+
+    const titles = await this.prisma.titleInSchool.findMany({
+      where: {
+        schoolId: user.schoolId,
+      },
+      include: {
+        LOLSummaryPersonal: true,
+      },
+    });
+
+    const mySummaryElemetIdAndChampionIdToSummary = new Map<
+      string,
+      LOLSummaryPersonal & {
+        LOLSummaryElement: LOLSummaryElement;
+      }
+    >();
+    mySummaryArr.forEach((mySummary) => {
+      mySummaryElemetIdAndChampionIdToSummary.set(
+        mySummary.LOLSummaryElementId + '_' + mySummary.LOLChampionId,
+        mySummary,
+      );
+    });
+
+    const titleSummaryElementIdAndChampionIdToTitle = new Map<
+      string,
+      TitleInSchool & {
+        LOLSummaryPersonal: LOLSummaryPersonal;
+      }
+    >();
+    titles.forEach((title) => {
+      titleSummaryElementIdAndChampionIdToTitle.set(
+        title.lOLSummaryElementId + '_' + title.LOLChampionId,
+        title,
+      );
+    });
+
+    // 타이틀이 없는경우
+    const needCreateTitleInSchool: {
+      LOLSummaryPersonalId: number;
+      LOLChampionId: string;
+      schoolId: string;
+      titleholderUserId: number;
+      lOLSummaryElementId: number;
+      exposureTitle: string;
+    }[] = [];
+
+    const needUpdateTitleInSchoolIdAndPrevUserIds: {
+      titleInSchoolId: number;
+      prevUserId: number;
+    }[] = [];
+
+    const champions = await this.prisma.lOLChampion.findMany();
+    const championIdToChampionMap = new Map<string, LOLChampion>();
+    champions.forEach((champion) => {
+      championIdToChampionMap.set(champion.id, champion);
+    });
+
+    mySummaryElemetIdAndChampionIdToSummary.forEach((mySummary, key) => {
+      // 없는 경우
+      if (
+        !titleSummaryElementIdAndChampionIdToTitle.has(key) &&
+        key.length > 1
+      ) {
+        const champion = championIdToChampionMap.get(mySummary.LOLChampionId);
+        needCreateTitleInSchool.push({
+          LOLSummaryPersonalId: mySummary.id,
+          LOLChampionId: mySummary.LOLChampionId,
+          schoolId: user.schoolId,
+          titleholderUserId: user.id,
+          lOLSummaryElementId: mySummary.LOLSummaryElementId,
+          exposureTitle:
+            mySummary.LOLSummaryElement.exposureName + ' ' + champion.name,
+        });
+      }
+      // 존재하고 내가 더 큰경우
+      if (titleSummaryElementIdAndChampionIdToTitle.has(key)) {
+        const title = titleSummaryElementIdAndChampionIdToTitle.get(key);
+        if (title.LOLSummaryPersonal.value < mySummary.value) {
+          needUpdateTitleInSchoolIdAndPrevUserIds.push({
+            titleInSchoolId: title.id,
+            prevUserId: title.titleholderUserId,
+          });
+        }
+      }
+    });
+
+    // create
+    await this.prisma.titleInSchool.createMany({
+      data: needCreateTitleInSchool,
+    });
+    // update And creaete Log
+    const promises = needUpdateTitleInSchoolIdAndPrevUserIds.map(
+      ({ titleInSchoolId }) => {
+        return this.prisma.titleInSchool.update({
+          where: {
+            id: titleInSchoolId,
+          },
+          data: {
+            titleholderUserId: user.id,
+          },
+        });
+      },
+    );
+    await Promise.all(promises);
+    // log
+    await this.prisma.titleInSchoolLog.createMany({
+      data: needUpdateTitleInSchoolIdAndPrevUserIds.map(({ ...rest }) => {
+        return { titleholderUserId: user.id, ...rest };
+      }),
+    });
+  }
+
   async setLOLSummaryPersonalByLOLAccountIdAndUserId(
     lolAccountId: string,
     user: User,
