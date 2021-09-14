@@ -52,4 +52,16 @@ describe('title data test', () => {
     );
     expect(firstBloodKillField.LOLMatchFieldDataType).toBe('Boolean');
   });
+
+  it('check default title setup', async () => {
+    const defaultTitles = await prismaService.titleInSchool.findMany();
+    expect(defaultTitles.length).toBe(7);
+    expect(defaultTitles[0].exposureTitle).toBe('전사');
+    expect(defaultTitles[0].schoolId).toBeNull();
+    expect(defaultTitles[0].titleholderUserId).toBeNull();
+
+    expect(defaultTitles[6].exposureTitle).toBe('모범생');
+    expect(defaultTitles[6].schoolId).toBeNull();
+    expect(defaultTitles[6].titleholderUserId).toBeNull();
+  });
 });

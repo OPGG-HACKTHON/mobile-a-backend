@@ -24,7 +24,7 @@ import { TitleService } from './title.service';
 export class TitleController {
   constructor(private readonly titleService: TitleService) {}
 
-  //titles/:id
+  //titles/users/:id
   @Get('/users/:id')
   @ApiOperation({
     summary: 'mock 유저의 타이틀 리스트 조회',
@@ -47,7 +47,7 @@ export class TitleController {
     ];
   }
 
-  //titles/:id
+  //titles/users/:id/logs
   @Get('/users/:id/logs')
   @ApiOperation({
     summary: 'mock 유저의 타이틀 히스토리 조회',
@@ -102,7 +102,7 @@ export class TitleController {
     ];
   }
 
-  // /titles/:id
+  // put /titles/users/:id
   @Put('/users/:id')
   @ApiOperation({
     summary: 'mock 유저 타이틀 수정',
