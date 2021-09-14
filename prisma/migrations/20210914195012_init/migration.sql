@@ -48,6 +48,7 @@ CREATE TABLE "School" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "regionId" INTEGER NOT NULL,
+    "totalvalue" INTEGER NOT NULL DEFAULT 0,
 
     PRIMARY KEY ("id")
 );

@@ -285,6 +285,19 @@ export class LOLService implements OnApplicationBootstrap {
         id: userId,
       },
     });
+    //
+    const tierValue = this.tierTovalue(lolTier);
+    await this.prisma.school.update({
+      where: {
+        id: user.schoolId,
+      },
+      data: {
+        totalvalue: {
+          increment: tierValue,
+        },
+      },
+    });
+
     // Tier
     const lOLSummaryPersonal = await this.prisma.lOLSummaryPersonal.findFirst({
       where: {

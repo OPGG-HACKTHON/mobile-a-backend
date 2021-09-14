@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UserService } from '../user/user.service';
 import { ProfileRankWithCompareField } from './rank-profileRankWithConpareField.dto';
 import { LOLRankInSchool, LOLSummaryPersonal } from '@prisma/client';
+import { SchoolProfileRank } from './rank-schoolProfileRank.dto';
 
 @Injectable()
 export class RankService {
@@ -239,6 +240,80 @@ export class RankService {
         break;
       }
     }
+    return result;
+  }
+
+  async getSchoolProfileRanksByRegionIdAndDvision(
+    regionId: number,
+    divisionId: string,
+  ): Promise<SchoolProfileRank[]> {
+    const schools = await this.prisma.school.findMany({
+      take: 100,
+      where: {
+        division: divisionId,
+        regionId: regionId,
+      },
+      orderBy: [
+        {
+          totalvalue: 'desc',
+        },
+      ],
+    });
+    const results: SchoolProfileRank[] = schools.map(
+      ({ imageUrl, totalvalue, id, name, division }, idx) => {
+        return {
+          id: id,
+          name: name,
+          division: division,
+          rankNo: idx + 1,
+          rankChangedStatus: RankChangedStatus.NEW,
+          point: totalvalue,
+          imageUrl: imageUrl,
+        };
+      },
+    );
+    return results;
+  }
+
+  async getSchoolProfileRanksByRegionIdAndDivisionAndSchoolId(
+    regionId: number,
+    divisionId: string,
+    schoolId: string,
+  ): Promise<SchoolProfileRank> {
+    const school = await this.prisma.school.findUnique({
+      where: {
+        id: schoolId,
+      },
+    });
+    const result: SchoolProfileRank = {
+      id: school.id,
+      name: school.name,
+      division: school.division,
+      rankNo: 0,
+      rankChangedStatus: RankChangedStatus.NEW,
+      point: school.totalvalue,
+      imageUrl: school.imageUrl,
+    };
+
+    const schools = await this.prisma.school.findMany({
+      take: 1000,
+      where: {
+        division: divisionId,
+        regionId: regionId,
+      },
+      orderBy: [
+        {
+          totalvalue: 'desc',
+        },
+      ],
+    });
+    for (const [idx, ele] of schools.entries()) {
+      if (ele.id === school.id) {
+        result.rankNo = idx + 1;
+        break;
+      }
+    }
+
     return result;
   }
 }
