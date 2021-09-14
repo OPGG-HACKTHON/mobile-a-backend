@@ -2,7 +2,7 @@ import { initSchema } from '../commn/schemaUtil';
 import { AuthModule } from '../../src/auth/auth.module';
 import { AuthService } from '../../src/auth/auth.service';
 
-import * as request from 'supertest';
+import request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 //
@@ -18,6 +18,7 @@ import { PrismaModule } from '../../src/prisma/prisma.module';
 import { UserService } from '../../src/user/user.service';
 import { GoogleAuthService } from '../../src/auth/passport/google-auth.service';
 import { AppleService } from '../../src/auth/passport/apple-auth.service';
+import { SchoolService } from '../../src/school/school.service';
 //
 describe('simple etst', () => {
   let app: INestApplication;
@@ -25,7 +26,8 @@ describe('simple etst', () => {
   const googleAuthService = new GoogleAuthService();
   const appleService = new AppleService();
   const lolService = new LOLService(prismaService);
-  const userService = new UserService(prismaService, lolService);
+  const schoolService = new SchoolService(prismaService, lolService);
+  const userService = new UserService(prismaService, lolService, schoolService);
   const authService = new AuthService(
     prismaService,
     userService,

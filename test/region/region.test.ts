@@ -1,5 +1,5 @@
 import { initSchema } from '../commn/schemaUtil';
-import * as request from 'supertest';
+import request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { PrismaService } from '../../src/prisma/prisma.service';
@@ -8,6 +8,7 @@ import { SchoolModule } from '../../src/school/school.module';
 import { RegionModule } from '../../src/region/region.module';
 import { RegionService } from '../../src/region/region.service';
 import { PrismaModule } from '../../src/prisma/prisma.module';
+import { LOLService } from '../../src/lol/lol.service';
 
 describe('school data test', () => {
   let app: INestApplication;
@@ -19,7 +20,7 @@ describe('school data test', () => {
     // school create too heavy - beforeEach => beforeAll
     const moduleRef = await Test.createTestingModule({
       imports: [SchoolModule, RegionModule, PrismaModule],
-      providers: [SchoolService, RegionService, PrismaService],
+      providers: [SchoolService, RegionService, PrismaService, LOLService],
     })
       .overrideProvider(RegionService)
       .useValue(regionService)

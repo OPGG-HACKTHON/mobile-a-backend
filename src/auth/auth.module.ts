@@ -6,6 +6,7 @@ import { GoogleAuthService } from './passport/google-auth.service';
 import { UserService } from '../user/user.service';
 import { JwtModule } from '@nestjs/jwt';
 import { AppleService } from './passport/apple-auth.service';
+import { SchoolService } from '../school/school.service';
 @Module({
   imports: [
     JwtModule.register({
@@ -19,6 +20,7 @@ import { AppleService } from './passport/apple-auth.service';
     GoogleAuthService,
     UserService,
     AppleService,
+    SchoolService,
   ],
 })
 export class AuthModule {}

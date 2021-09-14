@@ -38,4 +38,4 @@ lerna-debug.log*
 dotenv
 !dotenv/sample.env
 AuthKey_ZC25JZUJ4G.p8
-/passport/AuthKey_ZC25JZUJ4G.p8
+config.json

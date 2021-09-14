@@ -3,10 +3,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import got from 'got';
 import { School } from '@prisma/client';
 import { SearchParam } from './school.param';
+import { LOLService } from '../lol/lol.service';
 
 @Injectable()
 export class SchoolService implements OnApplicationBootstrap {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly lolService: LOLService,
+  ) {}
 
   private convertSchoolToSchool(row: string[]): {
     id: string;
@@ -130,6 +134,29 @@ export class SchoolService implements OnApplicationBootstrap {
     return await this.prisma.school.findUnique({
       where: {
         id: id,
+      },
+    });
+  }
+
+  async updateSchoolTotalPoint(LOLNickName: string, schoolId: string) {
+    const userTier = await this.lolService.getLOLTierByLOLId(LOLNickName);
+    const pointOfUser = await this.lolService.getPointByTier(userTier);
+    const pointOfSchool = await this.prisma.school.findFirst({
+      where: {
+        id: schoolId,
+      },
+      select: {
+        totalPoint: true,
+      },
+    });
+    const point = pointOfUser + pointOfSchool['totalPoint'];
+
+    await this.prisma.school.update({
+      where: {
+        id: schoolId,
+      },
+      data: {
+        totalPoint: point,
       },
     });
   }

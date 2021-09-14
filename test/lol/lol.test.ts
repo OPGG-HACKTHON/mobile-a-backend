@@ -3,7 +3,7 @@ import { LOLModule } from '../../src/lol/lol.module';
 import { LOLService } from '../../src/lol/lol.service';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { TitleModule } from '../../src/title/title.module';
 import { TitleService } from '../../src/title/title.service';
 import { PrismaModule } from '../../src/prisma/prisma.module';
@@ -244,7 +244,7 @@ describe('simple etst', () => {
       .set('Accept', 'application/json')
       .type('application/json');
 
-    expect(lolCompareFields.body.length).toBe(8);
+    expect(lolCompareFields.body.length).toBe(7);
     expect(lolCompareFields.body[0].category).toBe('챔피언');
     expect(lolCompareFields.body[0].fields[0].name).toBe('최고 생존시간');
 

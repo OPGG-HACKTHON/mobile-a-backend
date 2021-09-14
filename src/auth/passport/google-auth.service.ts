@@ -9,7 +9,7 @@ export class GoogleAuthService {
   constructor() {
     const clientID = process.env.GOOGLE_AUTH_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_AUTH_SECRET;
-    const clientRedirectUrl = process.env.GOOGLE_AUTH_CALLBACK_URL;
+    const clientRedirectUrl = 'http://localhost:3000/auth/google/callback';
 
     this.oauthClient = new google.auth.OAuth2(
       clientID,

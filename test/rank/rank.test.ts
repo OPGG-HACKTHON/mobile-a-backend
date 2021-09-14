@@ -2,7 +2,7 @@ import { initSchema } from '../commn/schemaUtil';
 import { RankModule } from '../../src/rank//rank.module';
 import { RankService } from '../../src/rank/rank.service';
 import { UserService } from '../../src/user/user.service';
-import * as request from 'supertest';
+import request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { PrismaService } from '../../src/prisma/prisma.service';
@@ -18,13 +18,15 @@ import { GoogleAuthService } from '../../src/auth/passport/google-auth.service';
 import { AppleService } from '../../src/auth/passport/apple-auth.service';
 import { TitleModule } from '../../src/title/title.module';
 import { TitleService } from '../../src/title/title.service';
+import { SchoolService } from '../../src/school/school.service';
 
 describe('simple etst', () => {
   let app: INestApplication;
 
   const prismaService = new PrismaService();
   const lolService = new LOLService(prismaService);
-  const userService = new UserService(prismaService, lolService);
+  const schoolService = new SchoolService(prismaService, lolService);
+  const userService = new UserService(prismaService, lolService, schoolService);
   const rankService = new RankService(prismaService, userService);
   beforeEach(async () => {
     await initSchema(prismaService);
@@ -46,6 +48,7 @@ describe('simple etst', () => {
         GoogleAuthService,
         AppleService,
         TitleService,
+        SchoolService,
       ],
     })
       .overrideProvider(RankService)

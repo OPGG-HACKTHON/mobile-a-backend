@@ -27,6 +27,12 @@ import { LoginParam } from './auth-login.param';
 import { LoginDTO } from './auth-login.dto';
 import { ProfileWithSchoolDTO } from '../user/user-profileWithSchool.dto';
 import { SignUpRandomParam } from './auth-signup-random.param';
+import jwt from 'jsonwebtoken';
+import path from 'path';
+import AppleAuth from 'apple-auth';
+import fs from 'fs';
+import * as appleConfig from '../../secrets/config.json';
+
 @ApiTags('Auth')
 @Controller('/auth')
 export class AuthController {
@@ -114,28 +120,46 @@ export class AuthController {
    * @Apple
    */
   // /auth/apple
-  @Post('apple')
-  @ApiOperation({
-    summary: '애플 로그인',
-    description: '애플 로그인을 진행합니다.',
-  })
-  @ApiOkResponse({ description: '애플 로그인 성공' })
-  @ApiQuery({ name: 'token' })
-  @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
-  async appleLogin(@Query('token') token: string): Promise<any> {
-    console.log('token:', token);
-    if (!token) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: 'token 에러',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+  // @Post('apple')
+  // @ApiOperation({
+  //   summary: '애플 로그인',
+  //   description: '애플 로그인을 진행합니다.',
+  // })
+  // @ApiOkResponse({ description: '애플 로그인 성공' })
+  // @ApiQuery({ name: 'token' })
+  // @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  // async appleLogin(@Query('token') token: string): Promise<any> {
+  //   const auth = new AppleAuth(
+  //     appleConfig,
+  //     path.join(__dirname, `../../secrets/${appleConfig.private_key_path}`),
+  //     'form_post',
+  //   );
+  //   console.log(auth);
 
-    return this.authService.appleLogin(token);
-  }
+  //   console.log('token:', token);
+  //   if (!token) {
+  //     throw new HttpException(
+  //       {
+  //         status: HttpStatus.BAD_REQUEST,
+  //         error: 'token 에러',
+  //       },
+  //       HttpStatus.BAD_REQUEST,
+  //     );
+  //   }
+  //   const data = await auth.accessToken(token);
+  //   const idToken = jwt.decode(data.id_token);
+  //   console.log(idToken);
+  //   return idToken;
+  // }
+
+  // @Get('apple')
+  // @ApiOperation({
+  //   summary: '애플 로그인',
+  //   description: '애플 로그인을 진행합니다.',
+  // })
+  // @ApiOkResponse({ description: '애플 로그인 성공' })
+  // @ApiUnauthorizedResponse({ description: 'Invalid Credential' })
+  // async getAppleLogin(req, res) {}
 
   @Post('/validate')
   @ApiOperation({

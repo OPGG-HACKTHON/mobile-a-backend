@@ -134,6 +134,10 @@ export class LOLService implements OnApplicationBootstrap {
     return { tier, rank, leaguePoints, wins, losses };
   }
 
+  async getPointByTier(tierInfo: Tier) {
+    return this.tierTovalue(tierInfo);
+  }
+
   private async upsertLOLAccount(param: SUMMONER): Promise<SUMMONER> {
     return await this.prisma.lOLAccount.upsert({
       where: {

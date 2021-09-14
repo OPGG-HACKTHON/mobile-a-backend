@@ -7,11 +7,13 @@ import { LOLService } from '../lol/lol.service';
 import { User } from '@prisma/client';
 import { UserCreateParam } from './user-create.param';
 import { ProfileWithSchoolDTO } from './user-profileWithSchool.dto';
+import { SchoolService } from '../school/school.service';
 @Injectable()
 export class UserService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly lolService: LOLService,
+    private readonly schoolService: SchoolService,
   ) {}
   private readonly DOMAIN_URL = 'https://static.opggmobilea.com/';
   private readonly PROFILE_IMAGE_URL =
@@ -131,6 +133,12 @@ export class UserService {
       const lolAccountId = await this.lolService.upsertLOLAccountByLOLName(
         param.LOLNickName,
       );
+
+      await this.schoolService.updateSchoolTotalPoint(
+        param.LOLNickName,
+        param.schoolId,
+      );
+
       const result = await this.prisma.user.create({
         data: {
           authFrom: param.authFrom,

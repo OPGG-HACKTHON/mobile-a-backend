@@ -60,6 +60,7 @@ model School {
   educationOffice  String
   address          String
   imageUrl         String
+  totalPoint       Int                @default(0)
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
   Region           Region             @relation(fields: [regionId], references: [id])
