@@ -22,6 +22,7 @@ CREATE TABLE "User" (
     "role" "Role" NOT NULL DEFAULT E'USER',
     "LOLAccountId" TEXT,
     "schoolId" TEXT NOT NULL,
+    "selectedTitleId" INTEGER,
 
     PRIMARY KEY ("id")
 );

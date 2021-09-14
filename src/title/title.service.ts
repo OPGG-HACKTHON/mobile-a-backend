@@ -1,6 +1,8 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import got from 'got';
+import { TitleDTO } from './title.dto';
+import { TitleLogDTO, TitleStatus } from './title-log.dto';
 
 @Injectable()
 export class TitleService implements OnApplicationBootstrap {
@@ -82,5 +84,69 @@ export class TitleService implements OnApplicationBootstrap {
         return { exposureTitle: defaultTitle };
       }),
     });
+  }
+
+  async getTitlesByUserId(userId: number): Promise<TitleDTO[]> {
+    const titles = await this.prisma.titleInSchool.findMany({
+      take: 15,
+      where: {
+        OR: [
+          {
+            titleholderUserId: userId,
+          },
+          {
+            titleholderUserId: null,
+          },
+        ],
+      },
+    });
+    const results: TitleDTO[] = titles.map(({ id, exposureTitle }) => {
+      return { id: id, exposureName: exposureTitle };
+    });
+    return results;
+  }
+
+  async getTitleLogsByUserId(userId: number): Promise<TitleLogDTO[]> {
+    const titleLogs = await this.prisma.titleInSchoolLog.findMany({
+      take: 15,
+      where: {
+        OR: [{ titleholderUserId: userId }, { prevUserId: userId }],
+      },
+      include: {
+        TitleInSchool: true,
+      },
+      orderBy: [
+        {
+          createdAt: 'desc',
+        },
+      ],
+    });
+    const results: TitleLogDTO[] = titleLogs.map((titleLog) => {
+      return {
+        id: titleLog.id,
+        exposureName: titleLog.TitleInSchool.exposureTitle,
+        titleStatus:
+          titleLog.titleholderUserId === userId
+            ? TitleStatus.GET
+            : TitleStatus.LOSE,
+        createdAt: titleLog.createdAt,
+      };
+    });
+    return results;
+  }
+
+  async setUserTitleByTitleId(
+    userId: number,
+    titleId: number,
+  ): Promise<boolean> {
+    await this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        selectedTitleId: titleId,
+      },
+    });
+    return true;
   }
 }

@@ -27,7 +27,7 @@ export class TitleController {
   //titles/users/:id
   @Get('/users/:id')
   @ApiOperation({
-    summary: 'mock 유저의 타이틀 리스트 조회',
+    summary: '유저의 타이틀 리스트 조회',
     description: '유저 타이틀 리스트를 조회 합니다.',
   })
   @ApiOkResponse({
@@ -39,12 +39,8 @@ export class TitleController {
   async getTitlesByUserId(
     @Param('id', ParseIntPipe) userId: number,
   ): Promise<TitleDTO[]> {
-    return [
-      { id: 1, exposureName: '서울고 가렌 장인' },
-      { id: 4, exposureName: '과학 천재' },
-      { id: 5, exposureName: '죽지 않는' },
-      { id: 6, exposureName: '매일 죽어있는' },
-    ];
+    // todo test
+    return await this.titleService.getTitlesByUserId(userId);
   }
 
   //titles/users/:id/logs
@@ -62,44 +58,8 @@ export class TitleController {
   async getTitleLogsByUserId(
     @Param('id', ParseIntPipe) userId: number,
   ): Promise<TitleLogDTO[]> {
-    return [
-      {
-        id: 444,
-        exposureName: '서울고 가렌 장인',
-        titleStatus: TitleStatus.GET,
-        createdAt: new Date('2021-09-07'),
-      },
-      {
-        id: 333,
-        exposureName: '과학 천재',
-        titleStatus: TitleStatus.GET,
-        createdAt: new Date('2021-09-05'),
-      },
-      {
-        id: 222,
-        exposureName: '과학 천재',
-        titleStatus: TitleStatus.LOSE,
-        createdAt: new Date('2021-09-04'),
-      },
-      {
-        id: 111,
-        exposureName: '과학 천재',
-        titleStatus: TitleStatus.GET,
-        createdAt: new Date('2021-09-04'),
-      },
-      {
-        id: 10,
-        exposureName: '죽지 않는',
-        titleStatus: TitleStatus.GET,
-        createdAt: new Date('2021-09-03'),
-      },
-      {
-        id: 3,
-        exposureName: '매일 죽어있는',
-        titleStatus: TitleStatus.GET,
-        createdAt: new Date('2021-09-02'),
-      },
-    ];
+    // todo test
+    return await this.titleService.getTitleLogsByUserId(userId);
   }
 
   // put /titles/users/:id
@@ -113,8 +73,9 @@ export class TitleController {
   @ApiBody({ type: TitleParam })
   @HttpCode(204)
   async setTitleByUserIdAndTitleInSchoolId(
+    @Param('id', ParseIntPipe) userId: number,
     @Body() param: TitleParam,
   ): Promise<boolean> {
-    return true;
+    return await this.titleService.setUserTitleByTitleId(userId, param.id);
   }
 }

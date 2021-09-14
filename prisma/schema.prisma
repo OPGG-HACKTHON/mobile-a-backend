@@ -36,6 +36,7 @@ model User {
   LOLAccountId                String?
   schoolId                    String
   School                      School             @relation(fields: [schoolId], references: [id])
+  selectedTitleId             Int?
   Token                       Token[]
   LOLRankInSchool             LOLRankInSchool[]
   TitleInSchoolLogTitleholder TitleInSchoolLog[] @relation("TitleInSchoolLogTitleholder")
