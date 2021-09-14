@@ -15,7 +15,6 @@ import { LOLModule } from '../../src/lol/lol.module';
 import { AuthService } from '../../src/auth/auth.service';
 import { AuthModule } from '../../src/auth/auth.module';
 import { GoogleAuthService } from '../../src/auth/passport/google-auth.service';
-import { AppleService } from '../../src/auth/passport/apple-auth.service';
 import { TitleModule } from '../../src/title/title.module';
 import { TitleService } from '../../src/title/title.service';
 import { SchoolService } from '../../src/school/school.service';
@@ -46,7 +45,6 @@ describe('simple etst', () => {
         LOLService,
         AuthService,
         GoogleAuthService,
-        AppleService,
         TitleService,
         SchoolService,
       ],

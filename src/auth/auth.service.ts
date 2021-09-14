@@ -13,7 +13,6 @@ import { LoginParam } from './auth-login.param';
 import { LoginDTO } from './auth-login.dto';
 import { TokenDTO } from './auth-token.dto';
 import { UserDTO } from '../common/dto/user.dto';
-import { AppleService } from './passport/apple-auth.service';
 import { ProfileWithSchoolDTO } from 'src/user/user-profileWithSchool.dto';
 import { LOLTierParam, SignUpRandomParam } from './auth-signup-random.param';
 import { LOLService } from '../lol/lol.service';
@@ -24,7 +23,6 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly userService: UserService,
     private readonly googleAuthService: GoogleAuthService,
-    private readonly appleService: AppleService,
     private readonly lolService: LOLService,
   ) {}
 
@@ -220,14 +218,6 @@ export class AuthService {
         HttpStatus.NON_AUTHORITATIVE_INFORMATION,
       );
     }
-  }
-
-  /**
-   * @Apple
-   */
-  async appleLogin(token: any) {
-    console.log('... apple oauth test ...');
-    return this.appleService.verifyUser(token);
   }
 
   private OauthTokenToToken(authFrom: string, token: string): string {

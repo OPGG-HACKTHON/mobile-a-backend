@@ -11,7 +11,6 @@ import { GoogleAuthService } from '../../src/auth/passport/google-auth.service';
 import { LOLModule } from '../../src/lol/lol.module';
 import { PrismaModule } from '../../src/prisma/prisma.module';
 import { UserModule } from '../../src/user/user.module';
-import { AppleService } from '../../src/auth/passport/apple-auth.service';
 import { SchoolService } from '../../src/school/school.service';
 
 describe('apple oauth test', () => {
@@ -28,7 +27,6 @@ describe('apple oauth test', () => {
         LOLService,
         AuthService,
         GoogleAuthService,
-        AppleService,
         SchoolService,
       ],
     })

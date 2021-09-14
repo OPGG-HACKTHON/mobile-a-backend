@@ -17,14 +17,12 @@ import { PrismaService } from '../../src/prisma/prisma.service';
 import { PrismaModule } from '../../src/prisma/prisma.module';
 import { UserService } from '../../src/user/user.service';
 import { GoogleAuthService } from '../../src/auth/passport/google-auth.service';
-import { AppleService } from '../../src/auth/passport/apple-auth.service';
 import { SchoolService } from '../../src/school/school.service';
 //
 describe('simple etst', () => {
   let app: INestApplication;
   const prismaService = new PrismaService();
   const googleAuthService = new GoogleAuthService();
-  const appleService = new AppleService();
   const lolService = new LOLService(prismaService);
   const schoolService = new SchoolService(prismaService, lolService);
   const userService = new UserService(prismaService, lolService, schoolService);
@@ -32,7 +30,6 @@ describe('simple etst', () => {
     prismaService,
     userService,
     googleAuthService,
-    appleService,
     lolService,
   );
   beforeEach(async () => {

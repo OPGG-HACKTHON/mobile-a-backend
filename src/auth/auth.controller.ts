@@ -27,11 +27,6 @@ import { LoginParam } from './auth-login.param';
 import { LoginDTO } from './auth-login.dto';
 import { ProfileWithSchoolDTO } from '../user/user-profileWithSchool.dto';
 import { SignUpRandomParam } from './auth-signup-random.param';
-import jwt from 'jsonwebtoken';
-import path from 'path';
-import AppleAuth from 'apple-auth';
-import fs from 'fs';
-import * as appleConfig from '../../secrets/config.json';
 
 @ApiTags('Auth')
 @Controller('/auth')
