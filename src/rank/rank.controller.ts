@@ -178,7 +178,7 @@ export class RankController {
     '/champions/:championId/compareFields/:compareFieldId/schools/:schoolId/users/:userId',
   )
   @ApiOperation({
-    summary: 'mock 학교내 챔피언 개인순위 조회',
+    summary: '학교내 챔피언 개인순위 조회',
     description: '학교내 챔피언 실력 개인 순위 조회 진행합니다.',
   })
   @ApiOkResponse({
@@ -192,27 +192,11 @@ export class RankController {
     @Param('schoolId') schoolId: string,
     @Param('userId', ParseIntPipe) userId: number,
   ): Promise<ProfileRankWithCompareField> {
-    return {
-      fieldName: '',
-      value: '',
-      rankNo: 123,
-      rankChangedStatus: RankChangedStatus.NEW,
-      id: 213,
-      lol: {
-        name: '',
-        profileIconId: 123,
-        profileIconImageUrl: '',
-        summonerLevel: 123,
-        tierInfo: {
-          tier: '',
-          rank: '',
-          leaguePoints: 123,
-        },
-      },
-      title: {
-        id: 123,
-        exposureName: '다리우스 장인',
-      },
-    };
+    return await this.rankService.getProfileRankWithCompareFieldByParams(
+      championId,
+      compareFieldId,
+      schoolId,
+      userId,
+    );
   }
 }

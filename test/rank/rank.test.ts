@@ -155,5 +155,29 @@ describe('simple etst', () => {
     expect(resMasterySchool.body[1].rankChangedStatus).toBe('NEW');
     expect(resMasterySchool.body[1].value).toBeTruthy();
     expect(resMasterySchool.body[1].rankNo).toBe(2);
+
+    // 개인 르블랑 숙련도 순위
+    const resMasterySchooluser = await request(app.getHttpServer())
+      .get(encodeURI('/ranks/champions/7/compareFields/25/schools/1/users/1'))
+      .set('Accept', 'application/json')
+      .type('application/json');
+    expect(resMasterySchooluser.body.id).toBe(1);
+    expect(resMasterySchooluser.body.lol.name).toBe('KkangSan');
+    expect(resMasterySchooluser.body.fieldName).toBe('숙련도');
+    expect(resMasterySchooluser.body.rankChangedStatus).toBe('NEW');
+    expect(resMasterySchooluser.body.value).toBeTruthy();
+    expect(resMasterySchooluser.body.rankNo).toBe(2);
+
+    // maybe 아크샨 플레이 0회 숙련도 체크
+    const resMasterySchooluserMayBeNull = await request(app.getHttpServer())
+      .get(encodeURI('/ranks/champions/166/compareFields/25/schools/1/users/1'))
+      .set('Accept', 'application/json')
+      .type('application/json');
+    expect(resMasterySchooluserMayBeNull.body.id).toBe(1);
+    expect(resMasterySchooluserMayBeNull.body.lol.name).toBe('KkangSan');
+    expect(resMasterySchooluserMayBeNull.body.fieldName).toBe('숙련도');
+    expect(resMasterySchooluserMayBeNull.body.rankChangedStatus).toBe('SAME');
+    expect(resMasterySchooluserMayBeNull.body.value).toBe('-');
+    expect(resMasterySchooluserMayBeNull.body.rankNo).toBe(0);
   });
 });
