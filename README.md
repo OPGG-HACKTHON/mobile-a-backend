@@ -1,22 +1,99 @@
+# CHAI Server
 
-## Docker setup
+<p align="center">
+<!-- <img src="https://user-images.githubusercontent.com/54793607/133380331-9af0053a-c2e4-41ce-b2b7-33203cfa8828.png" width=200px height=200px> -->
+<img src="https://user-images.githubusercontent.com/54793607/133405364-e2753cdd-812a-4320-b544-80a3886e73ec.jpeg">
+</p>
+
+## 차이
+
+<strong>더욱 재밌게 즐기는 리그오브레전드 랭킹, 타이틀 앱 서비스</strong>
+
+> <strong>OPGG 1th HACKATHON</strong><br>
+> 프로젝트 기간: 2021.07.05 ~ 09.17
+
+<br>
+<br>
+
+### <strong>CHAI Server</strong>
+
+|                                       |                                                   |
+| :-----------------------------------: | :-----------------------------------------------: |
+|                김강산                 |                      권세훈                       |
+| [whywhyy](https://github.com/whywhyy) | [devkwonsehoon](https://github.com/devkwonsehoon) |
+
+<br>
+<br>
+
+### <strong>CHAI Used</strong>
+
+<br>
+<img alt="NestJS" src="https://img.shields.io/badge/NestJS-E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white"/>
+<img alt="TypeScript" src="https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white"/>
+<img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL-4169E1.svg?style=for-the-badge&logo=postgresql&logoColor=white"/>
+<img alt="Prisma
+" src="https://img.shields.io/badge/Prisma
+-2D3748.svg?style=for-the-badge&logo=Prisma
+&logoColor=white"/>
+<img alt="AWS" src="https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white"/><br>
+<img alt="Jest" src="https://img.shields.io/badge/Jest-C21325.svg?style=for-the-badge&logo=jest&logoColor=white"/>
+<img alt="Docker" src="https://img.shields.io/badge/Docker-2496ED.svg?style=for-the-badge&logo=Docker&logoColor=white"/>
+<img alt="Riot Games
+" src="https://img.shields.io/badge/Riot Games
+-D32936.svg?style=for-the-badge&logo=Riot Games
+&logoColor=white"/>
+<img alt="Prettier" src="https://img.shields.io/badge/Prettier-F7B93E.svg?style=for-the-badge&logo=Prettier&logoColor=black"/>
+<img alt="ESLint" src="https://img.shields.io/badge/ESLint-4B32C3.svg?style=for-the-badge&logo=ESLint&logoColor=white"/>
+<br>
+<br>
+<br>
+
+### <strong>CHAI API Docs</strong>
+
+[차이 API 명세서](https://api.opggmobilea.com/docs/)
+
+<br>
+<br>
+
+### <strong>CHAI Server Architecture</strong>
+
+![무제 001](https://user-images.githubusercontent.com/54793607/133400949-f690aacc-8e3f-4010-beed-0093d943e3c6.png)
+
+<br>
+<br>
+
+### <strong>CHAI Settings</strong>
+
+<details>
+  <summary><b>Docker Setup</b></summary>
 
 ```bash
 # postgresql - 추가사항 : AWS Aurora PostgreSQL LTS version 11.9.
 docker run --name postgresmobilea -e POSTGRES_PASSWORD=postgresmobilea -e POSTGRES_USER=postgresmobilea -e POSTGRES_DB=mobilea -p 5432:5432 -d postgres:11.9
 
-# # # # # # # # # # # #
-## prod run for local #
-# # # # # # # # # # # #
+#
+
+## prod run for local
+
+#
+
 npm install
+
 # npm run db-push:local
+
 npm run build
 docker build -t mobilea .
+
 # prod docker image run
+
 docker run -it -p 2000:3000/tcp --link postgresmobilea:postgresmobilea -e SCHEMA_NAME='localschema' -e DATABASE_URL="postgresql://postgresmobilea:postgresmobilea@postgresmobilea:5432/mobilea?schema=localschema" -e LOL_API_KEY='@@@@@@@APIKEY@@@@@@@' -e PORT=3000 --name mobilea mobilea
+
 ```
 
-## Prisma 사용법
+</details>
+
+<details>
+  <summary><b>Prisma Guide</b></summary>
 
 ```bash
 # # #
@@ -46,76 +123,4 @@ npm run db-push:local
 
 ```
 
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Installation
-
-```bash
-$ npm install
-```
-
-## Running the app
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+</details>
