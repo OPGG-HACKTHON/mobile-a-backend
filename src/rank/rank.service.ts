@@ -54,20 +54,21 @@ export class RankService {
     });
 
     const results: ProfileRank[] = [];
-    for (const [idx, lolRankInSchool] of lolRanksInSchool.entries()) {
-      // userIds
-      const { ...rest } = await this.userService.getProfileByUserId(
-        lolRankInSchool.userId,
-      );
+    const profilePromises = lolRanksInSchool.map((lolRankInSchool) => {
+      return this.userService.getProfileByUserId(lolRankInSchool.userId);
+    });
+    const profiles = await Promise.all(profilePromises);
+
+    for (const [idx, profile] of profiles.entries()) {
       const rankNo = idx + 1;
       const rankChangedStatus = this.makeRankChangedStatusByNowRankAndPrevRank(
         rankNo,
-        lolRankInSchool.prevRank,
+        lolRanksInSchool[idx].prevRank,
       );
       const inputProfile = {
         rankNo: rankNo,
         rankChangedStatus: rankChangedStatus,
-        ...rest,
+        ...profile,
       };
       results.push(inputProfile);
     }
@@ -135,14 +136,18 @@ export class RankService {
     });
     const fieldName = field.LOLMatchFieldKoName;
 
-    for (const [idx, param] of params.entries()) {
-      const profile = await this.userService.getProfileByUserId(param.userId);
+    const profilePromises = params.map((param) => {
+      return this.userService.getProfileByUserId(param.userId);
+    });
+    const profiles = await Promise.all(profilePromises);
+
+    for (const [idx, profile] of profiles.entries()) {
       const rankNo = idx + 1;
       const rankChangedStatus = this.makeRankChangedStatusByNowRankAndPrevRank(
         rankNo,
-        param.prevRank,
+        params[idx].prevRank,
       );
-      const value = param.LOLSummaryPersonal.exposureValue;
+      const value = params[idx].LOLSummaryPersonal.exposureValue;
 
       const result = {
         ...profile,
