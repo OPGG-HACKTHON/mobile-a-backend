@@ -13,7 +13,6 @@
 > 프로젝트 기간: 2021.07.05 ~ 09.17
 
 <br>
-<br>
 
 ### <strong>CHAI Server</strong>
 
@@ -23,29 +22,23 @@
 | [whywhyy](https://github.com/whywhyy) | [devkwonsehoon](https://github.com/devkwonsehoon) |
 
 <br>
-<br>
 
 ### <strong>CHAI Used</strong>
 
 <br>
+<p>
 <img alt="NestJS" src="https://img.shields.io/badge/NestJS-E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white"/>
 <img alt="TypeScript" src="https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white"/>
 <img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL-4169E1.svg?style=for-the-badge&logo=postgresql&logoColor=white"/>
-<img alt="Prisma
-" src="https://img.shields.io/badge/Prisma
--2D3748.svg?style=for-the-badge&logo=Prisma
-&logoColor=white"/>
+<img alt="Prisma" src="https://img.shields.io/badge/Prisma-2D3748.svg?style=for-the-badge&logo=Prisma&logoColor=white"/>
 <img alt="AWS" src="https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white"/><br>
 <img alt="Jest" src="https://img.shields.io/badge/Jest-C21325.svg?style=for-the-badge&logo=jest&logoColor=white"/>
 <img alt="Docker" src="https://img.shields.io/badge/Docker-2496ED.svg?style=for-the-badge&logo=Docker&logoColor=white"/>
-<img alt="Riot Games
-" src="https://img.shields.io/badge/Riot Games
--D32936.svg?style=for-the-badge&logo=Riot Games
-&logoColor=white"/>
+<img alt="Riot Games" src="https://img.shields.io/badge/Riot Games-D32936.svg?style=for-the-badge&logo=Riot Games&logoColor=white"/>
 <img alt="Prettier" src="https://img.shields.io/badge/Prettier-F7B93E.svg?style=for-the-badge&logo=Prettier&logoColor=black"/>
 <img alt="ESLint" src="https://img.shields.io/badge/ESLint-4B32C3.svg?style=for-the-badge&logo=ESLint&logoColor=white"/>
-<br>
-<br>
+</p>
+  
 <br>
 
 ### <strong>CHAI API Docs</strong>
@@ -53,13 +46,11 @@
 [차이 API 명세서](https://api.opggmobilea.com/docs/)
 
 <br>
-<br>
 
 ### <strong>CHAI Server Architecture</strong>
 
 ![무제 001](https://user-images.githubusercontent.com/54793607/133400949-f690aacc-8e3f-4010-beed-0093d943e3c6.png)
 
-<br>
 <br>
 
 ### <strong>CHAI Settings</strong>
