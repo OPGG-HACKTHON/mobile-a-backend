@@ -155,6 +155,7 @@ export class RankService {
         rankChangedStatus,
         value,
         fieldName,
+        fieldTitle: field.exposureName,
       };
       results.push(result);
     }
@@ -235,6 +236,7 @@ export class RankService {
       value: '-',
       rankNo: 0,
       rankChangedStatus: RankChangedStatus.SAME,
+      fieldTitle: field.exposureName,
       ...profile,
     };
     for (const [index, element] of LOLRankInSchool.entries()) {
