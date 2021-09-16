@@ -15,6 +15,9 @@ export class LOLCompareFieldDetailDTO {
 
   @ApiProperty()
   enName: string;
+
+  @ApiProperty()
+  title: string;
 }
 
 export class LOLCompareFieldDTO {

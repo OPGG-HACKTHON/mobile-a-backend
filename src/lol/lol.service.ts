@@ -910,6 +910,7 @@ export class LOLService implements OnApplicationBootstrap {
         category: element.LOLMatchFieldCategory,
         name: element.LOLMatchFieldKoName,
         enName: element.LOLMatchFieldName,
+        title: element.exposureName,
       };
       if (!detaileArr) {
         const arr: LOLCompareFieldDetailDTO[] = [];
