@@ -50,18 +50,24 @@ describe('school data test', () => {
 
   it('search schools with division ', async () => {
     const res = await request(app.getHttpServer())
-      .get(encodeURI('/schools/search?searchWord=선학&division=초등학교'))
+      .get(
+        encodeURI(
+          '/schools/search?searchWord=부일외국어고등학교&division=고등학교',
+        ),
+      )
       .set('Accept', 'application/json')
       .type('application/json');
 
-    expect(res.body.length).toBe(2);
+    expect(res.body.length).toBe(1);
     expect(res.body[0].id).toBeTruthy();
     expect(res.body[0].name).toBeTruthy();
     expect(res.body[0].division).toBeTruthy();
     expect(res.body[0].regionId).toBeTruthy();
     expect(res.body[0].address).toBeTruthy();
     expect(res.body[0].imageUrl).toBe(
-      'https://static.opggmobilea.com/dragontail-11.18.1/11.18.1/img/profileicon/3458.png',
+      encodeURI(
+        'https://static.opggmobilea.com/school/img/경기고등학교.png',
+      ),
     );
   });
 });
