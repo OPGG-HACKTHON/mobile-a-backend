@@ -285,18 +285,6 @@ export class LOLService implements OnApplicationBootstrap {
         id: userId,
       },
     });
-    //
-    const tierValue = this.tierTovalue(lolTier);
-    await this.prisma.school.update({
-      where: {
-        id: user.schoolId,
-      },
-      data: {
-        totalvalue: {
-          increment: tierValue,
-        },
-      },
-    });
 
     // Tier
     const lOLSummaryPersonal = await this.prisma.lOLSummaryPersonal.findFirst({
@@ -327,6 +315,43 @@ export class LOLService implements OnApplicationBootstrap {
 
     // title - setUp
     await this.setTitlesByLOLAccountIdAndUser(lolAccountId, user);
+
+    // school totalvalue
+    await this.setSchoolTotalValueBySchoolId(user.schoolId);
+  }
+
+  async setSchoolTotalValueBySchoolId(schoolId: string): Promise<void> {
+    const topUsers = await this.prisma.lOLRankInSchool.findMany({
+      take: 100,
+      where: {
+        schoolId: schoolId,
+        LOLSummaryElement: {
+          LOLMatchFieldName: '티어',
+        },
+      },
+      include: {
+        LOLSummaryPersonal: true,
+      },
+      orderBy: {
+        LOLSummaryPersonal: {
+          value: 'desc',
+        },
+      },
+    });
+    let totalValue = 0;
+    topUsers.forEach((topUser) => {
+      totalValue += topUser.LOLSummaryPersonal.value;
+    });
+    await this.prisma.school.update({
+      where: {
+        id: schoolId,
+      },
+      data: {
+        totalvalue: {
+          increment: totalValue,
+        },
+      },
+    });
   }
 
   async setTitlesByLOLAccountIdAndUser(
