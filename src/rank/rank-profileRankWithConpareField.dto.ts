@@ -7,4 +7,7 @@ export class ProfileRankWithCompareField extends ProfileRank {
 
   @ApiProperty()
   value: string;
+
+  @ApiProperty()
+  fieldTitle: string;
 }
