@@ -53,6 +53,10 @@
 
 <br>
 
+### <strong>CHAI DataBase ERD </strong>
+<img width="968" alt="db" src="https://user-images.githubusercontent.com/54793607/133621232-c3e8d8f6-dbef-4f7d-a438-fa215c9e898a.png">
+
+
 ### <strong>CHAI Settings</strong>
 
 <details>
