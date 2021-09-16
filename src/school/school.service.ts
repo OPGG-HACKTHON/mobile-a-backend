@@ -8,7 +8,31 @@ import { SearchParam } from './school.param';
 export class SchoolService implements OnApplicationBootstrap {
   constructor(private prisma: PrismaService) {}
 
-  private convertSchoolToSchool(row: string[]): {
+  private readonly SCHOOL_IMAGE_URL =
+    'https://static.opggmobilea.com/school/img';
+
+  private readonly SCHOOL_IMAGE_NAMES: string[] = [
+    '경기고등학교.png',
+    '고양예술고등학교.png',
+    '대성고등학교.png',
+    '동산고등학교.png',
+    '마포고등학교.png',
+    '보성고등학교.png',
+    '분당중앙고등학교.png',
+    '서울디자인고등학교.png',
+    '서울예술고등학교.png',
+    '선화고등학교.png',
+    '양정고등학교.png',
+    '인덕과학기술고등학교.png',
+    '중앙고등학교.png',
+    '풍생고등학교.png',
+    '현대고등학교.png',
+  ];
+
+  private convertSchoolToSchool(
+    row: string[],
+    index: number,
+  ): {
     id: string;
     name: string;
     division: string;
@@ -17,24 +41,16 @@ export class SchoolService implements OnApplicationBootstrap {
     imageUrl: string;
   } {
     const division = row[2];
-    let imageUrl = '';
-    if (division === '초등학교') {
-      imageUrl =
-        'https://static.opggmobilea.com/dragontail-11.18.1/11.18.1/img/profileicon/3458.png';
-    } else if (division === '중학교') {
-      imageUrl =
-        'https://static.opggmobilea.com/dragontail-11.18.1/11.18.1/img/profileicon/3457.png';
-    } else if (division === '고등학교') {
-      imageUrl =
-        'https://static.opggmobilea.com/dragontail-11.18.1/11.18.1/img/profileicon/3456.png';
-    }
+    const imageNameIdx = index % this.SCHOOL_IMAGE_NAMES.length;
+    const imageUrl =
+      this.SCHOOL_IMAGE_URL + '/' + this.SCHOOL_IMAGE_NAMES[imageNameIdx];
     return {
       id: row[0],
       name: row[1],
       division: division,
       educationOffice: row[10],
       address: row[8],
-      imageUrl: imageUrl,
+      imageUrl: encodeURI(imageUrl),
     };
   }
 
@@ -57,8 +73,10 @@ export class SchoolService implements OnApplicationBootstrap {
   private parseRegionsListBySchoolParam(param: string[][]): string[] {
     const result = [
       ...new Set(
-        param.map((row) =>
-          this.schoolAddressToRegion(this.convertSchoolToSchool(row).address),
+        param.map((row, index) =>
+          this.schoolAddressToRegion(
+            this.convertSchoolToSchool(row, index).address,
+          ),
         ),
       ),
     ].sort();
@@ -92,8 +110,8 @@ export class SchoolService implements OnApplicationBootstrap {
     const regionNameToIdMap: Map<string, number> = new Map();
     regions.forEach((region) => regionNameToIdMap.set(region.name, region.id));
 
-    const inputSchools = rawSchools.map((raw) => {
-      const row = this.convertSchoolToSchool(raw);
+    const inputSchools = rawSchools.map((raw, index) => {
+      const row = this.convertSchoolToSchool(raw, index);
       return {
         id: row.id,
         name: row.name,
@@ -106,10 +124,16 @@ export class SchoolService implements OnApplicationBootstrap {
         imageUrl: row.imageUrl,
       };
     });
-    await this.prisma.school.createMany({
-      data: inputSchools,
-      skipDuplicates: true,
+    const upsertPromises = inputSchools.map((inputSchool) => {
+      return this.prisma.school.upsert({
+        where: {
+          id: inputSchool.id,
+        },
+        create: { ...inputSchool },
+        update: { imageUrl: inputSchool.imageUrl },
+      });
     });
+    await Promise.all(upsertPromises);
   }
 
   async getSchoolListBySearchParamOptionalDivision(
