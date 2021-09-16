@@ -124,16 +124,20 @@ export class SchoolService implements OnApplicationBootstrap {
         imageUrl: row.imageUrl,
       };
     });
-    const upsertPromises = inputSchools.map((inputSchool) => {
-      return this.prisma.school.upsert({
-        where: {
-          id: inputSchool.id,
-        },
-        create: { ...inputSchool },
-        update: { imageUrl: inputSchool.imageUrl },
+    const schoolCount = await this.prisma.school.count();
+    if (!schoolCount) {
+      // skip school update
+      const upsertPromises = inputSchools.map((inputSchool) => {
+        return this.prisma.school.upsert({
+          where: {
+            id: inputSchool.id,
+          },
+          create: { ...inputSchool },
+          update: { imageUrl: inputSchool.imageUrl },
+        });
       });
-    });
-    await Promise.all(upsertPromises);
+      await Promise.all(upsertPromises);
+    }
   }
 
   async getSchoolListBySearchParamOptionalDivision(
