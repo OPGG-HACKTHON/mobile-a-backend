@@ -347,9 +347,7 @@ export class LOLService implements OnApplicationBootstrap {
         id: schoolId,
       },
       data: {
-        totalvalue: {
-          increment: totalValue,
-        },
+        totalvalue: totalValue,
       },
     });
   }
